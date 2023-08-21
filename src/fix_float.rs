@@ -1,7 +1,7 @@
 use std::ops;
 use std::cmp;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct FixFloat(i64);
 
 impl FixFloat {
@@ -87,6 +87,14 @@ pub fn fast_square_root(value: i64) -> i64 {
     let b = a + 1;
 
     if b * b > value { a } else { b }
+}
+
+impl ops::Neg for FixFloat {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        FixFloat(-self.0)
+    }
 }
 
 impl ops::Add for FixFloat {
