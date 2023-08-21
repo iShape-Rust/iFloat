@@ -60,25 +60,22 @@ impl FixFloat {
         FixFloat(self.0 >> Self::FRACTION_BITS)
     }
 
-    pub fn normalize(&self) -> FixFloat {
-        FixFloat(self.0 / Self::UNIT)
-    }
-
-    pub fn sqr_normalize(&self) -> FixFloat {
-        FixFloat(self.0 / Self::SQR_UNIT)
-    }
-
-    pub fn fast_normalize(&self) -> FixFloat {
-        FixFloat(self.0 >> Self::FRACTION_BITS)
-    }
-
     pub fn clamp(&self, min: FixFloat, max: FixFloat) -> FixFloat {
         FixFloat(std::cmp::min(max.0, std::cmp::max(min.0, self.0)))
     }
-
     pub fn invert(&self) -> FixFloat {
         FixFloat(Self::SQR_UNIT / self.0)
     }
+}
+
+pub fn normalize(value: i64) -> FixFloat {
+    FixFloat(value / FixFloat::UNIT)
+}
+pub fn fast_normalize(value: i64) -> FixFloat {
+    FixFloat(value >> FixFloat::FRACTION_BITS)
+}
+pub fn sqr_normalize(value: i64) -> FixFloat {
+    FixFloat(value / FixFloat::SQR_UNIT)
 }
 
 pub fn fix(value: f64) -> FixFloat {
@@ -105,6 +102,24 @@ impl ops::Sub for FixFloat {
 
     fn sub(self, other: Self) -> Self {
         FixFloat(self.0 - other.0)
+    }
+}
+
+impl ops::Mul for FixFloat {
+
+    type Output = Self;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        normalize(self.0 * rhs.0)
+    }
+}
+
+impl ops::Div for FixFloat {
+
+    type Output = Self;
+
+    fn div(self, rhs: Self) -> Self::Output {
+        normalize(self.0 * rhs.0)
     }
 }
 

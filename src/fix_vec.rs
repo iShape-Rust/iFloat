@@ -44,7 +44,33 @@ impl FixVec {
         let sqrt = fix_float::fast_square_root(sqr);
         FixFloat::new_i64(sqrt)
     }
+
+    pub fn normalize(&self) -> FixVec {
+        let l = self.length();
+        let s = (1 << 30) / l.value();
+        let xx = fix_float::sqr_normalize(s * self.x.value());
+        let yy = fix_float::sqr_normalize(s * self.y.value());
+
+        return FixVec::new_fix(xx, yy)
+    }
+
+    pub fn safe_normalize(&self) -> FixVec {
+        self.safe_normalize_with_def_value(FixVec::new_number(0,1))
+    }
+
+    pub fn safe_normalize_with_def_value(&self, def: FixVec) -> FixVec {
+        if self.is_zero() {
+            return def;
+        }
+        self.normalize()
+    }
+
+    pub fn half(&self) -> FixVec {
+        FixVec::new_i64(self.x.value() / 2, self.y.value() / 2)
+    }
+
 }
+
 
 impl ops::Add for FixVec {
     type Output = FixVec;
