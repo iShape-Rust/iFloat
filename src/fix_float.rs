@@ -32,38 +32,38 @@ impl FixFloat {
         FixFloat(value)
     }
 
-    pub fn div(&self, value: FixFloat) -> FixFloat {
+    pub fn div(self, value: FixFloat) -> FixFloat {
         FixFloat((self.0 << Self::FRACTION_BITS) / value.0)
     }
 
-    pub fn mul(&self, value: FixFloat) -> FixFloat {
+    pub fn mul(self, value: FixFloat) -> FixFloat {
         FixFloat((self.0 * value.0) / Self::UNIT)
     }
 
-    pub fn sqr(&self) -> FixFloat {
+    pub fn sqr(self) -> FixFloat {
         FixFloat((self.0 * self.0) >> Self::FRACTION_BITS)
     }
 
-    pub fn sqrt(&self) -> FixFloat {
+    pub fn sqrt(self) -> FixFloat {
         FixFloat(fast_square_root(self.0 << Self::FRACTION_BITS))
     }
 
-    pub fn double(&self) -> f64 {
+    pub fn double(self) -> f64 {
         self.0 as f64 / Self::UNIT as f64
     }
 
-    pub fn float(&self) -> f32 {
+    pub fn float(self) -> f32 {
         self.0 as f32 / Self::UNIT as f32
     }
 
-    pub fn int(&self) -> FixFloat {
+    pub fn int(self) -> FixFloat {
         FixFloat(self.0 >> Self::FRACTION_BITS)
     }
 
-    pub fn clamp(&self, min: FixFloat, max: FixFloat) -> FixFloat {
+    pub fn clamp(self, min: FixFloat, max: FixFloat) -> FixFloat {
         FixFloat(std::cmp::min(max.0, std::cmp::max(min.0, self.0)))
     }
-    pub fn invert(&self) -> FixFloat {
+    pub fn invert(self) -> FixFloat {
         FixFloat(Self::SQR_UNIT / self.0)
     }
 }

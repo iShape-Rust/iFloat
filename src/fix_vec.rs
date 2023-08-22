@@ -11,11 +11,11 @@ pub struct FixVec {
 impl FixVec {
     pub const ZERO: Self = Self { x: FixFloat::ZERO, y: FixFloat::ZERO };
 
-    pub fn is_zero(&self) -> bool {
+    pub fn is_zero(self) -> bool {
         self.x == FixFloat::ZERO && self.y == FixFloat::ZERO
     }
 
-    pub fn bit_pack(&self) -> i64 {
+    pub fn bit_pack(self) -> i64 {
         (self.x.value() << FixFloat::MAX_BITS) + self.y.value()
     }
 
@@ -31,13 +31,13 @@ impl FixVec {
         Self { x, y }
     }
 
-    pub fn sqr_length(&self) -> FixFloat {
+    pub fn sqr_length(self) -> FixFloat {
         let x = self.x.value();
         let y = self.y.value();
         FixFloat::new_i64((x * x + y * y) >> FixFloat::FRACTION_BITS)
     }
 
-    pub fn length(&self) -> FixFloat {
+    pub fn length(self) -> FixFloat {
         let x = self.x.value();
         let y = self.y.value();
         let sqr = x * x + y * y;
@@ -45,7 +45,7 @@ impl FixVec {
         FixFloat::new_i64(sqrt)
     }
 
-    pub fn normalize(&self) -> Self {
+    pub fn normalize(self) -> Self {
         let l = self.length();
         let s = (1 << 30) / l.value();
         let xx = fix_float::sqr_normalize(s * self.x.value());
@@ -54,65 +54,65 @@ impl FixVec {
         Self::new_fix(xx, yy)
     }
 
-    pub fn safe_normalize(&self) -> Self {
+    pub fn safe_normalize(self) -> Self {
         self.safe_normalize_with_def_value(Self::new_number(0,1))
     }
 
-    pub fn safe_normalize_with_def_value(&self, def: Self) -> Self {
+    pub fn safe_normalize_with_def_value(self, def: Self) -> Self {
         if self.is_zero() {
             return def;
         }
         self.normalize()
     }
 
-    pub fn half(&self) -> FixVec {
+    pub fn half(self) -> FixVec {
         FixVec::new_i64(self.x.value() / 2, self.y.value() / 2)
     }
 
-    pub fn dot_product(&self, v: &Self) -> FixFloat { // dot product (cos)
+    pub fn dot_product(self, v: Self) -> FixFloat { // dot product (cos)
         let xx = self.x * v.x;
         let yy = self.y * v.y;
         xx + yy
     }
 
-    pub fn unsafe_dot_product(&self, v: &Self) -> i64 { // dot product (cos)
+    pub fn unsafe_dot_product(self, v: Self) -> i64 { // dot product (cos)
         let xx = self.x.value() * v.x.value();
         let yy = self.y.value() * v.y.value();
         xx + yy
     }
 
-    pub fn cross_product(&self, v: &Self) -> FixFloat { // cross product
+    pub fn cross_product(self, v: Self) -> FixFloat { // cross product
         let a = self.x * v.y;
         let b = self.y * v.x;
 
         a - b
     }
     
-    pub fn unsafe_cross_product(&self, v: &Self) -> i64 { // cross product
+    pub fn unsafe_cross_product(self, v: Self) -> i64 { // cross product
         let a = self.x.value() * v.y.value();
         let b = self.y.value() * v.x.value();
 
         a - b
     }
 
-    pub fn cross_product_scalar(&self, a: FixFloat) -> Self { // cross product
+    pub fn cross_product_scalar(self, a: FixFloat) -> Self { // cross product
         let x0 = a * self.y;
         let y0 = a * self.x;
 
         FixVec::new_fix(-x0, y0)
     }
 
-    pub fn sqr_distance(&self, v: &Self) -> FixFloat {
-        let a = *self - *v;
+    pub fn sqr_distance(self, v: Self) -> FixFloat {
+        let a = self - v;
         a.sqr_length()
     }
 
-    pub fn distance(&self, v: &Self) -> FixFloat {
+    pub fn distance(self, v: Self) -> FixFloat {
         self.sqr_distance(v).sqrt()
     }
 
-    pub fn middle(&self, v: &Self) -> FixVec {
-        let sum = *self + *v;
+    pub fn middle(self, v: Self) -> FixVec {
+        let sum = self + v;
         Self::new_i64(sum.x.value() / 2, sum.y.value() / 2)
     }
     
@@ -146,6 +146,5 @@ impl PartialEq for FixVec {
         self.x == other.x && self.y == other.y
     }
 }
-
 
 impl Eq for FixVec {}
