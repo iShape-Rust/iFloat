@@ -2,7 +2,7 @@ use std::ops;
 use crate::fix_float;
 use crate::fix_float::FixFloat;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct FixVec {
     pub x: FixFloat,
     pub y: FixFloat,
@@ -140,11 +140,3 @@ impl ops::Sub for FixVec {
         }
     }
 }
-
-impl PartialEq for FixVec {
-    fn eq(&self, other: &Self) -> bool {
-        self.x == other.x && self.y == other.y
-    }
-}
-
-impl Eq for FixVec {}

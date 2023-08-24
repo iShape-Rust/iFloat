@@ -1,7 +1,7 @@
 use std::ops;
 use std::cmp;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct FixFloat(i64);
 
 impl FixFloat {
@@ -142,12 +142,4 @@ impl Ord for FixFloat {
         self.0.cmp(&other.0)
     }
 }
-
-impl PartialEq for FixFloat {
-    fn eq(&self, other: &Self) -> bool {
-        self.0 == other.0
-    }
-}
-
-impl Eq for FixFloat {}
 
