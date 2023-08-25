@@ -28,6 +28,14 @@ impl FixFloat {
         FixFloat(value << Self::FRACTION_BITS)
     }
 
+    pub fn new_f64(value: f64) -> Self {
+        FixFloat((value * 1024.0 + 0.001) as i64)
+    }
+
+    pub fn new_f32(value: f32) -> Self {
+        FixFloat((value * 1024.0 + 0.001) as i64)
+    }
+
     pub fn new_i64(value: i64) -> Self {
         FixFloat(value)
     }
