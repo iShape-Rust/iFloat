@@ -1,5 +1,6 @@
 use std::ops;
 use std::cmp;
+use std::fmt;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct FixFloat(i64);
@@ -151,3 +152,8 @@ impl Ord for FixFloat {
     }
 }
 
+impl fmt::Display for FixFloat {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0) // Replace this with your own logic
+    }
+}

@@ -1,4 +1,5 @@
 use std::ops;
+use std::fmt;
 use crate::fix_float;
 use crate::fix_float::FixFloat;
 
@@ -21,6 +22,10 @@ impl FixVec {
 
     pub fn new_i64(x: i64, y: i64) -> Self {
         Self { x: FixFloat::new_i64(x), y: FixFloat::new_i64(y) }
+    }
+
+    pub fn new_f64(x: f64, y: f64) -> Self {
+        Self { x: FixFloat::new_f64(x), y: FixFloat::new_f64(y) }
     }
 
     pub fn new_number(x: i64, y: i64) -> Self {
@@ -138,5 +143,11 @@ impl ops::Sub for FixVec {
             x: self.x - other.x,
             y: self.y - other.y,
         }
+    }
+}
+
+impl fmt::Display for FixVec {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({},{})", self.x, self.y)
     }
 }
