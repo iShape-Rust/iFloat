@@ -1,8 +1,11 @@
 [package]
 name = "i_float"
 version = "0.1.0"
+authors = ["Nail Sharipov <nailxsharipov@gmail.com>"]
 edition = "2021"
+description = "This fixed float math library provides an efficient and deterministic solution for arithmetic and geometric operations."
+license = "MIT"
+repository = "https://github.com/iShape-Rust/i_float"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
