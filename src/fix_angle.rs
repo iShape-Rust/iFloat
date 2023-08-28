@@ -15,6 +15,13 @@ impl FixAngle {
     pub const FULL_ROUND_MASK: i64 = 1024 - 1;
     pub const F64_TO_ANGLE: f64 = 1024.0 * 512.0 / f64::consts::PI;
     pub const F32_TO_ANGLE: f32 = 1024.0 * 512.0 / f32::consts::PI;
+    pub const F64_TO_RADIAN: f64 = f64::consts::PI / 512.0;
+    pub const F32_TO_RADIAN: f32 = f32::consts::PI / 512.0;
+
+
+    pub fn value(&self) -> i64 {
+        self.0
+    }
 
     pub fn new_from_radians_f64(radians: f64) -> Self {
         let value = (radians * Self::F64_TO_ANGLE) as i64 >> FixFloat::FRACTION_BITS;
@@ -26,21 +33,33 @@ impl FixAngle {
         FixAngle(value)
     }
 
-    pub fn new_from_degrees_fix(degrees: FixFloat) -> Self {
-        FixAngle(degrees.value() / 360)
+    pub fn new_from_radians_fix(radians: FixFloat) -> Self {
+        let value = (radians.value() << 9) / FixFloat::PI;
+        FixAngle(value)
     }
 
-    pub fn new_from_radians_fix(degrees: FixFloat) -> Self {
-        let value = (degrees.value() << 9) / FixFloat::PI;
-        FixAngle(value)
+    pub fn new_from_degrees_f64(degrees: f64) -> Self {
+        FixAngle((degrees * 1024.0 / 360.0) as i64)
+    }
+
+    pub fn new_from_degrees_f32(degrees: f32) -> Self {
+        FixAngle((degrees * 1024.0 / 360.0) as i64)
+    }
+
+    pub fn new_from_degrees_fix(degrees: FixFloat) -> Self {
+        FixAngle(degrees.value() / 360)
     }
 
     pub fn trim(&self) -> i64 {
         self.0 & Self::FULL_ROUND_MASK
     }
 
-    pub fn radian(&self) -> f64 {
-        self.trim() as f64 * Self::F64_TO_ANGLE
+    pub fn radians_f64(&self) -> f64 {
+        self.trim() as f64 * Self::F64_TO_RADIAN
+    }
+
+    pub fn radians_f32(&self) -> f32 {
+        self.trim() as f32 * Self::F32_TO_RADIAN
     }
 
     pub fn sin(&self) -> FixFloat {
