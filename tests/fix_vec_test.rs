@@ -23,4 +23,3 @@ fn test_function_2() {
 
     assert_eq!(a.length(), FixFloat::new_number(5));
 }
-

@@ -154,6 +154,6 @@ impl Ord for FixFloat {
 
 impl fmt::Display for FixFloat {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0) // Replace this with your own logic
+        write!(f, "{}", self.0)
     }
 }

@@ -1,4 +1,5 @@
 use std::ops;
+use std::fmt;
 use std::f64;
 use std::f32;
 use crate::fix_float::FixFloat;
@@ -14,6 +15,25 @@ impl FixAngle {
     pub const FULL_ROUND_MASK: i64 = 1024 - 1;
     pub const F64_TO_ANGLE: f64 = 1024.0 * 512.0 / f64::consts::PI;
     pub const F32_TO_ANGLE: f32 = 1024.0 * 512.0 / f32::consts::PI;
+
+    pub fn new_from_radians_f64(radians: f64) -> Self {
+        let value = (radians * Self::F64_TO_ANGLE) as i64 >> FixFloat::FRACTION_BITS;
+        FixAngle(value)
+    }
+
+    pub fn new_from_radians_f32(radians: f32) -> Self {
+        let value = (radians * Self::F32_TO_ANGLE) as i64 >> FixFloat::FRACTION_BITS;
+        FixAngle(value)
+    }
+
+    pub fn new_from_degrees_fix(degrees: FixFloat) -> Self {
+        FixAngle(degrees.value() / 360)
+    }
+
+    pub fn new_from_radians_fix(degrees: FixFloat) -> Self {
+        let value = (degrees.value() << 9) / FixFloat::PI;
+        FixAngle(value)
+    }
 
     pub fn trim(&self) -> i64 {
         self.0 & Self::FULL_ROUND_MASK
@@ -81,5 +101,11 @@ impl ops::Sub for FixAngle {
 
     fn sub(self, other: Self) -> Self {
         FixAngle(self.0 - other.0)
+    }
+}
+
+impl fmt::Display for FixAngle {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
