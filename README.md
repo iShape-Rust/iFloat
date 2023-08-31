@@ -1,4 +1,4 @@
-# FixFloat
+# ifloat
 
 This fixed float math library provides an efficient and deterministic solution for arithmetic and geometric operations.
 
