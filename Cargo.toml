@@ -1,5 +1,5 @@
 [package]
-name = "i-float"
+name = "i_float"
 version = "0.1.0"
 authors = ["Nail Sharipov <nailxsharipov@gmail.com>"]
 edition = "2021"
