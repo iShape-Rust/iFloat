@@ -8,4 +8,4 @@ license = "MIT"
 repository = "https://github.com/iShape-Rust/iFloat"
 
 [dependencies]
-serde = { version = "*", features = ["derive"] }
+serde = { version = "^1.0", features = ["derive"] }
