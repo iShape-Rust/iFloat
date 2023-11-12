@@ -1,8 +1,9 @@
 use std::ops;
 use std::cmp;
 use std::fmt;
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct FixFloat(i64);
 
 impl FixFloat {

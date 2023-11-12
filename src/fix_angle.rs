@@ -5,9 +5,10 @@ use std::f32;
 use crate::fix_float::FixFloat;
 use crate::fix_sin::FixSin;
 use crate::fix_vec::FixVec;
+use serde::{Serialize, Deserialize};
 
 // split 90 grad to 128 parts, 360 will be 512
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct FixAngle(i64);
 
 impl FixAngle {

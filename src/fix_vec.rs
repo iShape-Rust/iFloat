@@ -2,8 +2,9 @@ use std::ops;
 use std::fmt;
 use crate::fix_float;
 use crate::fix_float::FixFloat;
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct FixVec {
     pub x: FixFloat,
     pub y: FixFloat,
