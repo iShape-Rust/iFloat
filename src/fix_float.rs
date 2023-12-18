@@ -35,7 +35,7 @@ impl FixFloat {
     }
 
     pub fn new_f32(value: f32) -> Self {
-        FixFloat((value * 1024.0 + 0.001) as i64)
+        FixFloat((value * 1024.0) as i64)
     }
 
     pub fn new_i64(value: i64) -> Self {
