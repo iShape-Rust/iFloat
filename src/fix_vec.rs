@@ -37,10 +37,14 @@ impl FixVec {
         Self { x, y }
     }
 
-    pub fn sqr_length(self) -> FixFloat {
+    pub fn unsafe_sqr_length(self) -> i64 {
         let x = self.x.value();
         let y = self.y.value();
-        FixFloat::new_i64((x * x + y * y) >> FixFloat::FRACTION_BITS)
+        x * x + y * y
+    }
+
+    pub fn sqr_length(self) -> FixFloat {
+        FixFloat::new_i64(self.unsafe_sqr_length() >> FixFloat::FRACTION_BITS)
     }
 
     pub fn length(self) -> FixFloat {
@@ -108,9 +112,12 @@ impl FixVec {
         FixVec::new_fix(-x0, y0)
     }
 
+    pub fn unsafe_sqr_distance(self, v: Self) -> i64 {
+        (self - v).unsafe_sqr_length()
+    }
+
     pub fn sqr_distance(self, v: Self) -> FixFloat {
-        let a = self - v;
-        a.sqr_length()
+        (self - v).sqr_length()
     }
 
     pub fn distance(self, v: Self) -> FixFloat {
