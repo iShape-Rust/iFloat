@@ -42,7 +42,7 @@ impl FixVec {
     }
 
     pub fn unsafe_sqr_length(self) -> i64 {
-        self.x * self.x + self.y * self.y
+        self.x.sqr() + self.y.sqr()
     }
 
     pub fn sqr_length(self) -> FixFloat {
@@ -50,7 +50,7 @@ impl FixVec {
     }
 
     pub fn length(self) -> FixFloat {
-        self.unsafe_sqr_length().fast_sqrt()
+        self.unsafe_sqr_length().sqrt()
     }
 
     pub fn normalize(self) -> Self {
@@ -119,7 +119,7 @@ impl FixVec {
     }
 
     pub fn distance(self, v: Self) -> FixFloat {
-        self.sqr_distance(v).fast_sqrt()
+        self.sqr_distance(v).sqrt()
     }
 
     pub fn middle(self, v: Self) -> FixVec {

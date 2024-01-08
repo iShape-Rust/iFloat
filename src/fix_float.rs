@@ -20,7 +20,11 @@ pub trait FixMath {
     fn f64(self) -> f64;
     fn fix_div(self, value: FixFloat) -> FixFloat;
     fn fix_mul(self, value: FixFloat) -> FixFloat;
-    fn fast_sqrt(self) -> FixFloat;
+    fn fix_sqr(self) -> FixFloat;
+    fn fix_sqrt(self) -> FixFloat;
+
+    fn sqr(self) -> FixFloat;
+    fn sqrt(self) -> FixFloat;
     fn normalize(self) -> FixFloat;
     fn sqr_normalize(self) -> FixFloat;
 }
@@ -41,7 +45,19 @@ impl FixMath for FixFloat {
         (self * value) / FIX_UNIT
     }
 
-    fn fast_sqrt(self) -> FixFloat {
+    fn fix_sqr(self) -> FixFloat {
+        (self * self) >> FIX_FRACTION_BITS
+    }
+
+    fn fix_sqrt(self) -> FixFloat {
+        (self << FIX_FRACTION_BITS).sqrt()
+    }
+
+    fn sqr(self) -> FixFloat {
+        self * self
+    }
+
+    fn sqrt(self) -> FixFloat {
         let a = (self as f64).sqrt() as i64;
         let b = a + 1;
 
