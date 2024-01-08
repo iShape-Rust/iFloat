@@ -3,6 +3,7 @@ use std::fmt;
 use serde::{Serialize, Deserialize};
 use crate::fix_float::{FIX_FRACTION_BITS, FIX_MAX_BITS, FIX_ZERO, FixConvert, FixFloat, FixMath};
 use crate::f32_vec::F32Vec;
+use crate::f64_vec::F64Vec;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct FixVec {
@@ -21,8 +22,20 @@ impl FixVec {
         (self.x << FIX_MAX_BITS) + self.y
     }
 
-    pub fn f32vec(self) -> F32Vec {
+    pub fn to_f32vec(self) -> F32Vec {
         F32Vec::new(self.x.f32(), self.y.f32())
+    }
+
+    pub fn to_f64vec(self) -> F64Vec {
+        F64Vec::new(self.x.f64(), self.y.f64())
+    }
+
+    pub fn like_f32vec(self) -> F32Vec {
+        F32Vec::new(self.x as f32, self.y as f32)
+    }
+
+    pub fn like_f64vec(self) -> F64Vec {
+        F64Vec::new(self.x as f64, self.y as f64)
     }
 
     pub fn new(x: i64, y: i64) -> Self {
@@ -45,16 +58,16 @@ impl FixVec {
         self.x.sqr() + self.y.sqr()
     }
 
-    pub fn sqr_length(self) -> FixFloat {
+    pub fn fix_sqr_length(self) -> FixFloat {
         self.unsafe_sqr_length() >> FIX_FRACTION_BITS
     }
 
-    pub fn length(self) -> FixFloat {
+    pub fn unsafe_length(self) -> FixFloat {
         self.unsafe_sqr_length().sqrt()
     }
 
-    pub fn normalize(self) -> Self {
-        let l = self.length();
+    pub fn fix_normalize(self) -> Self {
+        let l = self.unsafe_length();
         let s = (1 << 30) / l;
         let x = (s * self.x).sqr_normalize();
         let y = (s * self.y).sqr_normalize();
@@ -62,24 +75,24 @@ impl FixVec {
         Self { x, y }
     }
 
-    pub fn safe_normalize(self) -> Self {
-        self.safe_normalize_with_def_value(Self::new_number(0, 1))
+    pub fn fix_safe_normalize(self) -> Self {
+        self.fix_normalize_with_def_value(Self::new_number(0, 1))
     }
 
-    pub fn safe_normalize_with_def_value(self, def: Self) -> Self {
+    pub fn fix_normalize_with_def_value(self, def: Self) -> Self {
         if self.is_zero() {
             return def;
         }
-        self.normalize()
+        self.fix_normalize()
     }
 
     pub fn half(self) -> FixVec {
         FixVec::new(self.x / 2, self.y / 2)
     }
 
-    pub fn dot_product(self, v: Self) -> FixFloat { // dot product (cos)
-        let xx = self.x * v.x;
-        let yy = self.y * v.y;
+    pub fn fix_dot_product(self, v: Self) -> FixFloat { // dot product (cos)
+        let xx = self.x.fix_mul(v.x);
+        let yy = self.y.fix_mul(v.y);
         xx + yy
     }
 
@@ -89,9 +102,9 @@ impl FixVec {
         xx + yy
     }
 
-    pub fn cross_product(self, v: Self) -> FixFloat { // cross product
-        let a = self.x * v.y;
-        let b = self.y * v.x;
+    pub fn fix_cross_product(self, v: Self) -> FixFloat { // cross product
+        let a = self.x.fix_mul(v.y);
+        let b = self.y.fix_mul(v.x);
 
         a - b
     }
@@ -103,9 +116,9 @@ impl FixVec {
         a - b
     }
 
-    pub fn cross_product_scalar(self, a: FixFloat) -> Self { // cross product
-        let x0 = a * self.y;
-        let y0 = a * self.x;
+    pub fn fix_cross_product_scalar(self, a: FixFloat) -> Self { // cross product
+        let x0 = a.fix_mul(self.y);
+        let y0 = a.fix_mul(self.x);
 
         Self::new(-x0, y0)
     }
@@ -114,12 +127,12 @@ impl FixVec {
         (self - v).unsafe_sqr_length()
     }
 
-    pub fn sqr_distance(self, v: Self) -> FixFloat {
-        (self - v).sqr_length()
+    pub fn fix_sqr_distance(self, v: Self) -> FixFloat {
+        (self - v).fix_sqr_length()
     }
 
-    pub fn distance(self, v: Self) -> FixFloat {
-        self.sqr_distance(v).sqrt()
+    pub fn fix_distance(self, v: Self) -> FixFloat {
+        self.fix_sqr_distance(v).sqrt()
     }
 
     pub fn middle(self, v: Self) -> FixVec {
