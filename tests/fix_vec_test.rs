@@ -1,4 +1,4 @@
-use i_float::fix_float::FixFloat;
+use i_float::fix_float::FixConvert;
 use i_float::fix_vec::FixVec;
 
 #[test]
@@ -14,12 +14,12 @@ fn test_function_0() {
 fn test_function_1() {
     let a = FixVec::new_number(3, 4);
 
-    assert_eq!(a.sqr_length(), FixFloat::new_number(25));
+    assert_eq!(a.sqr_length(), 25.fix());
 }
 
 #[test]
 fn test_function_2() {
     let a = FixVec::new_number(3, 4);
 
-    assert_eq!(a.length(), FixFloat::new_number(5));
+    assert_eq!(a.length(), 5.fix());
 }

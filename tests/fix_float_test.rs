@@ -1,42 +1,41 @@
-use i_float::fix_float::FixFloat;
-use i_float::fix_float::fast_square_root;
+use i_float::fix_float::{FIX_FRACTION_BITS, FIX_PI, FixConvert, FixMath};
 
 #[test]
 fn test_function_0() {
-    assert_eq!(FixFloat::PI, 3217);
+    assert_eq!(FIX_PI, 3217);
 }
 
 #[test]
 fn test_function_1() {
-    assert_eq!(FixFloat::FRACTION_BITS, 10);
+    assert_eq!(FIX_FRACTION_BITS, 10);
 }
 
 #[test]
 fn test_function_2() {
-    let a = FixFloat::new_number(1);
-    let b = FixFloat::new_number(2);
+    let a = 1.fix();
+    let b = 2.fix();
     let c = a + b;
 
-    assert_eq!(c, FixFloat::new_number(3));
+    assert_eq!(c, 3.fix());
 }
 
 #[test]
 fn test_function_3() {
-    let a = FixFloat::new_number(2);
-    let b = FixFloat::new_number(1);
+    let a = 2.fix();
+    let b = 1.fix();
     let c = a - b;
 
-    assert_eq!(c, FixFloat::new_number(1));
+    assert_eq!(c, 1.fix());
 }
 
 #[test]
 fn test_function_4() {
-    let a = fast_square_root(5);
+    let a = 5.fast_sqrt();
     assert_eq!(a, 2);
 }
 
 #[test]
 fn test_function_5() {
-    let a = fast_square_root(9);
+    let a = 9.fast_sqrt();
     assert_eq!(a, 3);
 }
