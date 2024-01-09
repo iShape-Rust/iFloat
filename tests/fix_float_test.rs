@@ -30,12 +30,12 @@ fn test_function_3() {
 
 #[test]
 fn test_function_4() {
-    let a = 5.fast_sqrt();
+    let a = 5.sqrt();
     assert_eq!(a, 2);
 }
 
 #[test]
 fn test_function_5() {
-    let a = 9.fast_sqrt();
+    let a = 9.sqrt();
     assert_eq!(a, 3);
 }

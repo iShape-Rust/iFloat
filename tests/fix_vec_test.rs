@@ -14,7 +14,7 @@ fn test_function_0() {
 fn test_function_1() {
     let a = FixVec::new_number(3, 4);
 
-    assert_eq!(a.sqr_length(), 25.fix());
+    assert_eq!(a.fix_sqr_length(), 25.fix());
 }
 
 #[test]
