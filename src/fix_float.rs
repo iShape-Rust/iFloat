@@ -25,8 +25,8 @@ pub trait FixMath {
 
     fn sqr(self) -> FixFloat;
     fn sqrt(self) -> FixFloat;
-    fn normalize(self) -> FixFloat;
-    fn sqr_normalize(self) -> FixFloat;
+    fn fix_normalize(self) -> FixFloat;
+    fn fix_sqr_normalize(self) -> FixFloat;
 }
 
 impl FixMath for FixFloat {
@@ -64,11 +64,11 @@ impl FixMath for FixFloat {
         if b * b > self { a } else { b }
     }
 
-    fn normalize(self) -> FixFloat {
+    fn fix_normalize(self) -> FixFloat {
         self / FIX_UNIT
     }
 
-    fn sqr_normalize(self) -> FixFloat {
+    fn fix_sqr_normalize(self) -> FixFloat {
         self / FIX_SQR_UNIT
     }
 }

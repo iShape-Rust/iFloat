@@ -54,23 +54,19 @@ impl FixVec {
         Self { x: x.fix(), y: y.fix() }
     }
 
-    pub fn sqr_length(self) -> i64 {
-        self.x.sqr() + self.y.sqr()
-    }
-
     pub fn fix_sqr_length(self) -> FixFloat {
         self.sqr_length() >> FIX_FRACTION_BITS
     }
 
-    pub fn length(self) -> FixFloat {
-        self.sqr_length().sqrt()
+    pub fn fix_length(self) -> FixFloat {
+        self.length()
     }
 
     pub fn fix_normalize(self) -> Self {
         let l = self.length();
         let s = (1 << 30) / l;
-        let x = (s * self.x).sqr_normalize();
-        let y = (s * self.y).sqr_normalize();
+        let x = (s * self.x).fix_sqr_normalize();
+        let y = (s * self.y).fix_sqr_normalize();
 
         Self { x, y }
     }
@@ -86,32 +82,15 @@ impl FixVec {
         self.fix_normalize()
     }
 
-    pub fn half(self) -> FixVec {
-        FixVec::new(self.x / 2, self.y / 2)
-    }
-
     pub fn fix_dot_product(self, v: Self) -> FixFloat { // dot product (cos)
         let xx = self.x.fix_mul(v.x);
         let yy = self.y.fix_mul(v.y);
         xx + yy
     }
 
-    pub fn dot_product(self, v: Self) -> i64 { // dot product (cos)
-        let xx = self.x * v.x;
-        let yy = self.y * v.y;
-        xx + yy
-    }
-
     pub fn fix_cross_product(self, v: Self) -> FixFloat { // cross product
         let a = self.x.fix_mul(v.y);
         let b = self.y.fix_mul(v.x);
-
-        a - b
-    }
-
-    pub fn cross_product(self, v: Self) -> i64 { // cross product
-        let a = self.x * v.y;
-        let b = self.y * v.x;
 
         a - b
     }
@@ -123,10 +102,6 @@ impl FixVec {
         Self::new(-x0, y0)
     }
 
-    pub fn sqr_distance(self, v: Self) -> i64 {
-        (self - v).sqr_length()
-    }
-
     pub fn fix_sqr_distance(self, v: Self) -> FixFloat {
         (self - v).fix_sqr_length()
     }
@@ -135,9 +110,38 @@ impl FixVec {
         self.fix_sqr_distance(v).sqrt()
     }
 
+    pub fn half(self) -> FixVec {
+        FixVec::new(self.x / 2, self.y / 2)
+    }
+
     pub fn middle(self, v: Self) -> FixVec {
         let sum = self + v;
         Self::new(sum.x / 2, sum.y / 2)
+    }
+
+    pub fn sqr_length(self) -> i64 {
+        self.x.sqr() + self.y.sqr()
+    }
+
+    pub fn length(self) -> FixFloat {
+        self.sqr_length().sqrt()
+    }
+
+    pub fn dot_product(self, v: Self) -> i64 { // dot product (cos)
+        let xx = self.x * v.x;
+        let yy = self.y * v.y;
+        xx + yy
+    }
+
+    pub fn cross_product(self, v: Self) -> i64 { // cross product
+        let a = self.x * v.y;
+        let b = self.y * v.x;
+
+        a - b
+    }
+
+    pub fn sqr_distance(self, v: Self) -> i64 {
+        (self - v).sqr_length()
     }
 }
 
