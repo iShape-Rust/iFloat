@@ -5,9 +5,10 @@ pub const FIX_SQR_FRACTION_BITS: i64 = 20;
 pub const FIX_CUBE_FRACTION_BITS: i64 = 30;
 pub const FIX_TETRA_FRACTION_BITS: i64 = 40;
 pub const FIX_PENTA_FRACTION_BITS: i64 = 50;
-pub const FIX_MAX_BITS: i64 = (64 >> 1) - 1;
-pub const FIX_MAX: i64 = (1 << FIX_MAX_BITS) - 1;
-pub const FIX_MIN: i64 = -FIX_MAX;
+
+pub const FIX_MAX: i64 = i32::MAX as i64;
+pub const FIX_MIN: i64 = i32::MIN as i64;
+
 pub const FIX_ZERO: FixFloat = 0;
 pub const FIX_UNIT: i64 = 1 << FIX_FRACTION_BITS;
 pub const FIX_SQR_UNIT: i64 = 1 << FIX_SQR_FRACTION_BITS;

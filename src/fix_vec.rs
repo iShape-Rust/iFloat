@@ -1,7 +1,7 @@
 use std::ops;
 use std::fmt;
 use serde::{Serialize, Deserialize};
-use crate::fix_float::{FIX_FRACTION_BITS, FIX_MAX_BITS, FIX_ZERO, FixConvert, FixFloat, FixMath};
+use crate::fix_float::{FIX_FRACTION_BITS, FIX_ZERO, FixConvert, FixFloat, FixMath};
 use crate::f32_vec::F32Vec;
 use crate::f64_vec::F64Vec;
 
@@ -16,10 +16,6 @@ impl FixVec {
 
     pub fn is_zero(self) -> bool {
         self.x == FIX_ZERO && self.y == FIX_ZERO
-    }
-
-    pub fn bit_pack(self) -> i64 {
-        (self.x << FIX_MAX_BITS) + self.y
     }
 
     pub fn to_f32vec(self) -> F32Vec {
