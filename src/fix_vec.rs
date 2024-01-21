@@ -1,5 +1,6 @@
 use std::ops;
 use std::fmt;
+use std::ops::Mul;
 use serde::{Serialize, Deserialize};
 use crate::fix_float::{FIX_FRACTION_BITS, FIX_ZERO, FixConvert, FixFloat, FixMath};
 use crate::f32_vec::F32Vec;
@@ -141,6 +142,16 @@ impl FixVec {
     }
 }
 
+impl Mul<i64> for FixVec {
+    type Output = FixVec;
+
+    fn mul(self, scalar: i64) -> Self {
+        Self {
+            x: self.x * scalar,
+            y: self.y * scalar,
+        }
+    }
+}
 
 impl ops::Add for FixVec {
     type Output = FixVec;
