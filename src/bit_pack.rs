@@ -1,4 +1,5 @@
 use crate::fix_vec::FixVec;
+use crate::point::Point;
 
 pub type BitPack = u64;
 
@@ -11,6 +12,8 @@ pub trait BitPackVec {
 
 pub trait BitPackFix {
     fn fix_vec(&self) -> FixVec;
+    fn x(&self) -> i64;
+    fn y(&self) -> i64;
 }
 
 impl BitPackVec for FixVec {
@@ -22,11 +25,25 @@ impl BitPackVec for FixVec {
     }
 }
 
+impl BitPackVec for Point {
+    fn bit_pack(&self) -> BitPack {
+        let xx = (((self.x as i64) + FIX_MID) as u64) << 32;
+        let yy = ((self.y as i64) + FIX_MID) as u64;
+
+        return xx | yy;
+    }
+}
+
 impl BitPackFix for BitPack {
     fn fix_vec(&self) -> FixVec {
-        let x = (self >> 32) as i64 - FIX_MID;
-        let y = (self & Y_MASK) as i64 - FIX_MID;
+        FixVec::new(self.x(), self.y())
+    }
 
-        FixVec::new(x, y)
+    fn x(&self) -> i64 {
+        (self >> 32) as i64 - FIX_MID
+    }
+
+    fn y(&self) -> i64 {
+        (self & Y_MASK) as i64 - FIX_MID
     }
 }

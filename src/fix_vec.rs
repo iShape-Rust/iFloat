@@ -5,6 +5,7 @@ use serde::{Serialize, Deserialize};
 use crate::fix_float::{FIX_FRACTION_BITS, FIX_ZERO, FixConvert, FixFloat, FixMath};
 use crate::f32_vec::F32Vec;
 use crate::f64_vec::F64Vec;
+use crate::point::Point;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct FixVec {
@@ -49,6 +50,10 @@ impl FixVec {
 
     pub fn new_number(x: i64, y: i64) -> Self {
         Self { x: x.fix(), y: y.fix() }
+    }
+
+    pub fn new_point(point: Point) -> Self {
+        Self { x: point.x as i64, y: point.y as i64 }
     }
 
     pub fn fix_sqr_length(self) -> FixFloat {
