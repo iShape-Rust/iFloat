@@ -181,7 +181,7 @@ impl ops::Sub for FixVec {
 }
 
 impl fmt::Display for FixVec {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({},{})", self.x, self.y)
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "[{}, {}]", self.x, self.y)
     }
 }

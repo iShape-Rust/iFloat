@@ -1,3 +1,4 @@
+use std::fmt;
 use std::ops::{Add, AddAssign, Mul, Neg, Sub};
 use serde::{Deserialize, Serialize};
 use crate::fix_vec::FixVec;
@@ -99,5 +100,11 @@ impl AddAssign for F64Vec {
     fn add_assign(&mut self, other: Self) {
         self.x += other.x;
         self.y += other.y;
+    }
+}
+
+impl fmt::Display for F64Vec {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "[{}, {}]", self.x, self.y)
     }
 }

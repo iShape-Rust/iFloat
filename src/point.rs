@@ -1,3 +1,4 @@
+use std::fmt;
 use serde::{Deserialize, Serialize};
 use crate::fix_vec::FixVec;
 
@@ -14,5 +15,11 @@ impl Point {
 
     pub fn new_fix_vec(vec: FixVec) -> Self {
         Self { x: vec.x as i32, y: vec.y as i32 }
+    }
+}
+
+impl fmt::Display for Point {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "[{}, {}]", self.x, self.y)
     }
 }
