@@ -6,3 +6,4 @@ pub mod f64_vec;
 pub mod bit_pack;
 pub mod point;
 mod fix_sin;
+pub mod triangle;
