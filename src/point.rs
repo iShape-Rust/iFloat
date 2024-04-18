@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::fmt;
 use serde::{Deserialize, Serialize};
 use crate::fix_vec::FixVec;
@@ -23,5 +24,20 @@ impl Point {
 impl fmt::Display for Point {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[{}, {}]", self.x, self.y)
+    }
+}
+impl PartialOrd for Point {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Point {
+    fn cmp(&self, other: &Self) -> Ordering {
+        if self.x < other.x || self.x == other.x && self.y < other.y {
+            Ordering::Less
+        } else {
+            Ordering::Greater
+        }
     }
 }

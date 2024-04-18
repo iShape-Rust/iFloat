@@ -30,15 +30,12 @@ impl Triangle {
         Self::area_two(p0, p1, p2) != 0
     }
 
+    pub fn is_line(p0: FixVec, p1: FixVec, p2: FixVec) -> bool {
+        Self::area_two(p0, p1, p2) == 0
+    }
+
     pub fn clock_direction(p0: FixVec, p1: FixVec, p2: FixVec) -> i64 {
-        let area = Self::area_two(p0, p1, p2);
-        if area < 0 {
-            return -1;
-        }
-        if area > 0 {
-            return 1;
-        }
-        return 0;
+        Self::area_two(p0, p1, p2).signum()
     }
 
     pub fn is_contain(p: FixVec, p0: FixVec, p1: FixVec, p2: FixVec) -> bool {
@@ -78,19 +75,16 @@ impl Triangle {
         Self::area_two_point(p0, p1, p2) >= 0
     }
 
+    pub fn is_line_point(p0: Point, p1: Point, p2: Point) -> bool {
+        Self::area_two_point(p0, p1, p2) == 0
+    }
+
     pub fn is_not_line_point(p0: Point, p1: Point, p2: Point) -> bool {
         Self::area_two_point(p0, p1, p2) != 0
     }
 
     pub fn clock_direction_point(p0: Point, p1: Point, p2: Point) -> i64 {
-        let area = Self::area_two_point(p0, p1, p2);
-        if area < 0 {
-            return -1;
-        }
-        if area > 0 {
-            return 1;
-        }
-        return 0;
+        Self::area_two_point(p0, p1, p2).signum()
     }
 
     pub fn is_contain_point(p: Point, p0: Point, p1: Point, p2: Point) -> bool {
