@@ -1,54 +1,39 @@
 use std::fmt;
 use std::ops::{Add, AddAssign, Mul, Neg, Sub};
 use serde::{Deserialize, Serialize};
-use crate::fix_vec::FixVec;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub struct F32Vec {
-    pub x: f32,
-    pub y: f32,
+pub struct F64Point {
+    pub x: f64,
+    pub y: f64,
 }
 
-impl F32Vec {
+impl F64Point {
     pub const ZERO: Self = Self { x: 0.0, y: 0.0 };
 
-    pub fn to_fix(&self) -> FixVec {
-        FixVec::new_f32(self.x, self.y)
-    }
-
-    pub fn like_fix(&self) -> FixVec {
-        FixVec::new(self.x as i64, self.y as i64)
-    }
-
-    pub fn new(x: f32, y: f32) -> Self {
+    pub fn new(x: f64, y: f64) -> Self {
         Self { x, y }
     }
 
     pub fn new_i64(x: i64, y: i64) -> Self {
-        Self { x: x as f32, y: y as f32 }
+        Self { x: x as f64, y: y as f64 }
     }
 
-    pub fn new_f64(x: f64, y: f64) -> Self {
-        Self { x: x as f32, y: y as f32 }
-    }
-
-    pub fn dot_product(self, v: Self) -> f64 { // cos
-        let xx = (self.x as f64) * (v.x as f64);
-        let yy = (self.y as f64) * (v.y as f64);
+    pub fn dot_product(self, v: Self) -> f64 {
+        let xx = self.x * v.x;
+        let yy = self.y * v.y;
         xx + yy
     }
 
-    pub fn cross_product(self, v: Self) -> f64 { // sin
-        let a = (self.x as f64) * (v.y as f64);
-        let b = (self.y as f64) * (v.x as f64);
+    pub fn cross_product(self, v: Self) -> f64 {
+        let a = self.x * v.y;
+        let b = self.y * v.x;
 
         a - b
     }
 
     pub fn sqr_length(&self) -> f64 {
-        let x = self.x as f64;
-        let y = self.y as f64;
-        x * x + y * y
+        self.x * self.x + self.y * self.y
     }
 
     pub fn length(&self) -> f64 {
@@ -56,24 +41,24 @@ impl F32Vec {
     }
 
     pub fn normalize(&self) -> Self {
-        let l = self.length() as f32;
+        let l = self.length();
         Self { x: self.x / l, y: self.y / l }
     }
 }
 
-impl Mul<f64> for F32Vec {
-    type Output = F32Vec;
+impl Mul<f64> for F64Point {
+    type Output = F64Point;
 
     fn mul(self, scalar: f64) -> Self {
         Self {
-            x: self.x * (scalar as f32),
-            y: self.y * (scalar as f32),
+            x: self.x * scalar,
+            y: self.y * scalar,
         }
     }
 }
 
-impl Add for F32Vec {
-    type Output = F32Vec;
+impl Add for F64Point {
+    type Output = F64Point;
 
     fn add(self, other: Self) -> Self {
         Self {
@@ -83,8 +68,8 @@ impl Add for F32Vec {
     }
 }
 
-impl Sub for F32Vec {
-    type Output = F32Vec;
+impl Sub for F64Point {
+    type Output = F64Point;
 
     fn sub(self, other: Self) -> Self {
         Self {
@@ -94,7 +79,7 @@ impl Sub for F32Vec {
     }
 }
 
-impl Neg for F32Vec {
+impl Neg for F64Point {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
@@ -102,14 +87,14 @@ impl Neg for F32Vec {
     }
 }
 
-impl AddAssign for F32Vec {
+impl AddAssign for F64Point {
     fn add_assign(&mut self, other: Self) {
         self.x += other.x;
         self.y += other.y;
     }
 }
 
-impl fmt::Display for F32Vec {
+impl fmt::Display for F64Point {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[{}, {}]", self.x, self.y)
     }

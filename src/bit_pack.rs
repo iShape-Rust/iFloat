@@ -1,5 +1,5 @@
 use crate::fix_vec::FixVec;
-use crate::point::Point;
+use crate::point::IntPoint;
 
 pub type BitPack = u64;
 
@@ -25,7 +25,7 @@ impl BitPackVec for FixVec {
     }
 }
 
-impl BitPackVec for Point {
+impl BitPackVec for IntPoint {
     fn bit_pack(&self) -> BitPack {
         let xx = (((self.x as i64) + FIX_MID) as u64) << 32;
         let yy = ((self.y as i64) + FIX_MID) as u64;

@@ -3,9 +3,8 @@ use std::fmt;
 use std::ops::Mul;
 use serde::{Serialize, Deserialize};
 use crate::fix_float::{FIX_FRACTION_BITS, FIX_ZERO, FixConvert, FixFloat, FixMath};
-use crate::f32_vec::F32Vec;
-use crate::f64_vec::F64Vec;
-use crate::point::Point;
+use crate::f64_point::F64Point;
+use crate::point::IntPoint;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct FixVec {
@@ -20,20 +19,12 @@ impl FixVec {
         self.x == FIX_ZERO && self.y == FIX_ZERO
     }
 
-    pub fn to_f32vec(self) -> F32Vec {
-        F32Vec::new(self.x.f32(), self.y.f32())
+    pub fn to_f64vec(self) -> F64Point {
+        F64Point::new(self.x.f64(), self.y.f64())
     }
 
-    pub fn to_f64vec(self) -> F64Vec {
-        F64Vec::new(self.x.f64(), self.y.f64())
-    }
-
-    pub fn like_f32vec(self) -> F32Vec {
-        F32Vec::new(self.x as f32, self.y as f32)
-    }
-
-    pub fn like_f64vec(self) -> F64Vec {
-        F64Vec::new(self.x as f64, self.y as f64)
+    pub fn like_f64vec(self) -> F64Point {
+        F64Point::new(self.x as f64, self.y as f64)
     }
 
     pub fn new(x: i64, y: i64) -> Self {
@@ -52,7 +43,7 @@ impl FixVec {
         Self { x: x.fix(), y: y.fix() }
     }
 
-    pub fn new_point(point: Point) -> Self {
+    pub fn new_point(point: IntPoint) -> Self {
         Self { x: point.x as i64, y: point.y as i64 }
     }
 

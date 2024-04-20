@@ -1,6 +1,6 @@
 use crate::fix_float::FixFloat;
 use crate::fix_vec::FixVec;
-use crate::point::Point;
+use crate::point::IntPoint;
 
 pub struct Triangle;
 
@@ -60,34 +60,34 @@ impl Triangle {
         has_neg && has_pos
     }
 
-    pub fn area_two_point(p0: Point, p1: Point, p2: Point) -> i64 {
+    pub fn area_two_point(p0: IntPoint, p1: IntPoint, p2: IntPoint) -> i64 {
         let f0 = FixVec::new_point(p0);
         let f1 = FixVec::new_point(p1);
         let f2 = FixVec::new_point(p2);
         (f1 - f0).cross_product(f1 - f2)
     }
 
-    pub fn is_clockwise_point(p0: Point, p1: Point, p2: Point) -> bool {
+    pub fn is_clockwise_point(p0: IntPoint, p1: IntPoint, p2: IntPoint) -> bool {
         Self::area_two_point(p0, p1, p2) > 0
     }
 
-    pub fn is_cw_or_line_point(p0: Point, p1: Point, p2: Point) -> bool {
+    pub fn is_cw_or_line_point(p0: IntPoint, p1: IntPoint, p2: IntPoint) -> bool {
         Self::area_two_point(p0, p1, p2) >= 0
     }
 
-    pub fn is_line_point(p0: Point, p1: Point, p2: Point) -> bool {
+    pub fn is_line_point(p0: IntPoint, p1: IntPoint, p2: IntPoint) -> bool {
         Self::area_two_point(p0, p1, p2) == 0
     }
 
-    pub fn is_not_line_point(p0: Point, p1: Point, p2: Point) -> bool {
+    pub fn is_not_line_point(p0: IntPoint, p1: IntPoint, p2: IntPoint) -> bool {
         Self::area_two_point(p0, p1, p2) != 0
     }
 
-    pub fn clock_direction_point(p0: Point, p1: Point, p2: Point) -> i64 {
+    pub fn clock_direction_point(p0: IntPoint, p1: IntPoint, p2: IntPoint) -> i64 {
         Self::area_two_point(p0, p1, p2).signum()
     }
 
-    pub fn is_contain_point(p: Point, p0: Point, p1: Point, p2: Point) -> bool {
+    pub fn is_contain_point(p: IntPoint, p0: IntPoint, p1: IntPoint, p2: IntPoint) -> bool {
         let f = FixVec::new_point(p);
         let f0 = FixVec::new_point(p0);
         let f1 = FixVec::new_point(p1);
@@ -103,7 +103,7 @@ impl Triangle {
         !(has_neg && has_pos)
     }
 
-    pub fn is_not_contain_point(p: Point, p0: Point, p1: Point, p2: Point) -> bool {
+    pub fn is_not_contain_point(p: IntPoint, p0: IntPoint, p1: IntPoint, p2: IntPoint) -> bool {
         let f = FixVec::new_point(p);
         let f0 = FixVec::new_point(p0);
         let f1 = FixVec::new_point(p1);
