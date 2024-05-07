@@ -30,42 +30,53 @@ pub trait FixTrigonometry {
 }
 
 impl FixTrigonometry for FixAngle {
+
+    #[inline(always)]
     fn new_from_radians_f64(radians: f64) -> Self {
         (radians * FIX_ANGLE_F64_TO_ANGLE) as i64 >> FIX_FRACTION_BITS
     }
 
+    #[inline(always)]
     fn new_from_radians_f32(radians: f32) -> Self {
         (radians * FIX_ANGLE_F32_TO_ANGLE) as i64 >> FIX_FRACTION_BITS
     }
 
+    #[inline(always)]
     fn new_from_radians_fix(radians: FixFloat) -> Self {
         (radians << 9) / FIX_PI
     }
 
+    #[inline(always)]
     fn new_from_degrees_f64(degrees: f64) -> Self {
         (degrees * 1024.0 / 360.0) as i64
     }
 
+    #[inline(always)]
     fn new_from_degrees_f32(degrees: f32) -> Self {
         (degrees * 1024.0 / 360.0) as i64
     }
 
+    #[inline(always)]
     fn new_from_degrees_fix(degrees: FixFloat) -> Self {
         degrees / 360
     }
 
+    #[inline(always)]
     fn trim(&self) -> i64 {
         self & FIX_ANGLE_FULL_ROUND_MASK
     }
 
+    #[inline(always)]
     fn radians_f64(&self) -> f64 {
         self.trim() as f64 * FIX_ANGLE_F64_TO_RADIAN
     }
 
+    #[inline(always)]
     fn radians_f32(&self) -> f32 {
         self.trim() as f32 * FIX_ANGLE_F32_TO_RADIAN
     }
 
+    #[inline(always)]
     fn sin(&self) -> FixFloat {
         let quarter = ((self & FIX_ANGLE_FULL_ROUND_MASK) >> 8) as usize;
         let index = (self & FIX_ANGLE_INDEX_MASK) as usize;
@@ -78,6 +89,7 @@ impl FixTrigonometry for FixAngle {
         }
     }
 
+    #[inline(always)]
     fn cos(&self) -> FixFloat {
         let quarter = ((self & FIX_ANGLE_FULL_ROUND_MASK) >> 8) as usize;
         let index = (self & FIX_ANGLE_INDEX_MASK) as usize;
@@ -90,6 +102,7 @@ impl FixTrigonometry for FixAngle {
         }
     }
 
+    #[inline(always)]
     fn rotator(&self) -> FixVec {
         let quarter = ((self & FIX_ANGLE_FULL_ROUND_MASK) >> 8) as usize;
         let index = (self & FIX_ANGLE_INDEX_MASK) as usize;
@@ -103,6 +116,7 @@ impl FixTrigonometry for FixAngle {
     }
 }
 
+#[inline(always)]
 fn sin_by_index(index: usize) -> i64 {
     let i = index >> 1;
     if index & 1 == 1 {

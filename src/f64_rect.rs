@@ -8,14 +8,18 @@ pub struct F64Rect {
 }
 
 impl F64Rect {
+
+    #[inline(always)]
     pub fn max_x(&self) -> f64 {
         self.x + self.width
     }
 
+    #[inline(always)]
     pub fn max_y(&self) -> f64 {
         self.x + self.width
     }
 
+    #[inline(always)]
     pub fn new(min_x: f64, max_x: f64, min_y: f64, max_y: f64) -> Self {
         let width = max_x - min_x;
         let height = max_y - min_y;
@@ -28,6 +32,7 @@ impl F64Rect {
         }
     }
 
+    #[inline]
     pub fn with_points(points: &[F64Point]) -> Self {
         if points.is_empty() {
             return Self {
@@ -53,6 +58,7 @@ impl F64Rect {
         Self::new(min_x, max_x, min_y, max_y)
     }
 
+    #[inline(always)]
     pub fn with_rects(rect0: &Self, rect1: &Self) -> Self {
         let min_x = rect0.x.min(rect1.x);
         let max_x = rect0.max_x().max(rect1.max_x());

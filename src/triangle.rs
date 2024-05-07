@@ -6,38 +6,47 @@ pub struct Triangle;
 
 impl Triangle {
 
+    #[inline(always)]
     pub fn area_two(p0: FixVec, p1: FixVec, p2: FixVec) -> i64 {
         (p1 - p0).cross_product(p1 - p2)
     }
 
+    #[inline(always)]
     pub fn area(p0: FixVec, p1: FixVec, p2: FixVec) -> i64 {
         Self::area_two(p0, p1, p2) / 2
     }
 
+    #[inline(always)]
     pub fn fix_area(p0: FixVec, p1: FixVec, p2: FixVec) -> FixFloat {
         (p1 - p0).fix_cross_product(p1 - p2) / 2
     }
 
+    #[inline(always)]
     pub fn is_clockwise(p0: FixVec, p1: FixVec, p2: FixVec) -> bool {
         Self::area_two(p0, p1, p2) > 0
     }
 
+    #[inline(always)]
     pub fn is_cw_or_line(p0: FixVec, p1: FixVec, p2: FixVec) -> bool {
         Self::area_two(p0, p1, p2) >= 0
     }
 
+    #[inline(always)]
     pub fn is_not_line(p0: FixVec, p1: FixVec, p2: FixVec) -> bool {
         Self::area_two(p0, p1, p2) != 0
     }
 
+    #[inline(always)]
     pub fn is_line(p0: FixVec, p1: FixVec, p2: FixVec) -> bool {
         Self::area_two(p0, p1, p2) == 0
     }
 
+    #[inline(always)]
     pub fn clock_direction(p0: FixVec, p1: FixVec, p2: FixVec) -> i64 {
         Self::area_two(p0, p1, p2).signum()
     }
 
+    #[inline]
     pub fn is_contain(p: FixVec, p0: FixVec, p1: FixVec, p2: FixVec) -> bool {
         let q0 = (p - p1).cross_product(p0 - p1);
         let q1 = (p - p2).cross_product(p1 - p2);
@@ -49,6 +58,7 @@ impl Triangle {
         !(has_neg && has_pos)
     }
 
+    #[inline]
     pub fn is_not_contain(p: FixVec, p0: FixVec, p1: FixVec, p2: FixVec) -> bool {
         let q0 = (p - p1).cross_product(p0 - p1);
         let q1 = (p - p2).cross_product(p1 - p2);
@@ -60,6 +70,7 @@ impl Triangle {
         has_neg && has_pos
     }
 
+    #[inline(always)]
     pub fn area_two_point(p0: IntPoint, p1: IntPoint, p2: IntPoint) -> i64 {
         let f0 = FixVec::new_point(p0);
         let f1 = FixVec::new_point(p1);
@@ -67,26 +78,32 @@ impl Triangle {
         (f1 - f0).cross_product(f1 - f2)
     }
 
+    #[inline(always)]
     pub fn is_clockwise_point(p0: IntPoint, p1: IntPoint, p2: IntPoint) -> bool {
         Self::area_two_point(p0, p1, p2) > 0
     }
 
+    #[inline(always)]
     pub fn is_cw_or_line_point(p0: IntPoint, p1: IntPoint, p2: IntPoint) -> bool {
         Self::area_two_point(p0, p1, p2) >= 0
     }
 
+    #[inline(always)]
     pub fn is_line_point(p0: IntPoint, p1: IntPoint, p2: IntPoint) -> bool {
         Self::area_two_point(p0, p1, p2) == 0
     }
 
+    #[inline(always)]
     pub fn is_not_line_point(p0: IntPoint, p1: IntPoint, p2: IntPoint) -> bool {
         Self::area_two_point(p0, p1, p2) != 0
     }
 
+    #[inline(always)]
     pub fn clock_direction_point(p0: IntPoint, p1: IntPoint, p2: IntPoint) -> i64 {
         Self::area_two_point(p0, p1, p2).signum()
     }
 
+    #[inline]
     pub fn is_contain_point(p: IntPoint, p0: IntPoint, p1: IntPoint, p2: IntPoint) -> bool {
         let f = FixVec::new_point(p);
         let f0 = FixVec::new_point(p0);
@@ -103,6 +120,7 @@ impl Triangle {
         !(has_neg && has_pos)
     }
 
+    #[inline]
     pub fn is_not_contain_point(p: IntPoint, p0: IntPoint, p1: IntPoint, p2: IntPoint) -> bool {
         let f = FixVec::new_point(p);
         let f0 = FixVec::new_point(p0);
