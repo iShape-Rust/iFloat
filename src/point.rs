@@ -71,7 +71,10 @@ impl Ord for IntPoint {
 
     #[inline(always)]
     fn cmp(&self, other: &Self) -> Ordering {
-        if self.x < other.x || self.x == other.x && self.y < other.y {
+        let x = self.x == other.x;
+        if x && self.y == other.y {
+            return Ordering::Equal
+        } else if self.x < other.x || x && self.y < other.y {
             Ordering::Less
         } else {
             Ordering::Greater
