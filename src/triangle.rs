@@ -72,10 +72,13 @@ impl Triangle {
 
     #[inline(always)]
     pub fn area_two_point(p0: IntPoint, p1: IntPoint, p2: IntPoint) -> i64 {
-        let f0 = FixVec::new_point(p0);
-        let f1 = FixVec::new_point(p1);
-        let f2 = FixVec::new_point(p2);
-        (f1 - f0).cross_product(f1 - f2)
+        let x0 = p1.x as i64 - p0.x as i64;
+        let y0 = p1.y as i64 - p0.y as i64;
+
+        let x1 = p1.x as i64 - p2.x as i64;
+        let y1 = p1.y as i64 - p2.y as i64;
+
+        x0 * y1 - x1 * y0
     }
 
     #[inline(always)]
