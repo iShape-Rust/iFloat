@@ -12,11 +12,11 @@ impl PointAdapter {
 
     #[inline]
     pub fn new(rect: F64Rect) -> Self {
-        let a = rect.width / 2.0;
-        let b = rect.height / 2.0;
+        let a = rect.width() * 0.5;
+        let b = rect.height() * 0.5;
 
-        let ox = rect.x + a;
-        let oy = rect.y + b;
+        let ox = rect.min_x + a;
+        let oy = rect.min_y + b;
 
         let offset = F64Point { x: ox, y: oy };
 

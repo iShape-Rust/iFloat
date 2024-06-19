@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
-use std::fmt;
+use std::{fmt, ops};
 use serde::{Deserialize, Serialize};
+use crate::f64_point::F64Point;
 use crate::fix_vec::FixVec;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -19,8 +20,8 @@ impl IntPoint {
     }
 
     #[inline(always)]
-    pub fn new_fix_vec(vec: FixVec) -> Self {
-        Self { x: vec.x as i32, y: vec.y as i32 }
+    pub fn new_f64_point(p: F64Point) -> Self {
+        Self { x: p.x.round() as i32, y: p.y.round() as i32 }
     }
 
     #[inline(always)]
@@ -78,6 +79,30 @@ impl Ord for IntPoint {
             Ordering::Less
         } else {
             Ordering::Greater
+        }
+    }
+}
+
+impl ops::Add for IntPoint {
+    type Output = IntPoint;
+
+    #[inline(always)]
+    fn add(self, other: IntPoint) -> IntPoint {
+        IntPoint {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        }
+    }
+}
+
+impl ops::Sub for IntPoint {
+    type Output = IntPoint;
+
+    #[inline(always)]
+    fn sub(self, other: IntPoint) -> IntPoint {
+        IntPoint {
+            x: self.x - other.x,
+            y: self.y - other.y,
         }
     }
 }

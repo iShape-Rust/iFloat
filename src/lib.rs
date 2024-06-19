@@ -6,6 +6,8 @@ pub mod bit_pack;
 pub mod f64_point;
 pub mod f64_rect;
 pub mod point;
+pub mod rect;
 pub mod triangle;
 pub mod u128;
 mod fix_sin;
+

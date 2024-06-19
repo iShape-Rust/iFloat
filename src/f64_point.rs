@@ -1,6 +1,7 @@
 use std::fmt;
 use std::ops::{Add, AddAssign, Mul, Neg, Sub};
 use serde::{Deserialize, Serialize};
+use crate::point::IntPoint;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct F64Point {
@@ -19,6 +20,11 @@ impl F64Point {
     #[inline(always)]
     pub fn new_i64(x: i64, y: i64) -> Self {
         Self { x: x as f64, y: y as f64 }
+    }
+
+    #[inline(always)]
+    pub fn new_int_point(p: IntPoint) -> Self {
+        Self { x: p.x as f64, y: p.y as f64 }
     }
 
     #[inline(always)]
