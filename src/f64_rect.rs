@@ -53,13 +53,15 @@ impl F64Rect {
     pub fn add_point(&mut self, point: &F64Point) {
         if self.min_x > point.x {
             self.min_x = point.x
-        } else if self.max_x < point.x {
+        }
+        if self.max_x < point.x {
             self.max_x = point.x
         }
 
         if self.min_y > point.y {
             self.min_y = point.y
-        } else if self.max_y < point.y {
+        }
+        if self.max_y < point.y {
             self.max_y = point.y
         }
     }
