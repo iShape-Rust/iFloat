@@ -25,18 +25,25 @@ impl F64Rect {
     }
 
     #[inline]
-    pub fn with_points(points: &[F64Point]) -> Self {
-        if points.is_empty() {
-            return Self { min_x: -f64::MAX, max_x: -f64::MAX, min_y: -f64::MAX, max_y: -f64::MAX };
-        }
+    pub fn with_points(points: &[F64Point]) -> Option<Self> {
+        let first_point = if let Some(p) = points.first() {
+            p
+        } else {
+            return None;
+        };
 
-        let mut rect = Self { min_x: f64::MAX, max_x: -f64::MAX, min_y: f64::MAX, max_y: -f64::MAX };
+        let mut rect = Self {
+            min_x: first_point.x,
+            max_x: first_point.x,
+            min_y: first_point.y,
+            max_y: first_point.y
+        };
 
         for p in points.iter() {
-            rect.add_point(p);
+            rect.unsafe_add_point(p);
         }
 
-        rect
+        Some(rect)
     }
 
     #[inline(always)]
@@ -47,6 +54,16 @@ impl F64Rect {
         let max_y = rect0.max_y.max(rect1.max_y);
 
         Self::new(min_x, max_x, min_y, max_y)
+    }
+
+    #[inline(always)]
+    pub fn with_optional_rects(rect0: Option<Self>, rect1: Option<Self>) -> Option<Self> {
+        match (rect0, rect1) {
+            (Some(r0), Some(r1)) => Some(Self::with_rects(&r0, &r1)),
+            (Some(r0), None) => Some(r0),
+            (None, Some(r1)) => Some(r1),
+            (None, None) => None,
+        }
     }
 
     #[inline]
@@ -62,6 +79,21 @@ impl F64Rect {
             self.min_y = point.y
         }
         if self.max_y < point.y {
+            self.max_y = point.y
+        }
+    }
+
+    #[inline]
+    pub fn unsafe_add_point(&mut self, point: &F64Point) {
+        if self.min_x > point.x {
+            self.min_x = point.x
+        } else if self.max_x < point.x {
+            self.max_x = point.x
+        }
+
+        if self.min_y > point.y {
+            self.min_y = point.y
+        } else if self.max_y < point.y {
             self.max_y = point.y
         }
     }

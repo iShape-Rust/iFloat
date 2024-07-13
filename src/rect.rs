@@ -23,18 +23,25 @@ impl IntRect {
         Self { min_x, max_x, min_y, max_y }
     }
 
-    pub fn with_points(points: &[IntPoint]) -> Self {
-        if points.is_empty() {
-            return Self { min_x: i32::MIN, max_x: i32::MIN, min_y: i32::MIN, max_y: i32::MIN };
-        }
+    pub fn with_points(points: &[IntPoint]) -> Option<Self> {
+        let first_point = if let Some(p) = points.first() {
+            p
+        } else {
+            return None;
+        };
 
-        let mut rect = Self { min_x: i32::MAX, max_x: i32::MIN, min_y: i32::MAX, max_y: i32::MIN };
+        let mut rect = Self {
+            min_x: first_point.x,
+            max_x: first_point.x,
+            min_y: first_point.y,
+            max_y: first_point.y
+        };
 
         for p in points.iter() {
-            rect.add_point(p);
+            rect.unsafe_add_point(p);
         }
 
-        rect
+        Some(rect)
     }
 
     #[inline(always)]
@@ -47,8 +54,37 @@ impl IntRect {
         Self::new(min_x, max_x, min_y, max_y)
     }
 
+    #[inline(always)]
+    pub fn with_optional_rects(rect0: Option<Self>, rect1: Option<Self>) -> Option<Self> {
+        match (rect0, rect1) {
+            (Some(r0), Some(r1)) => Some(Self::with_rects(&r0, &r1)),
+            (Some(r0), None) => Some(r0),
+            (None, Some(r1)) => Some(r1),
+            (None, None) => None,
+        }
+    }
+
     #[inline]
     pub fn add_point(&mut self, point: &IntPoint) {
+        if self.min_x > point.x {
+            self.min_x = point.x
+        }
+
+        if self.max_x < point.x {
+            self.max_x = point.x
+        }
+
+        if self.min_y > point.y {
+            self.min_y = point.y
+        }
+
+        if self.max_y < point.y {
+            self.max_y = point.y
+        }
+    }
+
+    #[inline]
+    pub fn unsafe_add_point(&mut self, point: &IntPoint) {
         if self.min_x > point.x {
             self.min_x = point.x
         } else if self.max_x < point.x {
@@ -75,13 +111,17 @@ mod tests {
 
     #[test]
     fn test_0() {
-        let rect = IntRect::with_points(
+        let rect = if let Some(rect) = IntRect::with_points(
             &vec![
                 IntPoint::new(0, 0),
                 IntPoint::new(-7, 10),
                 IntPoint::new(20, -5),
             ]
-        );
+        ) {
+            rect
+        } else {
+            return;
+        };
 
         assert_eq!(rect.min_x, -7);
         assert_eq!(rect.max_x, 20);
