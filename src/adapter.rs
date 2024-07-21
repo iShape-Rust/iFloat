@@ -21,6 +21,16 @@ impl PointAdapter {
         let offset = F64Point { x: ox, y: oy };
 
         let max = a.max(b);
+
+        // degenerate case
+        if max == 0.0 {
+            return PointAdapter {
+                dir_scale: 1.0,
+                inv_scale: 1.0,
+                offset,
+            };
+        }
+
         let log2 = max.log2() as i32;
         let e = 29 - log2;
 
