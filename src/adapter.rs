@@ -9,7 +9,6 @@ pub struct PointAdapter {
 }
 
 impl PointAdapter {
-
     #[inline]
     pub fn new(rect: F64Rect) -> Self {
         let a = rect.width() * 0.5;
@@ -56,5 +55,45 @@ impl PointAdapter {
         let x = ((point.x - self.offset.x) * self.dir_scale) as i32;
         let y = ((point.y - self.offset.y) * self.dir_scale) as i32;
         IntPoint { x, y }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::adapter::PointAdapter;
+    use crate::f64_rect::F64Rect;
+    use crate::point::IntPoint;
+
+    #[test]
+    fn test_0() {
+        let rect = F64Rect {
+            min_x: 1.0,
+            max_x: 1.0,
+            min_y: -2.0,
+            max_y: -2.0,
+        };
+
+        let adapter = PointAdapter::new(rect);
+
+        assert_eq!(adapter.dir_scale, 1.0);
+        assert_eq!(adapter.inv_scale, 1.0);
+    }
+
+    #[test]
+    fn test_1() {
+        let rect = F64Rect {
+            min_x: 0.0,
+            max_x: 10.0,
+            min_y: 0.0,
+            max_y: 100.0,
+        };
+
+        let adapter = PointAdapter::new(rect);
+
+        let p0 = IntPoint::new(10, 2);
+        let f0 = adapter.convert_to_float(&p0);
+        let p1 = adapter.convert_to_int(&f0);
+
+        assert_eq!(p0, p1);
     }
 }
