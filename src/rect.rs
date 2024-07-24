@@ -1,5 +1,6 @@
 use crate::point::IntPoint;
 
+#[derive(Debug, Clone)]
 pub struct IntRect {
     pub min_x: i32,
     pub max_x: i32,
@@ -34,7 +35,7 @@ impl IntRect {
             min_x: first_point.x,
             max_x: first_point.x,
             min_y: first_point.y,
-            max_y: first_point.y
+            max_y: first_point.y,
         };
 
         for p in points.iter() {
@@ -101,6 +102,20 @@ impl IntRect {
     #[inline(always)]
     pub fn contains(&self, point: IntPoint) -> bool {
         self.min_x <= point.x && point.x <= self.max_x && self.min_y <= point.y && point.y <= self.max_y
+    }
+
+    #[inline]
+    pub fn is_intersect_border_include(&self, other: &Self) -> bool {
+        let x = self.min_x <= other.max_x && self.max_x >= other.min_x;
+        let y = self.min_y <= other.max_y && self.max_y >= other.min_y;
+        x && y
+    }
+
+    #[inline]
+    pub fn is_intersect_border_exclude(&self, other: &Self) -> bool {
+        let x = self.min_x < other.max_x && self.max_x > other.min_x;
+        let y = self.min_y < other.max_y && self.max_y > other.min_y;
+        x && y
     }
 }
 
