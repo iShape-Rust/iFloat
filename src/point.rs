@@ -50,7 +50,7 @@ impl IntPoint {
     pub fn sqr_distance(self, other: IntPoint) -> i64 {
         let x = (self.x as i64) - (other.x as i64);
         let y = (self.y as i64) - (other.y as i64);
-        return x * x + y * y;
+        x * x + y * y
     }
 }
 
@@ -74,7 +74,7 @@ impl Ord for IntPoint {
     fn cmp(&self, other: &Self) -> Ordering {
         let x = self.x == other.x;
         if x && self.y == other.y {
-            return Ordering::Equal
+            Ordering::Equal
         } else if self.x < other.x || x && self.y < other.y {
             Ordering::Less
         } else {

@@ -23,7 +23,7 @@ impl BitPackVec for FixVec {
         let xx = ((self.x + FIX_MID) as u64) << 32;
         let yy = (self.y + FIX_MID) as u64;
 
-        return xx | yy;
+        xx | yy
     }
 }
 
@@ -34,7 +34,7 @@ impl BitPackVec for IntPoint {
         let xx = (((self.x as i64) + FIX_MID) as u64) << 32;
         let yy = ((self.y as i64) + FIX_MID) as u64;
 
-        return xx | yy;
+        xx | yy
     }
 }
 
