@@ -2,13 +2,13 @@ use crate::f64_point::F64Point;
 use crate::f64_rect::F64Rect;
 use crate::point::IntPoint;
 
-pub struct PointAdapter {
+pub struct F64PointAdapter {
     pub dir_scale: f64,
     pub inv_scale: f64,
     pub offset: F64Point,
 }
 
-impl PointAdapter {
+impl F64PointAdapter {
     #[inline]
     pub fn new(rect: F64Rect) -> Self {
         let a = rect.width() * 0.5;
@@ -23,7 +23,7 @@ impl PointAdapter {
 
         // degenerate case
         if max == 0.0 {
-            return PointAdapter {
+            return F64PointAdapter {
                 dir_scale: 1.0,
                 inv_scale: 1.0,
                 offset,
@@ -36,7 +36,7 @@ impl PointAdapter {
         let dir_scale = 2f64.powi(e);
         let inv_scale = 2f64.powi(-e);
 
-        PointAdapter {
+        F64PointAdapter {
             dir_scale,
             inv_scale,
             offset,
@@ -60,9 +60,9 @@ impl PointAdapter {
 
 #[cfg(test)]
 mod tests {
-    use crate::adapter::PointAdapter;
+    use crate::f64_adapter::F64PointAdapter;
+    use crate::f64_point::F64Point;
     use crate::f64_rect::F64Rect;
-    use crate::point::IntPoint;
 
     #[test]
     fn test_0() {
@@ -73,7 +73,7 @@ mod tests {
             max_y: -2.0,
         };
 
-        let adapter = PointAdapter::new(rect);
+        let adapter = F64PointAdapter::new(rect);
 
         assert_eq!(adapter.dir_scale, 1.0);
         assert_eq!(adapter.inv_scale, 1.0);
@@ -88,12 +88,13 @@ mod tests {
             max_y: 100.0,
         };
 
-        let adapter = PointAdapter::new(rect);
+        let adapter = F64PointAdapter::new(rect);
 
-        let p0 = IntPoint::new(10, 2);
-        let f0 = adapter.convert_to_float(&p0);
-        let p1 = adapter.convert_to_int(&f0);
+        let f0 = F64Point::new(10.0, 2.0);
+        let p0 = adapter.convert_to_int(&f0);
+        let f1 = adapter.convert_to_float(&p0);
 
-        assert_eq!(p0, p1);
+        assert_eq!((f0.x - f1.x).abs() < 0.000_0001, true);
+        assert_eq!((f0.y - f1.y).abs() < 0.000_0001, true);
     }
 }
