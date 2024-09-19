@@ -11,7 +11,6 @@ pub struct IntPoint {
 }
 
 impl IntPoint {
-
     pub const ZERO: Self = Self { x: 0, y: 0 };
 
     #[inline(always)]
@@ -61,7 +60,6 @@ impl fmt::Display for IntPoint {
 }
 
 impl PartialOrd for IntPoint {
-
     #[inline(always)]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
@@ -69,7 +67,6 @@ impl PartialOrd for IntPoint {
 }
 
 impl Ord for IntPoint {
-
     #[inline(always)]
     fn cmp(&self, other: &Self) -> Ordering {
         let x = self.x == other.x;

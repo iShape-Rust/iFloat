@@ -9,5 +9,4 @@ mod tests {
 
         assert!(s.eq("[5, 1]"));
     }
-
 }

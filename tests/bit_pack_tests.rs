@@ -32,7 +32,7 @@ mod tests {
     fn test_4() {
         assert!(FixVec::new(FIX_MIN, 0).bit_pack() < FixVec::new(FIX_MIN, 1).bit_pack());
 
-        let b0 = FixVec::new(FIX_MIN,  0).bit_pack();
+        let b0 = FixVec::new(FIX_MIN, 0).bit_pack();
         let b1 = FixVec::new(FIX_MIN, -1).bit_pack();
 
         assert!(b0 > b1)

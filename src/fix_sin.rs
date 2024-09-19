@@ -136,5 +136,4 @@ impl FixSin {
     pub(crate) fn value(index: usize) -> i64 {
         Self::MAP[index] as i64
     }
-
 }

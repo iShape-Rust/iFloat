@@ -55,12 +55,14 @@ impl Ord for UInt128 {
 
     #[inline(always)]
     fn cmp(&self, other: &Self) -> Ordering {
-        if self.high == other.high {
-            self.low.cmp(&other.low)
-        } else if self.high < other.high {
-            Ordering::Less
-        } else {
-            Ordering::Greater
+        let cmp_high = self.high.cmp(&other.high);
+        match cmp_high {
+            Ordering::Equal => {
+                self.low.cmp(&other.low)
+            }
+            _ => {
+                cmp_high
+            }
         }
     }
 }

@@ -25,11 +25,7 @@ impl IntRect {
     }
 
     pub fn with_points(points: &[IntPoint]) -> Option<Self> {
-        let first_point = if let Some(p) = points.first() {
-            p
-        } else {
-            return None;
-        };
+        let first_point = points.first()?;
 
         let mut rect = Self {
             min_x: first_point.x,

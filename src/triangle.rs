@@ -5,7 +5,6 @@ use crate::point::IntPoint;
 pub struct Triangle;
 
 impl Triangle {
-
     #[inline(always)]
     pub fn area_two(p0: FixVec, p1: FixVec, p2: FixVec) -> i64 {
         (p1 - p0).cross_product(p1 - p2)

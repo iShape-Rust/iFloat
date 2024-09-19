@@ -30,7 +30,6 @@ pub trait FixTrigonometry {
 }
 
 impl FixTrigonometry for FixAngle {
-
     #[inline(always)]
     fn new_from_radians_f64(radians: f64) -> Self {
         (radians * FIX_ANGLE_F64_TO_ANGLE) as i64 >> FIX_FRACTION_BITS

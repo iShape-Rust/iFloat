@@ -17,7 +17,6 @@ pub trait BitPackFix {
 }
 
 impl BitPackVec for FixVec {
-
     #[inline(always)]
     fn bit_pack(&self) -> BitPack {
         let xx = ((self.x + FIX_MID) as u64) << 32;
@@ -28,7 +27,6 @@ impl BitPackVec for FixVec {
 }
 
 impl BitPackVec for IntPoint {
-
     #[inline(always)]
     fn bit_pack(&self) -> BitPack {
         let xx = (((self.x as i64) + FIX_MID) as u64) << 32;

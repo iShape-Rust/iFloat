@@ -105,7 +105,6 @@ impl Neg for F32Point {
 }
 
 impl AddAssign for F32Point {
-
     #[inline(always)]
     fn add_assign(&mut self, other: Self) {
         self.x += other.x;

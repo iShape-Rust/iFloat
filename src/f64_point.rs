@@ -105,7 +105,6 @@ impl Neg for F64Point {
 }
 
 impl AddAssign for F64Point {
-
     #[inline(always)]
     fn add_assign(&mut self, other: Self) {
         self.x += other.x;

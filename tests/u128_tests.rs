@@ -113,5 +113,4 @@ mod tests {
         assert_eq!(result.high, 0x15d3ef338213a);
         assert_eq!(result.low, 0x65039ef3cbc5c42b);
     }
-
 }

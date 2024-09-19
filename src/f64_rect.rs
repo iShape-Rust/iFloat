@@ -8,7 +8,6 @@ pub struct F64Rect {
 }
 
 impl F64Rect {
-
     #[inline(always)]
     pub fn width(&self) -> f64 {
         self.max_x - self.min_x
@@ -26,17 +25,13 @@ impl F64Rect {
 
     #[inline]
     pub fn with_points(points: &[F64Point]) -> Option<Self> {
-        let first_point = if let Some(p) = points.first() {
-            p
-        } else {
-            return None;
-        };
+        let first_point = points.first()?;
 
         let mut rect = Self {
             min_x: first_point.x,
             max_x: first_point.x,
             min_y: first_point.y,
-            max_y: first_point.y
+            max_y: first_point.y,
         };
 
         for p in points.iter() {
