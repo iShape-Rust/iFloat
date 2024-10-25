@@ -12,4 +12,9 @@ pub mod point;
 pub mod rect;
 pub mod triangle;
 pub mod u128;
+pub mod float;
+pub mod float_point;
+pub mod adapter;
+pub mod float_rect;
+
 mod fix_sin;

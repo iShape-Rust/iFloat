@@ -3,6 +3,8 @@ use std::{fmt, ops};
 use serde::{Deserialize, Serialize};
 use crate::f64_point::F64Point;
 use crate::fix_vec::FixVec;
+use crate::float::Float;
+use crate::float_point::FloatPoint;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct IntPoint {
@@ -50,6 +52,12 @@ impl IntPoint {
         let x = (self.x as i64) - (other.x as i64);
         let y = (self.y as i64) - (other.y as i64);
         x * x + y * y
+    }
+
+    pub fn to_float<T: Float>(&self) -> FloatPoint<T> {
+        let x = Float::from_i32(self.x);
+        let y = Float::from_i32(self.y);
+        FloatPoint::new(x, y)
     }
 }
 
