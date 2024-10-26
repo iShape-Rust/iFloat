@@ -44,6 +44,16 @@ impl<T: Float> FloatPointAdapter<T> {
         }
     }
 
+    #[inline]
+    pub fn with_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item=FloatPoint<T>>,
+    {
+        let rect = FloatRect::with_iter(iter)
+            .unwrap_or(FloatRect::new(Float::zero(), Float::zero(), Float::zero(), Float::zero()));
+        Self::new(rect)
+    }
+
     #[inline(always)]
     pub fn convert_to_float(&self, point: &IntPoint) -> FloatPoint<T> {
         let fx: T = Float::from_i32(point.x);
@@ -63,20 +73,21 @@ impl<T: Float> FloatPointAdapter<T> {
 
 #[cfg(test)]
 mod tests {
-    use crate::f64_adapter::F64PointAdapter;
-    use crate::f64_point::F64Point;
-    use crate::f64_rect::F64Rect;
+    use crate::adapter::FloatPointAdapter;
+    use crate::float::Float;
+    use crate::float_point::FloatPoint;
+    use crate::float_rect::FloatRect;
 
     #[test]
     fn test_0() {
-        let rect = F64Rect {
+        let rect = FloatRect {
             min_x: 1.0,
             max_x: 1.0,
             min_y: -2.0,
             max_y: -2.0,
         };
 
-        let adapter = F64PointAdapter::new(rect);
+        let adapter = FloatPointAdapter::new(rect);
 
         assert_eq!(adapter.dir_scale, 1.0);
         assert_eq!(adapter.inv_scale, 1.0);
@@ -84,20 +95,41 @@ mod tests {
 
     #[test]
     fn test_1() {
-        let rect = F64Rect {
+        let rect = FloatRect {
             min_x: 0.0,
             max_x: 10.0,
             min_y: 0.0,
             max_y: 100.0,
         };
 
-        let adapter = F64PointAdapter::new(rect);
+        let adapter = FloatPointAdapter::new(rect);
 
-        let f0 = F64Point::new(10.0, 2.0);
+        let f0 = FloatPoint::new(10.0, 2.0);
         let p0 = adapter.convert_to_int(&f0);
         let f1 = adapter.convert_to_float(&p0);
 
-        assert_eq!((f0.x - f1.x).abs() < 0.000_0001, true);
-        assert_eq!((f0.y - f1.y).abs() < 0.000_0001, true);
+        assert_eq!((f0.x - f1.x).to_f64().abs() < 0.000_0001, true);
+        assert_eq!((f0.y - f1.y).to_f64().abs() < 0.000_0001, true);
+    }
+
+    #[test]
+    fn test_2() {
+        let points = [
+            [-2.0, -4.0],
+            [-2.0, 3.0],
+            [5.0, 3.0],
+            [5.0, -4.0],
+        ];
+
+        let adapter = FloatPointAdapter::with_iter(
+            points.iter().map(|s| FloatPoint::new(s[0], s[1]))
+        );
+
+        let f0 = FloatPoint::new(1.0, 2.0);
+        let p0 = adapter.convert_to_int(&f0);
+        let f1 = adapter.convert_to_float(&p0);
+
+        assert_eq!((f0.x - f1.x).to_f64().abs() < 0.000_0001, true);
+        assert_eq!((f0.y - f1.y).to_f64().abs() < 0.000_0001, true);
     }
 }

@@ -14,6 +14,7 @@ where
     fn min(self, other: Self) -> Self;
     fn log2(self) -> Self;
     fn to_int(self) -> i32;
+    fn to_f64(self) -> f64;
 }
 
 impl Float for f32 {
@@ -60,6 +61,11 @@ impl Float for f32 {
     #[inline(always)]
     fn to_int(self) -> i32 {
         self.round() as i32
+    }
+
+    #[inline(always)]
+    fn to_f64(self) -> f64 {
+        self as f64
     }
 }
 
@@ -108,5 +114,10 @@ impl Float for f64 {
     #[inline(always)]
     fn to_int(self) -> i32 {
         self.round() as i32
+    }
+
+    #[inline(always)]
+    fn to_f64(self) -> f64 {
+        self
     }
 }

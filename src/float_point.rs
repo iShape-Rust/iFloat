@@ -110,3 +110,20 @@ impl<T: Float> fmt::Display for FloatPoint<T> {
         write!(f, "[{}, {}]", self.x, self.y)
     }
 }
+
+pub trait FloatPointCompatible<T: Float> {
+    fn from_float_point(float_point: FloatPoint<T>) -> Self;
+    fn to_float_point(&self) -> FloatPoint<T>;
+}
+
+impl<T: Float> FloatPointCompatible<T> for FloatPoint<T> {
+    #[inline(always)]
+    fn from_float_point(float_point: FloatPoint<T>) -> Self {
+        float_point
+    }
+
+    #[inline(always)]
+    fn to_float_point(&self) -> FloatPoint<T> {
+        *self
+    }
+}

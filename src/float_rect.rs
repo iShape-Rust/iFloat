@@ -1,5 +1,5 @@
 use crate::float::Float;
-use crate::float_point::FloatPoint;
+use crate::float_point::{FloatPoint, FloatPointCompatible};
 
 pub struct FloatRect<T> {
     pub min_x: T,
@@ -25,21 +25,11 @@ impl<T: Float> FloatRect<T> {
     }
 
     #[inline]
-    pub fn with_points(points: &[FloatPoint<T>]) -> Option<Self> {
-        let first_point = points.first()?;
-
-        let mut rect = Self {
-            min_x: first_point.x,
-            max_x: first_point.x,
-            min_y: first_point.y,
-            max_y: first_point.y,
-        };
-
-        for p in points.iter() {
-            rect.unsafe_add_point(p);
-        }
-
-        Some(rect)
+    pub fn with_points<P>(points: &[P]) -> Option<Self>
+    where
+        P: FloatPointCompatible<T>,
+    {
+        Self::with_iter(points.iter().map(|p| p.to_float_point()))
     }
 
     #[inline(always)]
@@ -63,7 +53,28 @@ impl<T: Float> FloatRect<T> {
     }
 
     #[inline]
-    pub fn add_point(&mut self, point: &FloatPoint<T>) {
+    pub fn with_iter<I>(iter: I) -> Option<Self>
+    where
+        I: IntoIterator<Item=FloatPoint<T>>,
+    {
+        let mut iter = iter.into_iter();
+        let first_point = iter.next()?;
+        let mut rect = Self {
+            min_x: first_point.x,
+            max_x: first_point.x,
+            min_y: first_point.y,
+            max_y: first_point.y,
+        };
+
+        for p in iter {
+            rect.unsafe_add_point(p);
+        }
+
+        Some(rect)
+    }
+
+    #[inline]
+    pub fn add_point(&mut self, point: FloatPoint<T>) {
         if self.min_x > point.x {
             self.min_x = point.x
         }
@@ -80,7 +91,7 @@ impl<T: Float> FloatRect<T> {
     }
 
     #[inline]
-    pub fn unsafe_add_point(&mut self, point: &FloatPoint<T>) {
+    pub fn unsafe_add_point(&mut self, point: FloatPoint<T>) {
         if self.min_x > point.x {
             self.min_x = point.x
         } else if self.max_x < point.x {
@@ -92,5 +103,30 @@ impl<T: Float> FloatRect<T> {
         } else if self.max_y < point.y {
             self.max_y = point.y
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::float_point::FloatPoint;
+    use crate::float_rect::FloatRect;
+
+    #[test]
+    fn test_0() {
+        let points = [
+            [-2.0, -4.0],
+            [-2.0, 3.0],
+            [5.0, 3.0],
+            [5.0, -4.0],
+        ];
+
+        let iter = points.iter().map(|s| FloatPoint::new(s[0], s[1]));
+
+        let rect: FloatRect<f64> = FloatRect::with_iter(iter).unwrap();
+
+        assert_eq!((rect.max_x - 5.0).abs() < 0.000_0001, true);
+        assert_eq!((rect.min_x + 2.0).abs() < 0.000_0001, true);
+        assert_eq!((rect.max_y - 3.0).abs() < 0.000_0001, true);
+        assert_eq!((rect.min_y + 4.0).abs() < 0.000_0001, true);
     }
 }
