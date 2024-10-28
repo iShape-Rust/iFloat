@@ -1,6 +1,7 @@
 use std::fmt;
 use std::ops::{Add, AddAssign, Mul, Neg, Sub};
 use serde::{Deserialize, Serialize};
+use crate::float_point::{FloatPoint, FloatPointCompatible};
 use crate::point::IntPoint;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -115,5 +116,17 @@ impl AddAssign for F64Point {
 impl fmt::Display for F64Point {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[{}, {}]", self.x, self.y)
+    }
+}
+
+impl FloatPointCompatible<f64> for F64Point {
+    #[inline(always)]
+    fn from_float_point(float_point: FloatPoint<f64>) -> Self {
+        Self::new(float_point.x, float_point.y)
+    }
+
+    #[inline(always)]
+    fn to_float_point(&self) -> FloatPoint<f64> {
+        FloatPoint::new(self.x, self.y)
     }
 }
