@@ -122,8 +122,8 @@ mod tests {
         let adapter = FloatPointAdapter::new(rect);
 
         let f0 = FloatPoint::new(10.0, 2.0);
-        let p0 = adapter.convert_to_int(&f0);
-        let f1 = adapter.convert_to_float(&p0);
+        let p0 = adapter.convert_to_int(f0);
+        let f1 = adapter.convert_to_float(p0);
 
         assert_eq!((f0.x - f1.x).to_f64().abs() < 0.000_0001, true);
         assert_eq!((f0.y - f1.y).to_f64().abs() < 0.000_0001, true);
@@ -143,8 +143,8 @@ mod tests {
         );
 
         let f0 = FloatPoint::new(1.0, 2.0);
-        let p0 = adapter.convert_to_int(&f0);
-        let f1 = adapter.convert_to_float(&p0);
+        let p0 = adapter.convert_to_int(f0);
+        let f1 = adapter.convert_to_float(p0);
 
         assert_eq!((f0.x - f1.x).to_f64().abs() < 0.000_0001, true);
         assert_eq!((f0.y - f1.y).to_f64().abs() < 0.000_0001, true);
