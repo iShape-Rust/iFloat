@@ -48,12 +48,18 @@ impl IntPoint {
     }
 
     #[inline(always)]
-    pub fn sqr_distance(self, other: IntPoint) -> i64 {
-        let x = (self.x as i64) - (other.x as i64);
-        let y = (self.y as i64) - (other.y as i64);
+    pub fn sqr_length(self) -> i64 {
+        let x = self.x as i64;
+        let y = self.y as i64;
         x * x + y * y
     }
 
+    #[inline(always)]
+    pub fn sqr_distance(self, other: IntPoint) -> i64 {
+        (self - other).sqr_length()
+    }
+
+    #[inline(always)]
     pub fn to_float<T: Float>(&self) -> FloatPoint<T> {
         let x = Float::from_i32(self.x);
         let y = Float::from_i32(self.y);

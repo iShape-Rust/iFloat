@@ -3,6 +3,7 @@ use crate::float_point::FloatPoint;
 use crate::float_rect::FloatRect;
 use crate::point::IntPoint;
 
+#[derive(Clone)]
 pub struct FloatPointAdapter<T: Float> {
     pub dir_scale: T,
     pub inv_scale: T,

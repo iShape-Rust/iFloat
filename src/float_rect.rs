@@ -25,6 +25,16 @@ impl<T: Float> FloatRect<T> {
     }
 
     #[inline]
+    pub fn with_point(point: FloatPoint<T>) -> Self {
+        Self {
+            min_x: point.x,
+            max_x: point.x,
+            min_y: point.y,
+            max_y: point.y,
+        }
+    }
+
+    #[inline]
     pub fn with_points<P>(points: &[P]) -> Option<Self>
     where
         P: FloatPointCompatible<T>,
@@ -32,7 +42,7 @@ impl<T: Float> FloatRect<T> {
         Self::with_iter(points.iter().map(|p| p.to_float_point()))
     }
 
-    #[inline(always)]
+    #[inline]
     pub fn with_rects(rect0: &Self, rect1: &Self) -> Self {
         let min_x = rect0.min_x.min(rect1.min_x);
         let max_x = rect0.max_x.max(rect1.max_x);
@@ -42,7 +52,7 @@ impl<T: Float> FloatRect<T> {
         Self::new(min_x, max_x, min_y, max_y)
     }
 
-    #[inline(always)]
+    #[inline]
     pub fn with_optional_rects(rect0: Option<Self>, rect1: Option<Self>) -> Option<Self> {
         match (rect0, rect1) {
             (Some(r0), Some(r1)) => Some(Self::with_rects(&r0, &r1)),
