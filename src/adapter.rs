@@ -8,6 +8,7 @@ pub struct FloatPointAdapter<T: Float> {
     pub dir_scale: T,
     pub inv_scale: T,
     pub offset: FloatPoint<T>,
+    pub rect: FloatRect<T>
 }
 
 impl<T: Float> FloatPointAdapter<T> {
@@ -29,6 +30,7 @@ impl<T: Float> FloatPointAdapter<T> {
                 dir_scale: Float::from_float(1.0),
                 inv_scale: Float::from_float(1.0),
                 offset,
+                rect,
             };
         }
 
@@ -42,6 +44,7 @@ impl<T: Float> FloatPointAdapter<T> {
             dir_scale,
             inv_scale,
             offset,
+            rect,
         }
     }
 
@@ -56,16 +59,29 @@ impl<T: Float> FloatPointAdapter<T> {
     }
 
     #[inline(always)]
-    pub fn convert_to_float(&self, point: &IntPoint) -> FloatPoint<T> {
+    pub fn convert_to_float(&self, point: IntPoint) -> FloatPoint<T> {
         let fx: T = Float::from_i32(point.x);
         let fy: T = Float::from_i32(point.y);
         let x = fx * self.inv_scale + self.offset.x;
         let y = fy * self.inv_scale + self.offset.y;
-        FloatPoint { x, y }
+        let float = FloatPoint { x, y };
+
+        debug_assert!(
+            self.rect.contains(float),
+            "You are trying to convert a point which is out of rect: {}",
+            self.rect
+        );
+
+        float
     }
 
     #[inline(always)]
-    pub fn convert_to_int(&self, point: &FloatPoint<T>) -> IntPoint {
+    pub fn convert_to_int(&self, point: FloatPoint<T>) -> IntPoint {
+        debug_assert!(
+            self.rect.contains(point),
+            "You are trying to convert a point which is out of rect: {}",
+            self.rect
+        );
         let x = ((point.x - self.offset.x) * self.dir_scale).to_int();
         let y = ((point.y - self.offset.y) * self.dir_scale).to_int();
         IntPoint { x, y }

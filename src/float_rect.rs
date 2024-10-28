@@ -1,6 +1,8 @@
+use std::fmt;
 use crate::float::Float;
 use crate::float_point::{FloatPoint, FloatPointCompatible};
 
+#[derive(Clone)]
 pub struct FloatRect<T> {
     pub min_x: T,
     pub max_x: T,
@@ -113,6 +115,17 @@ impl<T: Float> FloatRect<T> {
         } else if self.max_y < point.y {
             self.max_y = point.y
         }
+    }
+
+    #[inline(always)]
+    pub fn contains(&self, point: FloatPoint<T>) -> bool {
+        self.min_x <= point.x && point.x <= self.max_x && self.min_y <= point.y && point.y <= self.max_y
+    }
+}
+
+impl<T: Float> fmt::Display for FloatRect<T> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({}, {})-({}, {})", self.min_x, self.min_y, self.max_x, self.max_y)
     }
 }
 
