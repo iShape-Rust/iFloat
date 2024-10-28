@@ -1,6 +1,6 @@
 use crate::f32_point::F32Point;
 use crate::f32_rect::F32Rect;
-use crate::point::IntPoint;
+use crate::int::point::IntPoint;
 
 pub struct F32PointAdapter {
     pub dir_scale: f32,

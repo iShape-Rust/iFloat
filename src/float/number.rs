@@ -1,11 +1,10 @@
 use std::fmt::Display;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-pub trait Float
+pub trait FloatNumber
 where
     Self: Copy + Mul<Output=Self> + Add<Output=Self> + Sub<Output=Self> + Div<Output=Self> + Neg<Output=Self> + Display + PartialOrd,
 {
-    fn zero() -> Self;
     fn sqrt(self) -> Self;
     fn from_i32(value: i32) -> Self;
     fn from_i64(value: i64) -> Self;
@@ -17,12 +16,7 @@ where
     fn to_f64(self) -> f64;
 }
 
-impl Float for f32 {
-    #[inline(always)]
-    fn zero() -> Self {
-        0.0
-    }
-
+impl FloatNumber for f32 {
     #[inline(always)]
     fn sqrt(self) -> Self {
         self.sqrt()
@@ -69,12 +63,7 @@ impl Float for f32 {
     }
 }
 
-impl Float for f64 {
-    #[inline(always)]
-    fn zero() -> Self {
-        0.0
-    }
-
+impl FloatNumber for f64 {
     #[inline(always)]
     fn sqrt(self) -> Self {
         self.sqrt()

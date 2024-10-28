@@ -1,5 +1,5 @@
 use crate::fix_vec::FixVec;
-use crate::point::IntPoint;
+use crate::int::point::IntPoint;
 
 pub type BitPack = u64;
 

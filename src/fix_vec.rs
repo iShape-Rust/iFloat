@@ -4,7 +4,7 @@ use std::ops::Mul;
 use serde::{Serialize, Deserialize};
 use crate::fix_float::{FIX_FRACTION_BITS, FIX_ZERO, FixConvert, FixFloat, FixMath};
 use crate::f64_point::F64Point;
-use crate::point::IntPoint;
+use crate::int::point::IntPoint;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct FixVec {

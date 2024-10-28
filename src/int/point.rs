@@ -3,8 +3,6 @@ use std::{fmt, ops};
 use serde::{Deserialize, Serialize};
 use crate::f64_point::F64Point;
 use crate::fix_vec::FixVec;
-use crate::float::Float;
-use crate::float_point::FloatPoint;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct IntPoint {
@@ -57,13 +55,6 @@ impl IntPoint {
     #[inline(always)]
     pub fn sqr_distance(self, other: IntPoint) -> i64 {
         (self - other).sqr_length()
-    }
-
-    #[inline(always)]
-    pub fn to_float<T: Float>(&self) -> FloatPoint<T> {
-        let x = Float::from_i32(self.x);
-        let y = Float::from_i32(self.y);
-        FloatPoint::new(x, y)
     }
 }
 

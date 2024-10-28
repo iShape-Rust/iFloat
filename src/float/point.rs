@@ -1,18 +1,19 @@
 use std::fmt;
 use std::ops::{Add, AddAssign, Mul, Neg, Sub};
 use serde::{Deserialize, Serialize};
-use crate::float::Float;
+use crate::float::compatible::FloatPointCompatible;
+use crate::float::number::FloatNumber;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub struct FloatPoint<T: Float> {
+pub struct FloatPoint<T: FloatNumber> {
     pub x: T,
     pub y: T,
 }
 
-impl<T: Float> FloatPoint<T> {
+impl<T: FloatNumber> FloatPoint<T> {
     #[inline(always)]
     pub fn zero() -> Self {
-        Self { x: Float::zero(), y: Float::zero() }
+        Self { x: FloatNumber::from_float(0.0), y: FloatNumber::from_float(0.0) }
     }
 
     #[inline(always)]
@@ -52,7 +53,7 @@ impl<T: Float> FloatPoint<T> {
     }
 }
 
-impl<T: Float> Mul<T> for FloatPoint<T> {
+impl<T: FloatNumber> Mul<T> for FloatPoint<T> {
     type Output = Self;
 
     #[inline(always)]
@@ -64,7 +65,7 @@ impl<T: Float> Mul<T> for FloatPoint<T> {
     }
 }
 
-impl<T: Float> Add for FloatPoint<T> {
+impl<T: FloatNumber> Add for FloatPoint<T> {
     type Output = Self;
 
     #[inline(always)]
@@ -76,7 +77,7 @@ impl<T: Float> Add for FloatPoint<T> {
     }
 }
 
-impl<T: Float> Sub for FloatPoint<T> {
+impl<T: FloatNumber> Sub for FloatPoint<T> {
     type Output = Self;
 
     #[inline(always)]
@@ -88,7 +89,7 @@ impl<T: Float> Sub for FloatPoint<T> {
     }
 }
 
-impl<T: Float> Neg for FloatPoint<T> {
+impl<T: FloatNumber> Neg for FloatPoint<T> {
     type Output = Self;
 
     #[inline(always)]
@@ -97,7 +98,7 @@ impl<T: Float> Neg for FloatPoint<T> {
     }
 }
 
-impl<T: Float> AddAssign for FloatPoint<T> {
+impl<T: FloatNumber> AddAssign for FloatPoint<T> {
     #[inline(always)]
     fn add_assign(&mut self, other: Self) {
         self.x = self.x + other.x;
@@ -105,25 +106,25 @@ impl<T: Float> AddAssign for FloatPoint<T> {
     }
 }
 
-impl<T: Float> fmt::Display for FloatPoint<T> {
+impl<T: FloatNumber> fmt::Display for FloatPoint<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[{}, {}]", self.x, self.y)
     }
 }
 
-pub trait FloatPointCompatible<T: Float> {
-    fn from_float_point(float_point: FloatPoint<T>) -> Self;
-    fn to_float_point(&self) -> FloatPoint<T>;
-}
-
-impl<T: Float> FloatPointCompatible<T> for FloatPoint<T> {
+impl<T: FloatNumber> FloatPointCompatible<T> for FloatPoint<T> {
     #[inline(always)]
-    fn from_float_point(float_point: FloatPoint<T>) -> Self {
-        float_point
+    fn from_xy(x: T, y: T) -> Self {
+        Self { x, y }
     }
 
     #[inline(always)]
-    fn to_float_point(&self) -> FloatPoint<T> {
-        *self
+    fn x(&self) -> T {
+        self.x
+    }
+
+    #[inline(always)]
+    fn y(&self) -> T {
+        self.y
     }
 }

@@ -1,4 +1,4 @@
-use crate::point::IntPoint;
+use crate::int::point::IntPoint;
 
 #[derive(Debug, Clone)]
 pub struct IntRect {
@@ -117,8 +117,8 @@ impl IntRect {
 
 #[cfg(test)]
 mod tests {
-    use crate::point::IntPoint;
-    use crate::rect::IntRect;
+    use crate::int::point::IntPoint;
+    use crate::int::rect::IntRect;
 
     #[test]
     fn test_0() {

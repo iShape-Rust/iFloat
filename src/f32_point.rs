@@ -1,8 +1,7 @@
 use std::fmt;
 use std::ops::{Add, AddAssign, Mul, Neg, Sub};
 use serde::{Deserialize, Serialize};
-use crate::float_point::{FloatPoint, FloatPointCompatible};
-use crate::point::IntPoint;
+use crate::int::point::IntPoint;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct F32Point {
@@ -116,17 +115,5 @@ impl AddAssign for F32Point {
 impl fmt::Display for F32Point {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[{}, {}]", self.x, self.y)
-    }
-}
-
-impl FloatPointCompatible<f32> for F32Point {
-    #[inline(always)]
-    fn from_float_point(float_point: FloatPoint<f32>) -> Self {
-        Self::new(float_point.x, float_point.y)
-    }
-
-    #[inline(always)]
-    fn to_float_point(&self) -> FloatPoint<f32> {
-        FloatPoint::new(self.x, self.y)
     }
 }

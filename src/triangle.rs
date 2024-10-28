@@ -1,6 +1,6 @@
 use crate::fix_float::FixFloat;
 use crate::fix_vec::FixVec;
-use crate::point::IntPoint;
+use crate::int::point::IntPoint;
 
 pub struct Triangle;
 

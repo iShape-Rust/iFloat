@@ -1,6 +1,6 @@
 use crate::f64_point::F64Point;
 use crate::f64_rect::F64Rect;
-use crate::point::IntPoint;
+use crate::int::point::IntPoint;
 
 pub struct F64PointAdapter {
     pub dir_scale: f64,

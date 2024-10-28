@@ -8,13 +8,10 @@ pub mod f64_adapter;
 pub mod f32_point;
 pub mod f32_rect;
 pub mod f32_adapter;
-pub mod point;
-pub mod rect;
 pub mod triangle;
 pub mod u128;
 pub mod float;
-pub mod float_point;
+pub mod int;
 pub mod adapter;
-pub mod float_rect;
 
 mod fix_sin;
