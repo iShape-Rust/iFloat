@@ -4,22 +4,23 @@ use crate::float::number::FloatNumber;
 use crate::int::point::IntPoint;
 
 #[derive(Clone)]
-pub struct FloatPointAdapter<T: FloatNumber> {
+pub struct FloatPointAdapter<P: FloatPointCompatible<T>, T: FloatNumber> {
     pub dir_scale: T,
     pub inv_scale: T,
-    pub x_offset: T,
-    pub y_offset: T,
+    pub offset: P,
     pub rect: FloatRect<T>
 }
 
-impl<T: FloatNumber> FloatPointAdapter<T> {
+impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
     #[inline]
     pub fn new(rect: FloatRect<T>) -> Self {
         let a = rect.width() * FloatNumber::from_float(0.5);
         let b = rect.height() * FloatNumber::from_float(0.5);
 
-        let x_offset = rect.min_x + a;
-        let y_offset = rect.min_y + b;
+        let x = rect.min_x + a;
+        let y = rect.min_y + b;
+
+        let offset = P::from_xy(x, y);
 
         let max = a.max(b);
 
@@ -28,8 +29,7 @@ impl<T: FloatNumber> FloatPointAdapter<T> {
             return Self {
                 dir_scale: FloatNumber::from_float(1.0),
                 inv_scale: FloatNumber::from_float(1.0),
-                x_offset,
-                y_offset,
+                offset,
                 rect,
             };
         }
@@ -43,32 +43,26 @@ impl<T: FloatNumber> FloatPointAdapter<T> {
         Self {
             dir_scale,
             inv_scale,
-            x_offset,
-            y_offset,
+            offset,
             rect,
         }
     }
 
     #[inline]
-    pub fn with_iter<'a, I, P>(iter: I) -> Self
+    pub fn with_iter<'a, I>(iter: I) -> Self
     where
         I: IntoIterator<Item=&'a P>,
-        P: FloatPointCompatible<T> + 'a,
-        T: FloatNumber,
+        T: FloatNumber, P: 'a
     {
         Self::new(FloatRect::with_iter(iter).unwrap_or(FloatRect::zero()))
     }
 
     #[inline(always)]
-    pub fn int_to_float<P>(&self, point: IntPoint) -> P
-    where
-        P: FloatPointCompatible<T>,
-        T: FloatNumber,
-    {
+    pub fn int_to_float(&self, point: IntPoint) -> P {
         let fx: T = FloatNumber::from_i32(point.x);
         let fy: T = FloatNumber::from_i32(point.y);
-        let x = fx * self.inv_scale + self.x_offset;
-        let y = fy * self.inv_scale + self.y_offset;
+        let x = fx * self.inv_scale + self.offset.x();
+        let y = fy * self.inv_scale + self.offset.y();
         let float = P::from_xy(x, y);
 
         debug_assert!(
@@ -81,18 +75,14 @@ impl<T: FloatNumber> FloatPointAdapter<T> {
     }
 
     #[inline(always)]
-    pub fn float_to_int<P>(&self, point: P) -> IntPoint
-    where
-        P: FloatPointCompatible<T>,
-        T: FloatNumber,
-    {
+    pub fn float_to_int(&self, point: P) -> IntPoint {
         debug_assert!(
             self.rect.contains(point),
             "You are trying to convert a point which is out of rect: {}",
             self.rect
         );
-        let x = ((point.x() - self.x_offset) * self.dir_scale).to_int();
-        let y = ((point.y() - self.y_offset) * self.dir_scale).to_int();
+        let x = ((point.x() - self.offset.x()) * self.dir_scale).to_int();
+        let y = ((point.y() - self.offset.y()) * self.dir_scale).to_int();
         IntPoint { x, y }
     }
 }
@@ -101,6 +91,7 @@ impl<T: FloatNumber> FloatPointAdapter<T> {
 mod tests {
     use crate::adapter::FloatPointAdapter;
     use crate::float::compatible::FloatPointCompatible;
+    use crate::float::point::FloatPoint;
     use crate::float::rect::FloatRect;
 
     #[test]
@@ -112,7 +103,7 @@ mod tests {
             max_y: -2.0,
         };
 
-        let adapter = FloatPointAdapter::new(rect);
+        let adapter = FloatPointAdapter::<FloatPoint<f64>, f64>::new(rect);
 
         assert_eq!(adapter.dir_scale, 1.0);
         assert_eq!(adapter.inv_scale, 1.0);
