@@ -85,6 +85,13 @@ impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
         let y = ((point.y() - self.offset.y()) * self.dir_scale).to_int();
         IntPoint { x, y }
     }
+
+    #[inline(always)]
+    pub fn sqr_float_to_int(&self, value: T) -> usize {
+        let scale = self.dir_scale;
+        let sqr_scale = scale * scale;
+        (sqr_scale * value).to_f64() as usize
+    }
 }
 
 #[cfg(test)]
