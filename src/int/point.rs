@@ -108,3 +108,10 @@ impl ops::Sub for IntPoint {
         }
     }
 }
+
+#[macro_export]
+macro_rules! int_pnt {
+    ($x:expr, $y:expr) => {
+        IntPoint::new($x, $y)
+    };
+}
