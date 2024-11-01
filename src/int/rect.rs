@@ -25,7 +25,12 @@ impl IntRect {
     }
 
     pub fn with_points(points: &[IntPoint]) -> Option<Self> {
-        let first_point = points.first()?;
+        Self::with_iter(points.iter())
+    }
+
+    pub fn with_iter<'a, I: Iterator<Item=&'a IntPoint>>(iter: I) -> Option<Self> {
+        let mut iter = iter;
+        let first_point = iter.next()?;
 
         let mut rect = Self {
             min_x: first_point.x,
@@ -34,14 +39,15 @@ impl IntRect {
             max_y: first_point.y,
         };
 
-        for p in points.iter() {
+        for p in iter {
             rect.unsafe_add_point(p);
         }
 
         Some(rect)
     }
 
-    #[inline(always)]
+
+    #[inline]
     pub fn with_rects(rect0: &Self, rect1: &Self) -> Self {
         let min_x = rect0.min_x.min(rect1.min_x);
         let max_x = rect0.max_x.max(rect1.max_x);
@@ -51,7 +57,7 @@ impl IntRect {
         Self::new(min_x, max_x, min_y, max_y)
     }
 
-    #[inline(always)]
+    #[inline]
     pub fn with_optional_rects(rect0: Option<Self>, rect1: Option<Self>) -> Option<Self> {
         match (rect0, rect1) {
             (Some(r0), Some(r1)) => Some(Self::with_rects(&r0, &r1)),

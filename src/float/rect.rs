@@ -53,11 +53,11 @@ impl<T: FloatNumber> FloatRect<T> {
     #[inline]
     pub fn with_iter<'a, I, P>(iter: I) -> Option<Self>
     where
-        I: IntoIterator<Item = &'a P>,
+        I: Iterator<Item = &'a P>,
         P: FloatPointCompatible<T> + 'a,
         T: FloatNumber,
     {
-        let mut iter = iter.into_iter();
+        let mut iter = iter;
         let first_point = iter.next()?;
         let mut rect = Self {
             min_x: first_point.x(),
@@ -66,7 +66,7 @@ impl<T: FloatNumber> FloatRect<T> {
             max_y: first_point.y(),
         };
 
-        for &p in iter {
+        for p in iter {
             rect.unsafe_add_point(p);
         }
 
@@ -74,7 +74,7 @@ impl<T: FloatNumber> FloatRect<T> {
     }
 
     #[inline]
-    pub fn add_point<P: FloatPointCompatible<T>>(&mut self, point: P) {
+    pub fn add_point<P: FloatPointCompatible<T>>(&mut self, point: &P) {
         if self.min_x > point.x() {
             self.min_x = point.x()
         }
@@ -91,7 +91,7 @@ impl<T: FloatNumber> FloatRect<T> {
     }
 
     #[inline]
-    pub fn unsafe_add_point<P: FloatPointCompatible<T>>(&mut self, point: P) {
+    pub fn unsafe_add_point<P: FloatPointCompatible<T>>(&mut self, point: &P) {
         if self.min_x > point.x() {
             self.min_x = point.x()
         } else if self.max_x < point.x() {
@@ -106,7 +106,7 @@ impl<T: FloatNumber> FloatRect<T> {
     }
 
     #[inline(always)]
-    pub fn contains<P: FloatPointCompatible<T>>(&self, point: P) -> bool {
+    pub fn contains<P: FloatPointCompatible<T>>(&self, point: &P) -> bool {
         self.min_x <= point.x() && point.x() <= self.max_x && self.min_y <= point.y() && point.y() <= self.max_y
     }
 }

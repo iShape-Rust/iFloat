@@ -51,14 +51,14 @@ impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
     #[inline]
     pub fn with_iter<'a, I>(iter: I) -> Self
     where
-        I: IntoIterator<Item=&'a P>,
+        I: Iterator<Item=&'a P>,
         T: FloatNumber, P: 'a
     {
         Self::new(FloatRect::with_iter(iter).unwrap_or(FloatRect::zero()))
     }
 
     #[inline(always)]
-    pub fn int_to_float(&self, point: IntPoint) -> P {
+    pub fn int_to_float(&self, point: &IntPoint) -> P {
         let fx: T = FloatNumber::from_i32(point.x);
         let fy: T = FloatNumber::from_i32(point.y);
         let x = fx * self.inv_scale + self.offset.x();
@@ -66,7 +66,7 @@ impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
         let float = P::from_xy(x, y);
 
         debug_assert!(
-            self.rect.contains(float),
+            self.rect.contains(&float),
             "You are trying to convert a point which is out of rect: {}",
             self.rect
         );
@@ -75,7 +75,7 @@ impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
     }
 
     #[inline(always)]
-    pub fn float_to_int(&self, point: P) -> IntPoint {
+    pub fn float_to_int(&self, point: &P) -> IntPoint {
         debug_assert!(
             self.rect.contains(point),
             "You are trying to convert a point which is out of rect: {}",
@@ -128,8 +128,8 @@ mod tests {
         let adapter = FloatPointAdapter::new(rect);
 
         let f0 = [10.0, 2.0];
-        let p0 = adapter.float_to_int(f0);
-        let f1: [f64; 2] = adapter.int_to_float(p0);
+        let p0 = adapter.float_to_int(&f0);
+        let f1: [f64; 2] = adapter.int_to_float(&p0);
 
         assert_eq!((f0.x() - f1.x()).abs() < 0.000_0001, true);
         assert_eq!((f0.y() - f1.y()).abs() < 0.000_0001, true);
@@ -147,8 +147,8 @@ mod tests {
         let adapter = FloatPointAdapter::with_iter(points.iter());
 
         let f0 = [1.0, 2.0];
-        let p0 = adapter.float_to_int(f0);
-        let f1: [f64; 2] = adapter.int_to_float(p0);
+        let p0 = adapter.float_to_int(&f0);
+        let f1: [f64; 2] = adapter.int_to_float(&p0);
 
         assert_eq!((f0.x() - f1.x()).abs() < 0.000_0001, true);
         assert_eq!((f0.y() - f1.y()).abs() < 0.000_0001, true);
