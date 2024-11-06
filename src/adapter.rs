@@ -34,7 +34,7 @@ impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
             };
         }
 
-        let log2 = max.log2().to_int();
+        let log2 = max.log2().to_i32();
         let e = 29 - log2;
 
         let dir_scale = FloatNumber::from_float(2f64.powi(e));
@@ -81,8 +81,8 @@ impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
             "You are trying to convert a point which is out of rect: {}",
             self.rect
         );
-        let x = ((point.x() - self.offset.x()) * self.dir_scale).to_int();
-        let y = ((point.y() - self.offset.y()) * self.dir_scale).to_int();
+        let x = ((point.x() - self.offset.x()) * self.dir_scale).to_i32();
+        let y = ((point.y() - self.offset.y()) * self.dir_scale).to_i32();
         IntPoint { x, y }
     }
 
