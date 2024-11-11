@@ -16,6 +16,7 @@ where
     fn to_i32(self) -> i32;
     fn to_usize(self) -> usize;
     fn to_f64(self) -> f64;
+    fn bit_width() -> u8;
 }
 
 impl FloatNumber for f32 {
@@ -73,6 +74,11 @@ impl FloatNumber for f32 {
     fn to_f64(self) -> f64 {
         self as f64
     }
+
+    #[inline(always)]
+    fn bit_width() -> u8 {
+        32
+    }
 }
 
 impl FloatNumber for f64 {
@@ -129,5 +135,10 @@ impl FloatNumber for f64 {
     #[inline(always)]
     fn to_f64(self) -> f64 {
         self
+    }
+
+    #[inline(always)]
+    fn bit_width() -> u8 {
+        64
     }
 }
