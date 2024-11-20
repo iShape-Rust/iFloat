@@ -65,22 +65,30 @@ impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
         let y = fy * self.inv_scale + self.offset.y();
         let float = P::from_xy(x, y);
 
-        debug_assert!(
-            self.rect.contains_with_radius(&float, self.rect.height().min(self.rect.width()) * T::from_float(0.01)),
-            "You are trying to convert a point which is out of rect: {}",
-            self.rect
-        );
+        if cfg!(debug_assertions) {
+            let radius = self.rect.height().max(self.rect.width()) * T::from_float(0.01);
+            if !self.rect.contains_with_radius(&float, radius) {
+                panic!(
+                    "You are trying to convert a point[{}, {}] which is out of rect: {}",
+                    x, y, self.rect
+                );
+            }
+        }
 
         float
     }
 
     #[inline(always)]
     pub fn float_to_int(&self, point: &P) -> IntPoint {
-        debug_assert!(
-            self.rect.contains(point),
-            "You are trying to convert a point which is out of rect: {}",
-            self.rect
-        );
+        if cfg!(debug_assertions) {
+            let radius = self.rect.height().max(self.rect.width()) * T::from_float(0.01);
+            if !self.rect.contains_with_radius(point, radius) {
+                panic!(
+                    "You are trying to convert a point[{}, {}] which is out of rect: {}",
+                    point.x(), point.y(), self.rect
+                );
+            }
+        }
         let x = ((point.x() - self.offset.x()) * self.dir_scale).to_i32();
         let y = ((point.y() - self.offset.y()) * self.dir_scale).to_i32();
         IntPoint { x, y }
