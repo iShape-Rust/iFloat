@@ -109,6 +109,15 @@ impl<T: FloatNumber> FloatRect<T> {
     pub fn contains<P: FloatPointCompatible<T>>(&self, point: &P) -> bool {
         self.min_x <= point.x() && point.x() <= self.max_x && self.min_y <= point.y() && point.y() <= self.max_y
     }
+
+    #[inline(always)]
+    pub fn contains_with_radius<P: FloatPointCompatible<T>>(&self, point: &P, radius: T) -> bool {
+        let min_x = self.min_x - radius;
+        let max_x = self.max_x + radius;
+        let min_y = self.min_y - radius;
+        let max_y = self.max_y + radius;
+        min_x <= point.x() && point.x() <= max_x && min_y <= point.y() && point.y() <= max_y
+    }
 }
 
 impl<T: FloatNumber> fmt::Display for FloatRect<T> {

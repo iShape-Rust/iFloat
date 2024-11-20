@@ -3,7 +3,6 @@ use std::fmt;
 use std::ops::Mul;
 use serde::{Serialize, Deserialize};
 use crate::fix_float::{FIX_FRACTION_BITS, FIX_ZERO, FixConvert, FixFloat, FixMath};
-use crate::f64_point::F64Point;
 use crate::int::point::IntPoint;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -18,16 +17,6 @@ impl FixVec {
     #[inline(always)]
     pub fn is_zero(self) -> bool {
         self.x == FIX_ZERO && self.y == FIX_ZERO
-    }
-
-    #[inline(always)]
-    pub fn to_f64vec(self) -> F64Point {
-        F64Point::new(self.x.f64(), self.y.f64())
-    }
-
-    #[inline(always)]
-    pub fn like_f64vec(self) -> F64Point {
-        F64Point::new(self.x as f64, self.y as f64)
     }
 
     #[inline(always)]

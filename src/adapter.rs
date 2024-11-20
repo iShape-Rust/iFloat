@@ -66,7 +66,7 @@ impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
         let float = P::from_xy(x, y);
 
         debug_assert!(
-            self.rect.contains(&float),
+            self.rect.contains_with_radius(&float, self.rect.height().min(self.rect.width()) * T::from_float(0.01)),
             "You are trying to convert a point which is out of rect: {}",
             self.rect
         );

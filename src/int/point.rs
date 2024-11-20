@@ -1,7 +1,6 @@
 use std::cmp::Ordering;
 use std::{fmt, ops};
 use serde::{Deserialize, Serialize};
-use crate::f64_point::F64Point;
 use crate::fix_vec::FixVec;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -16,11 +15,6 @@ impl IntPoint {
     #[inline(always)]
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
-    }
-
-    #[inline(always)]
-    pub fn new_f64_point(p: F64Point) -> Self {
-        Self { x: p.x.round() as i32, y: p.y.round() as i32 }
     }
 
     #[inline(always)]
