@@ -27,6 +27,13 @@ impl From<FloatPoint<f32>> for glam::Vec2 {
     }
 }
 
+impl From<glam::Vec2> for FloatPoint<f32> {
+    #[inline(always)]
+    fn from(point: glam::Vec2) -> Self {
+        FloatPoint::new(point.x, point.y)
+    }
+}
+
 impl FloatPointCompatible<f64> for glam::DVec2 {
     #[inline(always)]
     fn from_xy(x: f64, y: f64) -> Self {
@@ -48,5 +55,12 @@ impl From<FloatPoint<f64>> for glam::DVec2 {
     #[inline(always)]
     fn from(point: FloatPoint<f64>) -> Self {
         glam::DVec2::new(point.x, point.y)
+    }
+}
+
+impl From<glam::DVec2> for FloatPoint<f64> {
+    #[inline(always)]
+    fn from(point: glam::DVec2) -> Self {
+        FloatPoint::new(point.x, point.y)
     }
 }
