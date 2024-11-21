@@ -8,12 +8,11 @@ license = "MIT"
 repository = "https://github.com/iShape-Rust/iFloat"
 
 [features]
-default = ["glam"]
 glam = ["dep:glam"]
 
 [dependencies]
 serde = { version = "^1.0", features = ["derive"] }
-glam = { optional = true, version = ">= 0.27" }
+glam = { optional = true, version = "*" }
 
 [dev-dependencies]
 rand = { version = "0.8.5", features = [] }

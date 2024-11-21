@@ -1,8 +1,6 @@
-use crate::float::point::FloatPoint;
+use crate::{float::{compatible::FloatPointCompatible, point::FloatPoint}, int::point::IntPoint};
 
-use super::FloatPointCompatible;
-
-
+// glam::Vec2 / f32
 impl FloatPointCompatible<f32> for glam::Vec2 {
     #[inline(always)]
     fn from_xy(x: f32, y: f32) -> Self {
@@ -34,6 +32,8 @@ impl From<glam::Vec2> for FloatPoint<f32> {
     }
 }
 
+
+// glam::DVec2 / f64
 impl FloatPointCompatible<f64> for glam::DVec2 {
     #[inline(always)]
     fn from_xy(x: f64, y: f64) -> Self {
@@ -62,5 +62,21 @@ impl From<glam::DVec2> for FloatPoint<f64> {
     #[inline(always)]
     fn from(point: glam::DVec2) -> Self {
         FloatPoint::new(point.x, point.y)
+    }
+}
+
+
+// glam IVec2 / IntPoint / i32
+impl From<IntPoint> for glam::IVec2 {
+    #[inline(always)]
+    fn from(point: IntPoint) -> Self {
+        glam::IVec2::new(point.x, point.y)
+    }
+}
+
+impl From<glam::IVec2> for IntPoint {
+    #[inline(always)]
+    fn from(point: glam::IVec2) -> Self {
+        IntPoint::new(point.x, point.y)
     }
 }

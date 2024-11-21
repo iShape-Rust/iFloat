@@ -1,5 +1,3 @@
-#[cfg(feature = "glam")]
-pub mod glam;
 use crate::float::number::FloatNumber;
 
 pub trait FloatPointCompatible<T: FloatNumber>
