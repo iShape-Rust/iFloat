@@ -7,8 +7,12 @@ description = "This fixed float math library provides an efficient and determini
 license = "MIT"
 repository = "https://github.com/iShape-Rust/iFloat"
 
+[features]
+glam = ["dep:glam"]
+
 [dependencies]
 serde = { version = "^1.0", features = ["derive"] }
+glam = { optional = true, version = "*" }
 
 [dev-dependencies]
 rand = { version = "0.8.5", features = [] }
