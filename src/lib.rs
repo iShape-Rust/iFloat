@@ -7,7 +7,7 @@ pub mod u128;
 pub mod float;
 pub mod int;
 pub mod adapter;
-#[cfg(any(feature = "glam"))]
+#[cfg(feature = "glam")]
 pub mod integration;
 
 mod fix_sin;
