@@ -1,6 +1,6 @@
 [package]
 name = "i_float"
-version = "1.5.0"
+version = "1.5.1"
 authors = ["Nail Sharipov <nailxsharipov@gmail.com>"]
 edition = "2021"
 description = "This fixed float math library provides an efficient and deterministic solution for arithmetic and geometric operations."
@@ -8,6 +8,7 @@ license = "MIT"
 repository = "https://github.com/iShape-Rust/iFloat"
 
 [features]
+default = []
 glam = ["dep:glam"]
 
 [dependencies]
