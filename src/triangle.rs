@@ -123,6 +123,23 @@ impl Triangle {
     }
 
     #[inline]
+    pub fn is_contain_point_exclude_borders(p: IntPoint, p0: IntPoint, p1: IntPoint, p2: IntPoint) -> bool {
+        let f = FixVec::new_point(p);
+        let f0 = FixVec::new_point(p0);
+        let f1 = FixVec::new_point(p1);
+        let f2 = FixVec::new_point(p2);
+
+        let q0 = (f - f1).cross_product(f0 - f1);
+        let q1 = (f - f2).cross_product(f1 - f2);
+        let q2 = (f - f0).cross_product(f2 - f0);
+
+        let has_neg = q0 < 0 || q1 < 0 || q2 < 0;
+        let has_pos = q0 > 0 || q1 > 0 || q2 > 0;
+
+        !(has_neg && has_pos) && q0 != 0 && q1 != 0 && q2 != 0
+    }
+
+    #[inline]
     pub fn is_not_contain_point(p: IntPoint, p0: IntPoint, p1: IntPoint, p2: IntPoint) -> bool {
         let f = FixVec::new_point(p);
         let f0 = FixVec::new_point(p0);
