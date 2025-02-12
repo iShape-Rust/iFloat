@@ -49,6 +49,39 @@ impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
     }
 
     #[inline]
+    pub fn with_scale(rect: FloatRect<T>, scale: f64) -> Self {
+        let a = rect.width() * FloatNumber::from_float(0.5);
+        let b = rect.height() * FloatNumber::from_float(0.5);
+
+        let x = rect.min_x + a;
+        let y = rect.min_y + b;
+
+        let offset = P::from_xy(x, y);
+
+        let max = a.max(b);
+
+        // degenerate case
+        if max == FloatNumber::from_float(0.0) {
+            return Self {
+                dir_scale: FloatNumber::from_float(1.0),
+                inv_scale: FloatNumber::from_float(1.0),
+                offset,
+                rect,
+            };
+        }
+
+        let dir_scale = FloatNumber::from_float(scale);
+        let inv_scale = FloatNumber::from_float(1.0 / scale);
+
+        Self {
+            dir_scale,
+            inv_scale,
+            offset,
+            rect,
+        }
+    }
+
+    #[inline]
     pub fn with_iter<'a, I>(iter: I) -> Self
     where
         I: Iterator<Item=&'a P>,

@@ -91,6 +91,14 @@ impl<T: FloatNumber> FloatRect<T> {
     }
 
     #[inline]
+    pub fn add_offset(&mut self, offset: T) {
+        self.max_x = self.max_x + offset;
+        self.max_y = self.max_y + offset;
+        self.min_x = self.min_x - offset;
+        self.min_y = self.min_y - offset;
+    }
+
+    #[inline]
     pub fn unsafe_add_point<P: FloatPointCompatible<T>>(&mut self, point: &P) {
         if self.min_x > point.x() {
             self.min_x = point.x()
