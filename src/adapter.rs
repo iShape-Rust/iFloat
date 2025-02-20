@@ -133,6 +133,11 @@ impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
         let sqr_scale = scale * scale;
         (sqr_scale * value).to_f64() as usize
     }
+
+    #[inline(always)]
+    pub fn len_float_to_int(&self, value: T) -> i32 {
+        (self.dir_scale * value).to_f64() as i32
+    }
 }
 
 #[cfg(test)]

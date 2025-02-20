@@ -5,6 +5,7 @@ pub trait FloatNumber
 where
     Self: Copy + Mul<Output=Self> + Add<Output=Self> + Sub<Output=Self> + Div<Output=Self> + Neg<Output=Self> + Display + PartialOrd,
 {
+    fn abs(self) -> Self;
     fn sqrt(self) -> Self;
     fn from_usize(value: usize) -> Self;
     fn from_i32(value: i32) -> Self;
@@ -20,6 +21,11 @@ where
 }
 
 impl FloatNumber for f32 {
+    #[inline(always)]
+    fn abs(self) -> Self {
+        self.abs()
+    }
+
     #[inline(always)]
     fn sqrt(self) -> Self {
         self.sqrt()
@@ -82,6 +88,11 @@ impl FloatNumber for f32 {
 }
 
 impl FloatNumber for f64 {
+    #[inline(always)]
+    fn abs(self) -> Self {
+        self.abs()
+    }
+
     #[inline(always)]
     fn sqrt(self) -> Self {
         self.sqrt()
