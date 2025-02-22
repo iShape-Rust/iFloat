@@ -1,8 +1,8 @@
 [package]
 name = "i_float"
-version = "1.7.0"
+version = "1.8.0"
 authors = ["Nail Sharipov <nailxsharipov@gmail.com>"]
-edition = "2021"
+edition = "2024"
 description = "This fixed float math library provides an efficient and deterministic solution for arithmetic and geometric operations."
 license = "MIT"
 repository = "https://github.com/iShape-Rust/iFloat"
