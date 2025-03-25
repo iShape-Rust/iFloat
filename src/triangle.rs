@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use crate::fix_float::FixFloat;
 use crate::fix_vec::FixVec;
 use crate::int::point::IntPoint;
@@ -154,5 +155,10 @@ impl Triangle {
         let has_pos = q0 >= 0 || q1 >= 0 || q2 >= 0;
 
         has_neg && has_pos
+    }
+
+    #[inline(always)]
+    pub fn clock_order_point(p0: IntPoint, p1: IntPoint, p2: IntPoint) -> Ordering {
+        0.cmp(&Self::area_two_point(p0, p1, p2))
     }
 }
