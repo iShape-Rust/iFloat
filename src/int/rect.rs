@@ -69,21 +69,10 @@ impl IntRect {
 
     #[inline]
     pub fn add_point(&mut self, point: &IntPoint) {
-        if self.min_x > point.x {
-            self.min_x = point.x
-        }
-
-        if self.max_x < point.x {
-            self.max_x = point.x
-        }
-
-        if self.min_y > point.y {
-            self.min_y = point.y
-        }
-
-        if self.max_y < point.y {
-            self.max_y = point.y
-        }
+        self.max_x = self.max_x.max(point.x);
+        self.min_x = self.min_x.min(point.x);
+        self.max_y = self.max_y.max(point.y);
+        self.min_y = self.min_y.min(point.y);
     }
 
     #[inline]
