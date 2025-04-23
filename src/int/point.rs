@@ -11,6 +11,7 @@ pub struct IntPoint {
 
 impl IntPoint {
     pub const ZERO: Self = Self { x: 0, y: 0 };
+    pub const EMPTY: Self = Self { x: i32::MAX, y: i32::MAX };
 
     #[inline(always)]
     pub fn new(x: i32, y: i32) -> Self {

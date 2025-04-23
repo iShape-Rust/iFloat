@@ -128,10 +128,10 @@ impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
     }
 
     #[inline(always)]
-    pub fn sqr_float_to_int(&self, value: T) -> usize {
+    pub fn sqr_float_to_int(&self, value: T) -> u64 {
         let scale = self.dir_scale;
         let sqr_scale = scale * scale;
-        (sqr_scale * value).to_f64() as usize
+        (sqr_scale * value).to_f64() as u64
     }
 
     #[inline(always)]
