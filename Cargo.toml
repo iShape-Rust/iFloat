@@ -10,10 +10,12 @@ repository = "https://github.com/iShape-Rust/iFloat"
 [features]
 default = []
 glam = ["dep:glam"]
+bin_key = ["dep:i_key_sort"]
 
 [dependencies]
 serde = { version = "^1.0", features = ["derive"] }
 glam = { optional = true, version = ">=0.27" }
+i_key_sort = { optional = true, path = "../iKeySort", default-features = false, features = ["bin_key"] }
 
 [dev-dependencies]
-rand = { version = "0.8.5", features = [] }
+rand = { version = "0.9.1", features = [] }

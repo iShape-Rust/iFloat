@@ -1,7 +1,7 @@
+use crate::fix_vec::FixVec;
+use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::{fmt, ops};
-use serde::{Deserialize, Serialize};
-use crate::fix_vec::FixVec;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct IntPoint {
@@ -11,7 +11,10 @@ pub struct IntPoint {
 
 impl IntPoint {
     pub const ZERO: Self = Self { x: 0, y: 0 };
-    pub const EMPTY: Self = Self { x: i32::MAX, y: i32::MAX };
+    pub const EMPTY: Self = Self {
+        x: i32::MAX,
+        y: i32::MAX,
+    };
 
     #[inline(always)]
     pub fn new(x: i32, y: i32) -> Self {
