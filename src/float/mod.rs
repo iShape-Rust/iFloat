@@ -1,6 +1,6 @@
-#[cfg(feature = "float_point_compat")]
+#[cfg(feature = "float_pt")]
 pub mod number;
-#[cfg(feature = "float_point_compat")]
+#[cfg(feature = "float_pt")]
 pub mod compatible;
 
 pub mod point;

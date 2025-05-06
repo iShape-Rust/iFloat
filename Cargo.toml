@@ -8,8 +8,8 @@ license = "MIT"
 repository = "https://github.com/iShape-Rust/iFloat"
 
 [features]
-default = ["float_point_compat"]
-float_point_compat = []
+default = ["float_pt"]
+float_pt = []
 glam = ["dep:glam"]
 bin_key = ["dep:i_key_sort"]
 
