@@ -24,6 +24,23 @@ impl IntRect {
         Self { min_x, max_x, min_y, max_y }
     }
 
+    #[inline(always)]
+    pub fn with_ab(a: IntPoint, b: IntPoint) -> Self {
+        let (min_x, max_x) = if a.x < b.x {
+            (a.x, b.x)
+        } else {
+            (b.x, a.x)
+        };
+        let (min_y, max_y) = if a.y < b.y {
+            (a.y, b.y)
+        } else {
+            (b.y, a.y)
+        };
+
+        Self { min_x, max_x, min_y, max_y }
+    }
+
+    #[inline]
     pub fn with_points(points: &[IntPoint]) -> Option<Self> {
         Self::with_iter(points.iter())
     }
