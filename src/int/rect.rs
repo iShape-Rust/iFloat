@@ -25,6 +25,11 @@ impl IntRect {
     }
 
     #[inline(always)]
+    pub fn with_min_max(min: IntPoint, max: IntPoint) -> Self {
+        Self { min_x: min.x, max_x: max.x, min_y: min.y, max_y: max.y }
+    }
+
+    #[inline]
     pub fn with_ab(a: IntPoint, b: IntPoint) -> Self {
         let (min_x, max_x) = if a.x < b.x {
             (a.x, b.x)
