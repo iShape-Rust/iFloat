@@ -1,11 +1,11 @@
-use std::ops;
-use std::fmt;
-use std::ops::Mul;
-use serde::{Serialize, Deserialize};
+use core::ops;
+use core::fmt;
+use core::ops::Mul;
 use crate::fix_float::{FIX_FRACTION_BITS, FIX_ZERO, FixConvert, FixFloat, FixMath};
 use crate::int::point::IntPoint;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct FixVec {
     pub x: FixFloat,
     pub y: FixFloat,

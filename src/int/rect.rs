@@ -149,7 +149,7 @@ mod tests {
     #[test]
     fn test_0() {
         let rect = if let Some(rect) = IntRect::with_points(
-            &vec![
+            &[
                 IntPoint::new(0, 0),
                 IntPoint::new(-7, 10),
                 IntPoint::new(20, -5),

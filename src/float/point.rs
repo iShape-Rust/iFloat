@@ -1,10 +1,10 @@
-use std::fmt;
-use std::ops::{Add, AddAssign, Mul, Neg, Sub};
-use serde::{Deserialize, Serialize};
+use core::fmt;
+use core::ops::{Add, AddAssign, Mul, Neg, Sub};
 use crate::float::compatible::FloatPointCompatible;
 use crate::float::number::FloatNumber;
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, Copy)]
 pub struct FloatPoint<T: FloatNumber> {
     pub x: T,
     pub y: T,

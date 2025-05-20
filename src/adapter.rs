@@ -36,9 +36,11 @@ impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
 
         let log2 = max.log2().to_i32();
         let e = 29 - log2;
-
-        let dir_scale = FloatNumber::from_float(2f64.powi(e));
-        let inv_scale = FloatNumber::from_float(2f64.powi(-e));
+        
+        let (dir, inv) = pow2_pair(e);
+        
+        let dir_scale = FloatNumber::from_float(dir);
+        let inv_scale = FloatNumber::from_float(inv);
 
         Self {
             dir_scale,
@@ -138,6 +140,12 @@ impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
     pub fn len_float_to_int(&self, value: T) -> i32 {
         (self.dir_scale * value).to_f64() as i32
     }
+}
+
+#[inline(always)]
+fn pow2_pair(exp: i32) -> (f64, f64) {
+    let pow = (1_u64 << exp) as f64;
+    (pow, 1.0 / pow)
 }
 
 #[cfg(test)]

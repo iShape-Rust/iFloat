@@ -67,10 +67,7 @@ impl FixMath for FixFloat {
 
     #[inline(always)]
     fn sqrt(self) -> FixFloat {
-        let a = (self as f64).sqrt() as i64;
-        let b = a + 1;
-
-        if b * b > self { a } else { b }
+        self.isqrt()
     }
 
     #[inline(always)]

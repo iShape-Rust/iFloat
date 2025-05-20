@@ -1,5 +1,5 @@
-use std::f64;
-use std::f32;
+use core::f64;
+use core::f32;
 use crate::fix_float::{FIX_FRACTION_BITS, FIX_PI, FixFloat};
 use crate::fix_sin::FixSin;
 use crate::fix_vec::FixVec;

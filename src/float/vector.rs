@@ -2,7 +2,7 @@ use crate::float::compatible::FloatPointCompatible;
 use crate::float::number::FloatNumber;
 
 pub struct FloatPointMath<T, P> {
-    _phantom: std::marker::PhantomData<(T, P)>,
+    _phantom: core::marker::PhantomData<(T, P)>,
 }
 
 impl<T: FloatNumber, P: FloatPointCompatible<T>> FloatPointMath<T, P> {

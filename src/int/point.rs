@@ -1,9 +1,9 @@
 use crate::fix_vec::FixVec;
-use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
-use std::{fmt, ops};
+use core::cmp::Ordering;
+use core::{fmt, ops};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct IntPoint {
     pub x: i32,
     pub y: i32,

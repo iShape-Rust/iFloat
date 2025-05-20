@@ -1,3 +1,6 @@
+#![no_std]
+extern crate alloc;
+
 #[cfg(feature = "core")]
 pub mod fix_angle;
 #[cfg(feature = "core")]

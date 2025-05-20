@@ -1,5 +1,5 @@
-use std::fmt::Display;
-use std::ops::{Add, Div, Mul, Neg, Sub};
+use core::fmt::Display;
+use core::ops::{Add, Div, Mul, Neg, Sub};
 
 pub trait FloatNumber
 where
@@ -28,7 +28,7 @@ impl FloatNumber for f32 {
 
     #[inline(always)]
     fn sqrt(self) -> Self {
-        self.sqrt()
+        libm::sqrtf(self)
     }
 
     #[inline(always)]
@@ -63,17 +63,17 @@ impl FloatNumber for f32 {
 
     #[inline(always)]
     fn log2(self) -> Self {
-        self.log2()
+        libm::log2f(self)
     }
 
     #[inline(always)]
     fn to_i32(self) -> i32 {
-        self.round() as i32
+          libm::roundf(self) as i32
     }
 
     #[inline(always)]
     fn to_usize(self) -> usize {
-        self.round() as usize
+        libm::roundf(self) as usize
     }
 
     #[inline(always)]
@@ -95,7 +95,7 @@ impl FloatNumber for f64 {
 
     #[inline(always)]
     fn sqrt(self) -> Self {
-        self.sqrt()
+        libm::sqrt(self)
     }
 
     #[inline(always)]
@@ -130,17 +130,17 @@ impl FloatNumber for f64 {
 
     #[inline(always)]
     fn log2(self) -> Self {
-        self.log2()
+        libm::log2(self)
     }
 
     #[inline(always)]
     fn to_i32(self) -> i32 {
-        self.round() as i32
+        libm::round(self) as i32
     }
 
     #[inline(always)]
     fn to_usize(self) -> usize {
-        self.round() as usize
+        libm::round(self) as usize
     }
 
     #[inline(always)]
