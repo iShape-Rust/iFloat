@@ -68,12 +68,16 @@ impl FloatNumber for f32 {
 
     #[inline(always)]
     fn to_i32(self) -> i32 {
-          libm::roundf(self) as i32
+        if self >= 0.0 {
+            (self + 0.5) as i32
+        } else {
+            (self - 0.5) as i32
+        }
     }
 
     #[inline(always)]
     fn to_usize(self) -> usize {
-        libm::roundf(self) as usize
+        (self + 0.5) as usize
     }
 
     #[inline(always)]
@@ -135,12 +139,16 @@ impl FloatNumber for f64 {
 
     #[inline(always)]
     fn to_i32(self) -> i32 {
-        libm::round(self) as i32
+        if self >= 0.0 {
+            (self + 0.5) as i32
+        } else {
+            (self - 0.5) as i32
+        }
     }
 
     #[inline(always)]
     fn to_usize(self) -> usize {
-        libm::round(self) as usize
+        (self + 0.5) as usize
     }
 
     #[inline(always)]
