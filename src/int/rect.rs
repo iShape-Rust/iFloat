@@ -1,5 +1,6 @@
 use crate::int::point::IntPoint;
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone)]
 pub struct IntRect {
     pub min_x: i32,
