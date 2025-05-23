@@ -3,7 +3,7 @@ use core::cmp::Ordering;
 use core::{fmt, ops};
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct IntPoint {
     pub x: i32,
     pub y: i32,
