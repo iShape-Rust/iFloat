@@ -37,7 +37,7 @@ impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
         let log2 = max.log2().to_i32();
         let ie = 29 - log2;
         let e = ie as f64;
-
+ 
         let dir_scale = FloatNumber::from_float(libm::exp2(e));
         let inv_scale = FloatNumber::from_float(libm::exp2(-e));
 

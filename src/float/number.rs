@@ -73,11 +73,7 @@ impl FloatNumber for f32 {
 
     #[inline(always)]
     fn to_i32(self) -> i32 {
-        if self >= 0.0 {
-            (self + 0.5) as i32
-        } else {
-            (self - 0.5) as i32
-        }
+        (self + 0.5_f32.copysign(self)) as i32
     }
 
     #[inline(always)]
@@ -147,11 +143,7 @@ impl FloatNumber for f64 {
 
     #[inline(always)]
     fn to_i32(self) -> i32 {
-        if self >= 0.0 {
-            (self + 0.5) as i32
-        } else {
-            (self - 0.5) as i32
-        }
+        (self + 0.5_f64.copysign(self)) as i32
     }
 
     #[inline(always)]
