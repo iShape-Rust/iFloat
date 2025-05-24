@@ -5,6 +5,8 @@ pub trait FloatNumber
 where
     Self: Copy + Mul<Output=Self> + Add<Output=Self> + Sub<Output=Self> + Div<Output=Self> + Neg<Output=Self> + Display + PartialOrd,
 {
+    const MAX: Self;
+    const MIN: Self;
     fn abs(self) -> Self;
     fn sqrt(self) -> Self;
     fn from_usize(value: usize) -> Self;
@@ -21,6 +23,9 @@ where
 }
 
 impl FloatNumber for f32 {
+    const MAX: Self = f32::MAX;
+    const MIN: Self = f32::MIN;
+
     #[inline(always)]
     fn abs(self) -> Self {
         self.abs()
@@ -92,6 +97,9 @@ impl FloatNumber for f32 {
 }
 
 impl FloatNumber for f64 {
+    const MAX: Self = f64::MAX;
+    const MIN: Self = f64::MIN;
+    
     #[inline(always)]
     fn abs(self) -> Self {
         self.abs()
