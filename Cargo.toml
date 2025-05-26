@@ -18,6 +18,3 @@ serde = ["dep:serde"]
 serde = { version = "^1.0", default-features = false, features = ["derive"], optional = true }
 glam = { optional = true, version = ">=0.27" }
 libm = "^0.2"
-
-[dev-dependencies]
-rand = { version = "0.9.1", features = [] }

@@ -18,7 +18,7 @@ pub mod adapter;
 #[cfg(feature = "core")]
 mod fix_sin;
 
-#[cfg(any(feature = "float_pt", feature = "core"))]
+#[cfg(feature = "float_pt")]
 pub mod float;
 
 pub mod integration;
