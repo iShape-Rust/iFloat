@@ -12,13 +12,11 @@ default = ["core"]
 core = ["float_pt"]
 float_pt = []
 glam = ["dep:glam"]
-bin_key = ["dep:i_key_sort"]
 serde = ["dep:serde"]
 
 [dependencies]
 serde = { version = "^1.0", default-features = false, features = ["derive"], optional = true }
 glam = { optional = true, version = ">=0.27" }
-i_key_sort = { optional = true, version = ">=0.5.0", default-features = false, features = ["bin_key"] }
 libm = "^0.2"
 
 [dev-dependencies]
