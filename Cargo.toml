@@ -7,6 +7,8 @@ description = "This fixed float math library provides an efficient and determini
 license = "MIT"
 repository = "https://github.com/iShape-Rust/iFloat"
 
+categories = ["no-std", "mathematics"]
+
 [features]
 default = ["core"]
 core = ["float_pt"]
