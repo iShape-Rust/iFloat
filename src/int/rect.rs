@@ -31,6 +31,16 @@ impl IntRect {
     }
 
     #[inline]
+    pub fn with_point(point: IntPoint) -> Self {
+        Self {
+            min_x: point.x,
+            max_x: point.x,
+            min_y: point.y,
+            max_y: point.y
+        }
+    }
+
+    #[inline]
     pub fn with_ab(a: IntPoint, b: IntPoint) -> Self {
         let (min_x, max_x) = if a.x < b.x {
             (a.x, b.x)
@@ -119,6 +129,11 @@ impl IntRect {
     }
 
     #[inline(always)]
+    pub fn contains_exclude_borders(&self, point: IntPoint) -> bool {
+        self.min_x < point.x && point.x < self.max_x && self.min_y < point.y && point.y < self.max_y
+    }
+
+    #[inline(always)]
     pub fn contains_with_radius(&self, point: IntPoint, radius: i32) -> bool {
         let min_x = self.min_x - radius;
         let max_x = self.max_x + radius;
@@ -138,6 +153,13 @@ impl IntRect {
     pub fn is_intersect_border_exclude(&self, other: &Self) -> bool {
         let x = self.min_x < other.max_x && self.max_x > other.min_x;
         let y = self.min_y < other.max_y && self.max_y > other.min_y;
+        x && y
+    }
+
+    #[inline]
+    pub fn contains_rect(&self, other: &Self) -> bool {
+        let x = self.min_x <= other.min_x && other.max_x <= self.max_x;
+        let y = self.min_y <= other.min_y && other.max_y <= self.max_y;
         x && y
     }
 }
