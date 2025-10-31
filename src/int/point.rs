@@ -62,6 +62,20 @@ impl fmt::Display for IntPoint {
     }
 }
 
+impl From<[i32; 2]> for IntPoint {
+    #[inline(always)]
+    fn from(value: [i32; 2]) -> Self {
+        IntPoint::new(value[0], value[1])
+    }
+}
+
+impl From<(i32, i32)> for IntPoint {
+    #[inline(always)]
+    fn from(value: (i32, i32)) -> Self {
+        IntPoint::new(value.0, value.1)
+    }
+}
+
 impl PartialOrd for IntPoint {
     #[inline(always)]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
@@ -112,4 +126,23 @@ macro_rules! int_pnt {
     ($x:expr, $y:expr) => {
         IntPoint::new($x, $y)
     };
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::int::point::IntPoint;
+
+    #[test]
+    fn test_0() {
+        let p: IntPoint = (1, 2).into();
+        assert_eq!(p.x, 1);
+        assert_eq!(p.y, 2);
+    }
+
+    #[test]
+    fn test_1() {
+        let p: IntPoint = [1, 2].into();
+        assert_eq!(p.x, 1);
+        assert_eq!(p.y, 2);
+    }
 }
