@@ -1,8 +1,8 @@
-use core::fmt;
 use crate::float::compatible::FloatPointCompatible;
 use crate::float::number::FloatNumber;
+use core::fmt;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct FloatRect<T: FloatNumber> {
     pub min_x: T,
     pub max_x: T,
@@ -23,13 +23,23 @@ impl<T: FloatNumber> FloatRect<T> {
 
     #[inline(always)]
     pub fn new(min_x: T, max_x: T, min_y: T, max_y: T) -> Self {
-        Self { min_x, max_x, min_y, max_y }
+        Self {
+            min_x,
+            max_x,
+            min_y,
+            max_y,
+        }
     }
 
     #[inline(always)]
     pub fn zero() -> Self {
         let zero = FloatNumber::from_float(0.0);
-        Self { min_x: zero, max_x: zero, min_y: zero, max_y: zero }
+        Self {
+            min_x: zero,
+            max_x: zero,
+            min_y: zero,
+            max_y: zero,
+        }
     }
 
     #[inline]
@@ -74,6 +84,25 @@ impl<T: FloatNumber> FloatRect<T> {
     }
 
     #[inline]
+    pub fn with_rects(rect_0: &Self, rect_1: &Self) -> Self {
+        let min_x = rect_0.min_x.min(rect_1.min_x);
+        let max_x = rect_0.max_x.max(rect_1.max_x);
+        let min_y = rect_0.min_y.min(rect_1.min_y);
+        let max_y = rect_0.max_y.max(rect_1.max_y);
+        FloatRect::new(min_x, max_x, min_y, max_y)
+    }
+
+    #[inline]
+    pub fn with_optional_rects(rect_0: Option<&Self>, rect_1: Option<&Self>) -> Option<Self> {
+        match (rect_0, rect_1) {
+            (Some(r0), Some(r1)) => Some(Self::with_rects(r0, r1)),
+            (Some(r0), None) => Some(r0.clone()),
+            (None, Some(r1)) => Some(r1.clone()),
+            (None, None) => None,
+        }
+    }
+
+    #[inline]
     pub fn add_point<P: FloatPointCompatible<T>>(&mut self, point: &P) {
         if self.min_x > point.x() {
             self.min_x = point.x()
@@ -115,7 +144,10 @@ impl<T: FloatNumber> FloatRect<T> {
 
     #[inline(always)]
     pub fn contains<P: FloatPointCompatible<T>>(&self, point: &P) -> bool {
-        self.min_x <= point.x() && point.x() <= self.max_x && self.min_y <= point.y() && point.y() <= self.max_y
+        self.min_x <= point.x()
+            && point.x() <= self.max_x
+            && self.min_y <= point.y()
+            && point.y() <= self.max_y
     }
 
     #[inline(always)]
@@ -130,7 +162,11 @@ impl<T: FloatNumber> FloatRect<T> {
 
 impl<T: FloatNumber> fmt::Display for FloatRect<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "({}, {})-({}, {})", self.min_x, self.min_y, self.max_x, self.max_y)
+        write!(
+            f,
+            "({}, {})-({}, {})",
+            self.min_x, self.min_y, self.max_x, self.max_y
+        )
     }
 }
 
@@ -140,12 +176,7 @@ mod tests {
 
     #[test]
     fn test_0() {
-        let points = [
-            [-2.0, -4.0],
-            [-2.0, 3.0],
-            [5.0, 3.0],
-            [5.0, -4.0],
-        ];
+        let points = [[-2.0, -4.0], [-2.0, 3.0], [5.0, 3.0], [5.0, -4.0]];
 
         let rect: FloatRect<f64> = FloatRect::with_iter(points.iter()).unwrap();
 
@@ -153,5 +184,20 @@ mod tests {
         assert_eq!((rect.min_x + 2.0).abs() < 0.000_0001, true);
         assert_eq!((rect.max_y - 3.0).abs() < 0.000_0001, true);
         assert_eq!((rect.min_y + 4.0).abs() < 0.000_0001, true);
+    }
+
+    #[test]
+    fn test_1() {
+        let r0 = Some(&FloatRect::new(-2.0, 2.0, -2.0, 2.0));
+        let r1 = Some(&FloatRect::new(-4.0, 4.0, -4.0, 4.0));
+        let rr = FloatRect::with_optional_rects(r0, r1).unwrap();
+
+        assert_eq!(-4.0, rr.min_x);
+        assert_eq!(-4.0, rr.min_y);
+        assert_eq!(4.0, rr.max_x);
+        assert_eq!(4.0, rr.max_y);
+        assert!(FloatRect::with_optional_rects(r0, None).is_some());
+        assert!(FloatRect::with_optional_rects(None, r1).is_some());
+        assert!(FloatRect::<f32>::with_optional_rects(None, None).is_none());
     }
 }

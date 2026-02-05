@@ -22,12 +22,22 @@ impl IntRect {
 
     #[inline(always)]
     pub fn new(min_x: i32, max_x: i32, min_y: i32, max_y: i32) -> Self {
-        Self { min_x, max_x, min_y, max_y }
+        Self {
+            min_x,
+            max_x,
+            min_y,
+            max_y,
+        }
     }
 
     #[inline(always)]
     pub fn with_min_max(min: IntPoint, max: IntPoint) -> Self {
-        Self { min_x: min.x, max_x: max.x, min_y: min.y, max_y: max.y }
+        Self {
+            min_x: min.x,
+            max_x: max.x,
+            min_y: min.y,
+            max_y: max.y,
+        }
     }
 
     #[inline]
@@ -36,24 +46,21 @@ impl IntRect {
             min_x: point.x,
             max_x: point.x,
             min_y: point.y,
-            max_y: point.y
+            max_y: point.y,
         }
     }
 
     #[inline]
     pub fn with_ab(a: IntPoint, b: IntPoint) -> Self {
-        let (min_x, max_x) = if a.x < b.x {
-            (a.x, b.x)
-        } else {
-            (b.x, a.x)
-        };
-        let (min_y, max_y) = if a.y < b.y {
-            (a.y, b.y)
-        } else {
-            (b.y, a.y)
-        };
+        let (min_x, max_x) = if a.x < b.x { (a.x, b.x) } else { (b.x, a.x) };
+        let (min_y, max_y) = if a.y < b.y { (a.y, b.y) } else { (b.y, a.y) };
 
-        Self { min_x, max_x, min_y, max_y }
+        Self {
+            min_x,
+            max_x,
+            min_y,
+            max_y,
+        }
     }
 
     #[inline]
@@ -61,7 +68,7 @@ impl IntRect {
         Self::with_iter(points.iter())
     }
 
-    pub fn with_iter<'a, I: Iterator<Item=&'a IntPoint>>(iter: I) -> Option<Self> {
+    pub fn with_iter<'a, I: Iterator<Item = &'a IntPoint>>(iter: I) -> Option<Self> {
         let mut iter = iter;
         let first_point = iter.next()?;
 
@@ -78,7 +85,6 @@ impl IntRect {
 
         Some(rect)
     }
-
 
     #[inline]
     pub fn with_rects(rect0: &Self, rect1: &Self) -> Self {
@@ -171,13 +177,9 @@ mod tests {
 
     #[test]
     fn test_0() {
-        let rect = if let Some(rect) = IntRect::with_points(
-            &[
-                IntPoint::new(0, 0),
-                IntPoint::new(-7, 10),
-                IntPoint::new(20, -5),
-            ]
-        ) {
+        let rect = if let Some(rect) =
+            IntRect::with_points(&[IntPoint::new(0, 0), IntPoint::new(-7, 10), IntPoint::new(20, -5)])
+        {
             rect
         } else {
             return;

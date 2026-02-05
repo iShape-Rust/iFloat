@@ -130,7 +130,7 @@ impl FixSin {
         1023, // 125
         1023, // 126
         1023, // 127
-        1024  // 128
+        1024, // 128
     ];
 
     pub(crate) fn value(index: usize) -> i64 {

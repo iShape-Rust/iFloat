@@ -1,6 +1,6 @@
-use std::f64::consts::PI;
 use i_float::fix_angle::{FixAngle, FixTrigonometry};
 use i_float::fix_float::{FixConvert, FixMath};
+use std::f64::consts::PI;
 
 #[test]
 fn test_0() {
@@ -39,7 +39,6 @@ fn test_1() {
         angle += 0.001;
     }
 }
-
 
 #[test]
 fn test_2() {

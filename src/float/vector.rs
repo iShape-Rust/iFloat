@@ -38,7 +38,9 @@ impl<T: FloatNumber, P: FloatPointCompatible<T>> FloatPointMath<T, P> {
     }
 
     #[inline(always)]
-    pub fn dot_product(a: &P, b: &P) -> T { a.x() * b.x() + a.y() * b.y() }
+    pub fn dot_product(a: &P, b: &P) -> T {
+        a.x() * b.x() + a.y() * b.y()
+    }
 
     #[inline(always)]
     pub fn cross_product(a: &P, b: &P) -> T {

@@ -1,7 +1,7 @@
-use core::fmt;
-use core::ops::{Add, AddAssign, Mul, Neg, Sub};
 use crate::float::compatible::FloatPointCompatible;
 use crate::float::number::FloatNumber;
+use core::fmt;
+use core::ops::{Add, AddAssign, Mul, Neg, Sub};
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Copy)]
@@ -13,7 +13,10 @@ pub struct FloatPoint<T: FloatNumber> {
 impl<T: FloatNumber> FloatPoint<T> {
     #[inline(always)]
     pub fn zero() -> Self {
-        Self { x: FloatNumber::from_float(0.0), y: FloatNumber::from_float(0.0) }
+        Self {
+            x: FloatNumber::from_float(0.0),
+            y: FloatNumber::from_float(0.0),
+        }
     }
 
     #[inline(always)]
@@ -49,7 +52,10 @@ impl<T: FloatNumber> FloatPoint<T> {
     #[inline(always)]
     pub fn normalize(&self) -> Self {
         let l = self.length();
-        Self { x: self.x / l, y: self.y / l }
+        Self {
+            x: self.x / l,
+            y: self.y / l,
+        }
     }
 }
 
@@ -94,7 +100,10 @@ impl<T: FloatNumber> Neg for FloatPoint<T> {
 
     #[inline(always)]
     fn neg(self) -> Self::Output {
-        Self { x: -self.x, y: -self.y }
+        Self {
+            x: -self.x,
+            y: -self.y,
+        }
     }
 }
 

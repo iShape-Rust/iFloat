@@ -1,6 +1,6 @@
 use crate::float::compatible::FloatPointCompatible;
-use crate::float::rect::FloatRect;
 use crate::float::number::FloatNumber;
+use crate::float::rect::FloatRect;
 use crate::int::point::IntPoint;
 
 #[derive(Clone)]
@@ -8,7 +8,7 @@ pub struct FloatPointAdapter<P: FloatPointCompatible<T>, T: FloatNumber> {
     pub dir_scale: T,
     pub inv_scale: T,
     pub offset: P,
-    pub rect: FloatRect<T>
+    pub rect: FloatRect<T>,
 }
 
 impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
@@ -37,7 +37,7 @@ impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
         let log2 = max.log2().to_i32();
         let ie = 29 - log2;
         let e = ie as f64;
- 
+
         let dir_scale = FloatNumber::from_float(libm::exp2(e));
         let inv_scale = FloatNumber::from_float(libm::exp2(-e));
 
@@ -85,8 +85,9 @@ impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
     #[inline]
     pub fn with_iter<'a, I>(iter: I) -> Self
     where
-        I: Iterator<Item=&'a P>,
-        T: FloatNumber, P: 'a
+        I: Iterator<Item = &'a P>,
+        T: FloatNumber,
+        P: 'a,
     {
         Self::new(FloatRect::with_iter(iter).unwrap_or(FloatRect::zero()))
     }
@@ -119,7 +120,9 @@ impl<P: FloatPointCompatible<T>, T: FloatNumber> FloatPointAdapter<P, T> {
             if !self.rect.contains_with_radius(point, radius) {
                 panic!(
                     "You are trying to convert a point[{}, {}] which is out of rect: {}",
-                    point.x(), point.y(), self.rect
+                    point.x(),
+                    point.y(),
+                    self.rect
                 );
             }
         }
@@ -184,12 +187,7 @@ mod tests {
 
     #[test]
     fn test_2() {
-        let points = [
-            [-2.0, -4.0],
-            [-2.0, 3.0],
-            [5.0, 3.0],
-            [5.0, -4.0],
-        ];
+        let points = [[-2.0, -4.0], [-2.0, 3.0], [5.0, 3.0], [5.0, -4.0]];
 
         let adapter = FloatPointAdapter::with_iter(points.iter());
 

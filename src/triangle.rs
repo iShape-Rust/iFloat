@@ -1,7 +1,7 @@
-use core::cmp::Ordering;
 use crate::fix_float::FixFloat;
 use crate::fix_vec::FixVec;
 use crate::int::point::IntPoint;
+use core::cmp::Ordering;
 
 pub struct Triangle;
 

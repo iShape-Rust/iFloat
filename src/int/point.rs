@@ -145,4 +145,12 @@ mod tests {
         assert_eq!(p.x, 1);
         assert_eq!(p.y, 2);
     }
+    #[test]
+    fn test_2() {
+        assert_eq!(int_pnt![0, 0], int_pnt![0, 0]);
+        assert!(int_pnt![0, 0] < int_pnt![0, 4]);
+        assert!(int_pnt![1, 0] > int_pnt![0, 4]);
+        assert!(int_pnt![0, 4] > int_pnt![0, 0]);
+        assert!(int_pnt![0, 4] < int_pnt![1, 0]);
+    }
 }

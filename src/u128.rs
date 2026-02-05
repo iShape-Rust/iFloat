@@ -17,7 +17,9 @@ impl UInt128 {
         let (s0, overflow0) = a.overflowing_add(b);
         let mut high = if overflow0 { 1 } else { 0 };
         let (s1, overflow1) = s0.overflowing_add(c);
-        if overflow1 { high += 1; }
+        if overflow1 {
+            high += 1;
+        }
 
         (s1, high)
     }
@@ -44,7 +46,6 @@ impl UInt128 {
 }
 
 impl PartialOrd for UInt128 {
-
     #[inline(always)]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
@@ -52,17 +53,12 @@ impl PartialOrd for UInt128 {
 }
 
 impl Ord for UInt128 {
-
     #[inline(always)]
     fn cmp(&self, other: &Self) -> Ordering {
         let cmp_high = self.high.cmp(&other.high);
         match cmp_high {
-            Ordering::Equal => {
-                self.low.cmp(&other.low)
-            }
-            _ => {
-                cmp_high
-            }
+            Ordering::Equal => self.low.cmp(&other.low),
+            _ => cmp_high,
         }
     }
 }

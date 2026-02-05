@@ -1,4 +1,7 @@
-use crate::{float::{compatible::FloatPointCompatible, point::FloatPoint}, int::point::IntPoint};
+use crate::{
+    float::{compatible::FloatPointCompatible, point::FloatPoint},
+    int::point::IntPoint,
+};
 
 // glam::Vec2 / f32
 impl FloatPointCompatible<f32> for glam::Vec2 {
@@ -32,7 +35,6 @@ impl From<glam::Vec2> for FloatPoint<f32> {
     }
 }
 
-
 // glam::DVec2 / f64
 impl FloatPointCompatible<f64> for glam::DVec2 {
     #[inline(always)]
@@ -64,7 +66,6 @@ impl From<glam::DVec2> for FloatPoint<f64> {
         FloatPoint::new(point.x, point.y)
     }
 }
-
 
 // glam IVec2 / IntPoint / i32
 impl From<IntPoint> for glam::IVec2 {

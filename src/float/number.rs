@@ -3,7 +3,14 @@ use core::ops::{Add, Div, Mul, Neg, Sub};
 
 pub trait FloatNumber
 where
-    Self: Copy + Mul<Output=Self> + Add<Output=Self> + Sub<Output=Self> + Div<Output=Self> + Neg<Output=Self> + Display + PartialOrd,
+    Self: Copy
+        + Mul<Output = Self>
+        + Add<Output = Self>
+        + Sub<Output = Self>
+        + Div<Output = Self>
+        + Neg<Output = Self>
+        + Display
+        + PartialOrd,
 {
     const MAX: Self;
     const MIN: Self;
@@ -131,7 +138,7 @@ impl FloatNumber for f32 {
 impl FloatNumber for f64 {
     const MAX: Self = f64::MAX;
     const MIN: Self = f64::MIN;
-    
+
     #[inline(always)]
     fn abs(self) -> Self {
         self.abs()

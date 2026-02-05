@@ -1,8 +1,8 @@
-use core::ops;
-use core::fmt;
-use core::ops::Mul;
 use crate::fix_float::{FIX_FRACTION_BITS, FIX_ZERO, FixConvert, FixFloat, FixMath};
 use crate::int::point::IntPoint;
+use core::fmt;
+use core::ops;
+use core::ops::Mul;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -12,7 +12,10 @@ pub struct FixVec {
 }
 
 impl FixVec {
-    pub const ZERO: Self = Self { x: FIX_ZERO, y: FIX_ZERO };
+    pub const ZERO: Self = Self {
+        x: FIX_ZERO,
+        y: FIX_ZERO,
+    };
 
     #[inline(always)]
     pub fn is_zero(self) -> bool {
@@ -26,22 +29,34 @@ impl FixVec {
 
     #[inline(always)]
     pub fn new_f64(x: f64, y: f64) -> Self {
-        Self { x: x.fix(), y: y.fix() }
+        Self {
+            x: x.fix(),
+            y: y.fix(),
+        }
     }
 
     #[inline(always)]
     pub fn new_f32(x: f32, y: f32) -> Self {
-        Self { x: x.fix(), y: y.fix() }
+        Self {
+            x: x.fix(),
+            y: y.fix(),
+        }
     }
 
     #[inline(always)]
     pub fn new_number(x: i64, y: i64) -> Self {
-        Self { x: x.fix(), y: y.fix() }
+        Self {
+            x: x.fix(),
+            y: y.fix(),
+        }
     }
 
     #[inline(always)]
     pub fn new_point(point: IntPoint) -> Self {
-        Self { x: point.x as i64, y: point.y as i64 }
+        Self {
+            x: point.x as i64,
+            y: point.y as i64,
+        }
     }
 
     #[inline(always)]
@@ -78,14 +93,16 @@ impl FixVec {
     }
 
     #[inline(always)]
-    pub fn fix_dot_product(self, v: Self) -> FixFloat { // dot product (cos)
+    pub fn fix_dot_product(self, v: Self) -> FixFloat {
+        // dot product (cos)
         let xx = self.x.fix_mul(v.x);
         let yy = self.y.fix_mul(v.y);
         xx + yy
     }
 
     #[inline(always)]
-    pub fn fix_cross_product(self, v: Self) -> FixFloat { // cross product
+    pub fn fix_cross_product(self, v: Self) -> FixFloat {
+        // cross product
         let a = self.x.fix_mul(v.y);
         let b = self.y.fix_mul(v.x);
 
@@ -93,7 +110,8 @@ impl FixVec {
     }
 
     #[inline(always)]
-    pub fn fix_cross_product_scalar(self, a: FixFloat) -> Self { // cross product
+    pub fn fix_cross_product_scalar(self, a: FixFloat) -> Self {
+        // cross product
         let x0 = a.fix_mul(self.y);
         let y0 = a.fix_mul(self.x);
 
@@ -132,14 +150,16 @@ impl FixVec {
     }
 
     #[inline(always)]
-    pub fn dot_product(self, v: Self) -> i64 { // dot product (cos)
+    pub fn dot_product(self, v: Self) -> i64 {
+        // dot product (cos)
         let xx = self.x * v.x;
         let yy = self.y * v.y;
         xx + yy
     }
 
     #[inline(always)]
-    pub fn cross_product(self, v: Self) -> i64 { // cross product
+    pub fn cross_product(self, v: Self) -> i64 {
+        // cross product
         let a = self.x * v.y;
         let b = self.y * v.x;
 

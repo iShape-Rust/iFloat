@@ -1,8 +1,8 @@
-use core::f64;
-use core::f32;
 use crate::fix_float::{FIX_FRACTION_BITS, FIX_PI, FixFloat};
 use crate::fix_sin::FixSin;
 use crate::fix_vec::FixVec;
+use core::f32;
+use core::f64;
 
 // split 90 grad to 128 parts, 360 will be 512
 pub type FixAngle = i64;
@@ -84,7 +84,7 @@ impl FixTrigonometry for FixAngle {
             0 => sin_by_index(index),
             1 => sin_by_index(256 - index),
             2 => -sin_by_index(index),
-            _ => -sin_by_index(256 - index)
+            _ => -sin_by_index(256 - index),
         }
     }
 
@@ -97,7 +97,7 @@ impl FixTrigonometry for FixAngle {
             0 => sin_by_index(256 - index),
             1 => -sin_by_index(index),
             2 => -sin_by_index(256 - index),
-            _ => sin_by_index(index)
+            _ => sin_by_index(index),
         }
     }
 
@@ -110,7 +110,7 @@ impl FixTrigonometry for FixAngle {
             0 => FixVec::new(sin_by_index(index), sin_by_index(256 - index)),
             1 => FixVec::new(sin_by_index(256 - index), -sin_by_index(index)),
             2 => FixVec::new(-sin_by_index(index), -sin_by_index(256 - index)),
-            _ => FixVec::new(-sin_by_index(256 - index), sin_by_index(index))
+            _ => FixVec::new(-sin_by_index(256 - index), sin_by_index(index)),
         }
     }
 }
