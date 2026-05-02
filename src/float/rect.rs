@@ -43,7 +43,7 @@ impl<T: FloatNumber> FloatRect<T> {
     }
 
     #[inline]
-    pub fn with_point<P: FloatPointCompatible<T>>(point: P) -> Self {
+    pub fn with_point<P: FloatPointCompatible<Scalar = T>>(point: P) -> Self {
         Self {
             min_x: point.x(),
             max_x: point.x(),
@@ -55,7 +55,7 @@ impl<T: FloatNumber> FloatRect<T> {
     #[inline]
     pub fn with_points<P>(points: &[P]) -> Option<Self>
     where
-        P: FloatPointCompatible<T>,
+        P: FloatPointCompatible<Scalar = T>,
     {
         Self::with_iter(points.iter())
     }
@@ -64,7 +64,7 @@ impl<T: FloatNumber> FloatRect<T> {
     pub fn with_iter<'a, I, P>(iter: I) -> Option<Self>
     where
         I: Iterator<Item = &'a P>,
-        P: FloatPointCompatible<T> + 'a,
+        P: FloatPointCompatible<Scalar = T> + 'a,
         T: FloatNumber,
     {
         let mut iter = iter;
@@ -103,7 +103,7 @@ impl<T: FloatNumber> FloatRect<T> {
     }
 
     #[inline]
-    pub fn add_point<P: FloatPointCompatible<T>>(&mut self, point: &P) {
+    pub fn add_point<P: FloatPointCompatible<Scalar = T>>(&mut self, point: &P) {
         if self.min_x > point.x() {
             self.min_x = point.x()
         }
@@ -128,7 +128,7 @@ impl<T: FloatNumber> FloatRect<T> {
     }
 
     #[inline]
-    pub fn unsafe_add_point<P: FloatPointCompatible<T>>(&mut self, point: &P) {
+    pub fn unsafe_add_point<P: FloatPointCompatible<Scalar = T>>(&mut self, point: &P) {
         if self.min_x > point.x() {
             self.min_x = point.x()
         } else if self.max_x < point.x() {
@@ -143,7 +143,7 @@ impl<T: FloatNumber> FloatRect<T> {
     }
 
     #[inline(always)]
-    pub fn contains<P: FloatPointCompatible<T>>(&self, point: &P) -> bool {
+    pub fn contains<P: FloatPointCompatible<Scalar = T>>(&self, point: &P) -> bool {
         self.min_x <= point.x()
             && point.x() <= self.max_x
             && self.min_y <= point.y()
@@ -151,7 +151,7 @@ impl<T: FloatNumber> FloatRect<T> {
     }
 
     #[inline(always)]
-    pub fn contains_with_radius<P: FloatPointCompatible<T>>(&self, point: &P, radius: T) -> bool {
+    pub fn contains_with_radius<P: FloatPointCompatible<Scalar = T>>(&self, point: &P, radius: T) -> bool {
         let min_x = self.min_x - radius;
         let max_x = self.max_x + radius;
         let min_y = self.min_y - radius;

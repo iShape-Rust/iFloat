@@ -121,7 +121,9 @@ impl<T: FloatNumber> fmt::Display for FloatPoint<T> {
     }
 }
 
-impl<T: FloatNumber> FloatPointCompatible<T> for FloatPoint<T> {
+impl<T: FloatNumber> FloatPointCompatible for FloatPoint<T> {
+    type Scalar = T;
+
     #[inline(always)]
     fn from_xy(x: T, y: T) -> Self {
         Self { x, y }

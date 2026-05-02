@@ -1,11 +1,11 @@
 use crate::float::compatible::FloatPointCompatible;
 use crate::float::number::FloatNumber;
 
-pub struct FloatPointMath<T, P> {
-    _phantom: core::marker::PhantomData<(T, P)>,
+pub struct FloatPointMath<P> {
+    _phantom: core::marker::PhantomData<P>,
 }
 
-impl<T: FloatNumber, P: FloatPointCompatible<T>> FloatPointMath<T, P> {
+impl<P: FloatPointCompatible> FloatPointMath<P> {
     #[inline(always)]
     pub fn add(a: &P, b: &P) -> P {
         P::from_xy(a.x() + b.x(), a.y() + b.y())
@@ -17,33 +17,33 @@ impl<T: FloatNumber, P: FloatPointCompatible<T>> FloatPointMath<T, P> {
     }
 
     #[inline(always)]
-    pub fn scale(p: &P, s: T) -> P {
+    pub fn scale(p: &P, s: P::Scalar) -> P {
         P::from_xy(s * p.x(), s * p.y())
     }
 
     #[inline(always)]
-    pub fn sqr_length(p: &P) -> T {
+    pub fn sqr_length(p: &P) -> P::Scalar {
         p.x() * p.x() + p.y() * p.y()
     }
 
     #[inline(always)]
-    pub fn length(p: &P) -> T {
+    pub fn length(p: &P) -> P::Scalar {
         Self::sqr_length(p).sqrt()
     }
 
     #[inline(always)]
     pub fn normalize(p: &P) -> P {
-        let inv_len = T::from_float(1.0) / Self::length(p);
+        let inv_len = P::Scalar::from_float(1.0) / Self::length(p);
         P::from_xy(p.x() * inv_len, p.y() * inv_len)
     }
 
     #[inline(always)]
-    pub fn dot_product(a: &P, b: &P) -> T {
+    pub fn dot_product(a: &P, b: &P) -> P::Scalar {
         a.x() * b.x() + a.y() * b.y()
     }
 
     #[inline(always)]
-    pub fn cross_product(a: &P, b: &P) -> T {
+    pub fn cross_product(a: &P, b: &P) -> P::Scalar {
         a.x() * b.y() - a.y() * b.x()
     }
 }
