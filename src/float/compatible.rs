@@ -1,15 +1,15 @@
 use crate::float::number::FloatNumber;
 
-pub trait FloatPointCompatible<T: FloatNumber>
-where
-    Self: Copy,
-{
-    fn from_xy(x: T, y: T) -> Self;
-    fn x(&self) -> T;
-    fn y(&self) -> T;
+pub trait FloatPointCompatible: Copy {
+    type Scalar: FloatNumber;
+    fn from_xy(x: Self::Scalar, y: Self::Scalar) -> Self;
+    fn x(&self) -> Self::Scalar;
+    fn y(&self) -> Self::Scalar;
 }
 
-impl<T: FloatNumber> FloatPointCompatible<T> for [T; 2] {
+impl<T: FloatNumber> FloatPointCompatible for [T; 2] {
+    type Scalar = T;
+
     #[inline(always)]
     fn from_xy(x: T, y: T) -> Self {
         [x, y]

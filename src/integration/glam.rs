@@ -4,7 +4,9 @@ use crate::{
 };
 
 // glam::Vec2 / f32
-impl FloatPointCompatible<f32> for glam::Vec2 {
+impl FloatPointCompatible for glam::Vec2 {
+    type Scalar = f32;
+
     #[inline(always)]
     fn from_xy(x: f32, y: f32) -> Self {
         glam::Vec2::new(x, y)
@@ -36,7 +38,9 @@ impl From<glam::Vec2> for FloatPoint<f32> {
 }
 
 // glam::DVec2 / f64
-impl FloatPointCompatible<f64> for glam::DVec2 {
+impl FloatPointCompatible for glam::DVec2 {
+    type Scalar = f64;
+
     #[inline(always)]
     fn from_xy(x: f64, y: f64) -> Self {
         glam::DVec2::new(x, y)
