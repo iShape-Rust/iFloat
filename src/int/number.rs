@@ -13,6 +13,7 @@ pub trait WideIntNumber:
 {
     fn signum(self) -> Self;
     fn from_f64(value: f64) -> Self;
+    fn from_f64_round(value: f64) -> Self;
 }
 
 impl WideIntNumber for i32 {
@@ -25,6 +26,11 @@ impl WideIntNumber for i32 {
     fn from_f64(value: f64) -> Self {
         value as Self
     }
+
+    #[inline(always)]
+    fn from_f64_round(value: f64) -> Self {
+        (value + 0.5_f64.copysign(value)) as Self
+    }
 }
 impl WideIntNumber for i64 {
     #[inline(always)]
@@ -36,6 +42,11 @@ impl WideIntNumber for i64 {
     fn from_f64(value: f64) -> Self {
         value as Self
     }
+
+    #[inline(always)]
+    fn from_f64_round(value: f64) -> Self {
+        (value + 0.5_f64.copysign(value)) as Self
+    }
 }
 impl WideIntNumber for i128 {
     #[inline(always)]
@@ -46,6 +57,11 @@ impl WideIntNumber for i128 {
     #[inline(always)]
     fn from_f64(value: f64) -> Self {
         value as Self
+    }
+
+    #[inline(always)]
+    fn from_f64_round(value: f64) -> Self {
+        (value + 0.5_f64.copysign(value)) as Self
     }
 }
 pub trait IntNumber
@@ -69,6 +85,7 @@ where
     fn wide(self) -> Self::Wide;
     fn from_usize(value: usize) -> Self;
     fn from_f64(value: f64) -> Self;
+    fn from_f64_round(value: f64) -> Self;
     fn to_f64(self) -> f64;
 }
 
@@ -92,6 +109,11 @@ impl IntNumber for i16 {
 
     #[inline(always)]
     fn from_f64(value: f64) -> Self {
+        value as Self
+    }
+
+    #[inline(always)]
+    fn from_f64_round(value: f64) -> Self {
         (value + 0.5_f64.copysign(value)) as Self
     }
 
@@ -120,6 +142,11 @@ impl IntNumber for i32 {
 
     #[inline(always)]
     fn from_f64(value: f64) -> Self {
+        value as Self
+    }
+
+    #[inline(always)]
+    fn from_f64_round(value: f64) -> Self {
         (value + 0.5_f64.copysign(value)) as Self
     }
 
@@ -148,6 +175,11 @@ impl IntNumber for i64 {
 
     #[inline(always)]
     fn from_f64(value: f64) -> Self {
+        value as Self
+    }
+
+    #[inline(always)]
+    fn from_f64_round(value: f64) -> Self {
         (value + 0.5_f64.copysign(value)) as Self
     }
 

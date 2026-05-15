@@ -135,8 +135,8 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
                 );
             }
         }
-        let x = I::from_f64(((point.x() - self.offset.x()) * self.dir_scale).to_f64());
-        let y = I::from_f64(((point.y() - self.offset.y()) * self.dir_scale).to_f64());
+        let x = I::from_f64_round(((point.x() - self.offset.x()) * self.dir_scale).to_f64());
+        let y = I::from_f64_round(((point.y() - self.offset.y()) * self.dir_scale).to_f64());
         IntPoint { x, y }
     }
 
@@ -159,6 +159,7 @@ mod tests {
     use crate::float::compatible::FloatPointCompatible;
     use crate::float::point::FloatPoint;
     use crate::float::rect::FloatRect;
+    use crate::int::point::IntPoint;
 
     #[test]
     fn test_0() {
@@ -224,5 +225,14 @@ mod tests {
         assert_eq!(p.x.abs() > i32::MAX as i64, true);
         assert_eq!((f.x() - 1.25).abs() < 0.000_0001, true);
         assert_eq!((f.y() + 2.5).abs() < 0.000_0001, true);
+    }
+
+    #[test]
+    fn test_round_point_truncate_length() {
+        let adapter =
+            FloatPointAdapter::<[f64; 2], i32>::with_scale(FloatRect::new(-1.0, 1.0, -1.0, 1.0), 10.0);
+
+        assert_eq!(adapter.float_to_int(&[0.16, -0.16]), IntPoint::new(2, -2));
+        assert_eq!(adapter.len_float_to_int(0.16), 1);
     }
 }
