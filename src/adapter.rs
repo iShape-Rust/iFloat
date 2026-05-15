@@ -1,17 +1,22 @@
 use crate::float::compatible::FloatPointCompatible;
 use crate::float::number::FloatNumber;
 use crate::float::rect::FloatRect;
+use crate::int::number::{IntNumber, WideIntNumber};
 use crate::int::point::IntPoint;
+use core::marker::PhantomData;
 
 #[derive(Clone)]
-pub struct FloatPointAdapter<P: FloatPointCompatible> {
+pub struct FloatPointAdapter<P: FloatPointCompatible, I: IntNumber> {
     pub dir_scale: P::Scalar,
     pub inv_scale: P::Scalar,
     pub offset: P,
     pub rect: FloatRect<P::Scalar>,
+    int: PhantomData<I>,
 }
 
-impl<P: FloatPointCompatible> FloatPointAdapter<P> {
+impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
+    const SCALE_SAFETY_BITS: i32 = 3;
+
     #[inline]
     pub fn new(rect: FloatRect<P::Scalar>) -> Self {
         let a = rect.width() * FloatNumber::from_float(0.5);
@@ -31,11 +36,13 @@ impl<P: FloatPointCompatible> FloatPointAdapter<P> {
                 inv_scale: FloatNumber::from_float(1.0),
                 offset,
                 rect,
+                int: PhantomData,
             };
         }
 
         let log2 = max.log2().to_i32();
-        let ie = 29 - log2;
+        let safe_bits = I::BITS as i32 - Self::SCALE_SAFETY_BITS;
+        let ie = safe_bits - log2;
         let e = ie as f64;
 
         let dir_scale = FloatNumber::from_float(libm::exp2(e));
@@ -46,6 +53,7 @@ impl<P: FloatPointCompatible> FloatPointAdapter<P> {
             inv_scale,
             offset,
             rect,
+            int: PhantomData,
         }
     }
 
@@ -68,6 +76,7 @@ impl<P: FloatPointCompatible> FloatPointAdapter<P> {
                 inv_scale: FloatNumber::from_float(1.0),
                 offset,
                 rect,
+                int: PhantomData,
             };
         }
 
@@ -79,22 +88,23 @@ impl<P: FloatPointCompatible> FloatPointAdapter<P> {
             inv_scale,
             offset,
             rect,
+            int: PhantomData,
         }
     }
 
     #[inline]
-    pub fn with_iter<'a, I>(iter: I) -> Self
+    pub fn with_iter<'a, Q>(iter: Q) -> Self
     where
-        I: Iterator<Item = &'a P>,
+        Q: Iterator<Item = &'a P>,
         P: 'a,
     {
         Self::new(FloatRect::with_iter(iter).unwrap_or(FloatRect::zero()))
     }
 
     #[inline(always)]
-    pub fn int_to_float(&self, point: &IntPoint) -> P {
-        let fx: P::Scalar = FloatNumber::from_i32(point.x);
-        let fy: P::Scalar = FloatNumber::from_i32(point.y);
+    pub fn int_to_float(&self, point: &IntPoint<I>) -> P {
+        let fx: P::Scalar = FloatNumber::from_float(point.x.to_f64());
+        let fy: P::Scalar = FloatNumber::from_float(point.y.to_f64());
         let x = fx * self.inv_scale + self.offset.x();
         let y = fy * self.inv_scale + self.offset.y();
         let float = P::from_xy(x, y);
@@ -113,7 +123,7 @@ impl<P: FloatPointCompatible> FloatPointAdapter<P> {
     }
 
     #[inline(always)]
-    pub fn float_to_int(&self, point: &P) -> IntPoint {
+    pub fn float_to_int(&self, point: &P) -> IntPoint<I> {
         if cfg!(debug_assertions) {
             let radius = self.rect.height().max(self.rect.width()) * P::Scalar::from_float(0.01);
             if !self.rect.contains_with_radius(point, radius) {
@@ -125,21 +135,21 @@ impl<P: FloatPointCompatible> FloatPointAdapter<P> {
                 );
             }
         }
-        let x = ((point.x() - self.offset.x()) * self.dir_scale).to_i32();
-        let y = ((point.y() - self.offset.y()) * self.dir_scale).to_i32();
+        let x = I::from_f64(((point.x() - self.offset.x()) * self.dir_scale).to_f64());
+        let y = I::from_f64(((point.y() - self.offset.y()) * self.dir_scale).to_f64());
         IntPoint { x, y }
     }
 
     #[inline(always)]
-    pub fn sqr_float_to_int(&self, value: P::Scalar) -> u64 {
+    pub fn sqr_float_to_int(&self, value: P::Scalar) -> I::Wide {
         let scale = self.dir_scale;
         let sqr_scale = scale * scale;
-        (sqr_scale * value).to_f64() as u64
+        I::Wide::from_f64((sqr_scale * value).to_f64())
     }
 
     #[inline(always)]
-    pub fn len_float_to_int(&self, value: P::Scalar) -> i32 {
-        (self.dir_scale * value).to_f64() as i32
+    pub fn len_float_to_int(&self, value: P::Scalar) -> I {
+        I::from_f64((self.dir_scale * value).to_f64())
     }
 }
 
@@ -159,7 +169,7 @@ mod tests {
             max_y: -2.0,
         };
 
-        let adapter = FloatPointAdapter::<FloatPoint<f64>>::new(rect);
+        let adapter = FloatPointAdapter::<FloatPoint<f64>, i32>::new(rect);
 
         assert_eq!(adapter.dir_scale, 1.0);
         assert_eq!(adapter.inv_scale, 1.0);
@@ -174,7 +184,7 @@ mod tests {
             max_y: 100.0,
         };
 
-        let adapter = FloatPointAdapter::new(rect);
+        let adapter = FloatPointAdapter::<[f64; 2], i32>::new(rect);
 
         let f0 = [10.0, 2.0];
         let p0 = adapter.float_to_int(&f0);
@@ -188,7 +198,7 @@ mod tests {
     fn test_2() {
         let points = [[-2.0, -4.0], [-2.0, 3.0], [5.0, 3.0], [5.0, -4.0]];
 
-        let adapter = FloatPointAdapter::with_iter(points.iter());
+        let adapter = FloatPointAdapter::<[f64; 2], i32>::with_iter(points.iter());
 
         let f0 = [1.0, 2.0];
         let p0 = adapter.float_to_int(&f0);
@@ -196,5 +206,23 @@ mod tests {
 
         assert_eq!((f0.x() - f1.x()).abs() < 0.000_0001, true);
         assert_eq!((f0.y() - f1.y()).abs() < 0.000_0001, true);
+    }
+
+    #[test]
+    fn test_i64_scale() {
+        let rect = FloatRect {
+            min_x: -1000.0,
+            max_x: 1000.0,
+            min_y: -1000.0,
+            max_y: 1000.0,
+        };
+
+        let adapter = FloatPointAdapter::<[f64; 2], i64>::new(rect);
+        let p = adapter.float_to_int(&[1.25, -2.5]);
+        let f: [f64; 2] = adapter.int_to_float(&p);
+
+        assert_eq!(p.x.abs() > i32::MAX as i64, true);
+        assert_eq!((f.x() - 1.25).abs() < 0.000_0001, true);
+        assert_eq!((f.y() + 2.5).abs() < 0.000_0001, true);
     }
 }
