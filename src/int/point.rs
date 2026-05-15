@@ -1,57 +1,50 @@
-use crate::fix_vec::FixVec;
+use crate::int::number::IntNumber;
 use core::cmp::Ordering;
 use core::{fmt, ops};
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-pub struct IntPoint {
-    pub x: i32,
-    pub y: i32,
+pub struct IntPoint<T: IntNumber = i32> {
+    pub x: T,
+    pub y: T,
 }
 
-impl IntPoint {
-    pub const ZERO: Self = Self { x: 0, y: 0 };
-    pub const EMPTY: Self = Self {
-        x: i32::MAX,
-        y: i32::MAX,
+impl<T: IntNumber> IntPoint<T> {
+    pub const ZERO: Self = Self {
+        x: T::ZERO,
+        y: T::ZERO,
     };
+    pub const EMPTY: Self = Self { x: T::MAX, y: T::MAX };
 
     #[inline(always)]
-    pub fn new(x: i32, y: i32) -> Self {
+    pub fn new(x: T, y: T) -> Self {
         Self { x, y }
     }
 
     #[inline(always)]
-    pub fn cross_product(self, v: Self) -> i64 {
-        let a = (self.x as i64) * (v.y as i64);
-        let b = (self.y as i64) * (v.x as i64);
+    pub fn cross_product(self, v: Self) -> T::Wide {
+        let a = self.x.wide() * v.y.wide();
+        let b = self.y.wide() * v.x.wide();
 
         a - b
     }
 
     #[inline(always)]
-    pub fn dot_product(self, v: Self) -> i64 {
-        let xx = (self.x as i64) * (v.x as i64);
-        let yy = (self.y as i64) * (v.y as i64);
+    pub fn dot_product(self, v: Self) -> T::Wide {
+        let xx = self.x.wide() * v.x.wide();
+        let yy = self.y.wide() * v.y.wide();
         xx + yy
     }
 
     #[inline(always)]
-    pub fn subtract(self, other: IntPoint) -> FixVec {
-        let x = (self.x as i64) - (other.x as i64);
-        let y = (self.y as i64) - (other.y as i64);
-        FixVec::new(x, y)
-    }
-
-    #[inline(always)]
-    pub fn sqr_length(self) -> i64 {
-        let x = self.x as i64;
-        let y = self.y as i64;
+    pub fn sqr_length(self) -> T::Wide {
+        let x = self.x.wide();
+        let y = self.y.wide();
         x * x + y * y
     }
 
     #[inline(always)]
-    pub fn sqr_distance(self, other: IntPoint) -> i64 {
+    pub fn sqr_distance(self, other: Self) -> T::Wide {
         (self - other).sqr_length()
     }
 }
@@ -97,11 +90,11 @@ impl Ord for IntPoint {
     }
 }
 
-impl ops::Add for IntPoint {
-    type Output = IntPoint;
+impl<T: IntNumber> ops::Add for IntPoint<T> {
+    type Output = Self;
 
     #[inline(always)]
-    fn add(self, other: IntPoint) -> IntPoint {
+    fn add(self, other: Self) -> Self {
         IntPoint {
             x: self.x + other.x,
             y: self.y + other.y,
@@ -109,11 +102,11 @@ impl ops::Add for IntPoint {
     }
 }
 
-impl ops::Sub for IntPoint {
-    type Output = IntPoint;
+impl<T: IntNumber> ops::Sub for IntPoint<T> {
+    type Output = Self;
 
     #[inline(always)]
-    fn sub(self, other: IntPoint) -> IntPoint {
+    fn sub(self, other: Self) -> Self {
         IntPoint {
             x: self.x - other.x,
             y: self.y - other.y,
