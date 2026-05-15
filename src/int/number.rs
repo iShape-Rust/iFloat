@@ -42,7 +42,7 @@ where
         + Neg<Output = Self>
         + Binary
         + Display
-        + PartialOrd,
+        + Ord,
 {
     type Wide: WideIntNumber;
     const MAX: Self;

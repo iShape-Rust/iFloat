@@ -49,34 +49,34 @@ impl<T: IntNumber> IntPoint<T> {
     }
 }
 
-impl fmt::Display for IntPoint {
+impl<T: IntNumber> fmt::Display for IntPoint<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[{}, {}]", self.x, self.y)
     }
 }
 
-impl From<[i32; 2]> for IntPoint {
+impl<T: IntNumber> From<[T; 2]> for IntPoint<T> {
     #[inline(always)]
-    fn from(value: [i32; 2]) -> Self {
+    fn from(value: [T; 2]) -> Self {
         IntPoint::new(value[0], value[1])
     }
 }
 
-impl From<(i32, i32)> for IntPoint {
+impl<T: IntNumber> From<(T, T)> for IntPoint<T> {
     #[inline(always)]
-    fn from(value: (i32, i32)) -> Self {
+    fn from(value: (T, T)) -> Self {
         IntPoint::new(value.0, value.1)
     }
 }
 
-impl PartialOrd for IntPoint {
+impl<T: IntNumber> PartialOrd for IntPoint<T> {
     #[inline(always)]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl Ord for IntPoint {
+impl<T: IntNumber> Ord for IntPoint<T> {
     #[inline(always)]
     fn cmp(&self, other: &Self) -> Ordering {
         let x = self.x == other.x;
@@ -145,5 +145,14 @@ mod tests {
         assert!(int_pnt![1, 0] > int_pnt![0, 4]);
         assert!(int_pnt![0, 4] > int_pnt![0, 0]);
         assert!(int_pnt![0, 4] < int_pnt![1, 0]);
+    }
+
+    #[test]
+    fn test_generic_i64() {
+        let a: IntPoint<i64> = (1, 2).into();
+        let b: IntPoint<i64> = [1, 3].into();
+
+        assert_eq!(alloc::format!("{}", a), "[1, 2]");
+        assert!(a < b);
     }
 }
