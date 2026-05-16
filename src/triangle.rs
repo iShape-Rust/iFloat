@@ -12,7 +12,7 @@ impl Triangle {
 
     #[inline(always)]
     pub fn area<T: IntNumber>(p0: IntPoint<T>, p1: IntPoint<T>, p2: IntPoint<T>) -> T::Wide {
-        Self::area_two(p0, p1, p2) / T::Wide::from_usize(2)
+        Self::area_two(p0, p1, p2) / T::WIDE_TWO
     }
 
     #[inline(always)]

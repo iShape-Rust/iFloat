@@ -7,8 +7,6 @@ pub mod adapter;
 pub mod int;
 #[cfg(feature = "core")]
 pub mod triangle;
-#[cfg(feature = "core")]
-pub mod u128;
 
 #[cfg(feature = "float_pt")]
 pub mod float;

@@ -1,17 +1,22 @@
 use crate::float::number::FloatNumber;
 use core::fmt::{Binary, Display};
-use core::ops::{Add, Div, Mul, Neg, Sub};
+use core::ops::{Add, BitAnd, Div, Mul, Neg, Sub};
 
 pub trait WideIntNumber:
     Copy
     + Ord
     + Display
     + Add<Output = Self>
+    + BitAnd<Output = Self>
     + Sub<Output = Self>
     + Mul<Output = Self>
     + Div<Output = Self>
     + Neg<Output = Self>
 {
+    const ZERO: Self;
+    const ONE: Self;
+    const TWO: Self;
+    const FOUR: Self;
     fn from_usize(value: usize) -> Self;
     fn from_float_round<F: FloatNumber>(value: F) -> Self;
     fn wrapping_add(self, rhs: Self) -> Self;
@@ -24,6 +29,11 @@ pub trait WideIntNumber:
 }
 
 impl WideIntNumber for i32 {
+    const ZERO: Self = 0;
+    const ONE: Self = 1;
+    const TWO: Self = 2;
+    const FOUR: Self = 4;
+
     #[inline(always)]
     fn from_usize(value: usize) -> Self {
         value as Self
@@ -67,6 +77,11 @@ impl WideIntNumber for i32 {
     }
 }
 impl WideIntNumber for i64 {
+    const ZERO: Self = 0;
+    const ONE: Self = 1;
+    const TWO: Self = 2;
+    const FOUR: Self = 4;
+
     #[inline(always)]
     fn from_usize(value: usize) -> Self {
         value as Self
@@ -111,6 +126,11 @@ impl WideIntNumber for i64 {
     }
 }
 impl WideIntNumber for i128 {
+    const ZERO: Self = 0;
+    const ONE: Self = 1;
+    const TWO: Self = 2;
+    const FOUR: Self = 4;
+
     #[inline(always)]
     fn from_usize(value: usize) -> Self {
         value as Self
@@ -170,7 +190,11 @@ where
     const MAX: Self;
     const MIN: Self;
     const ZERO: Self;
+    const ONE: Self;
     const WIDE_ZERO: Self::Wide;
+    const WIDE_ONE: Self::Wide;
+    const WIDE_TWO: Self::Wide;
+
     fn wide(self) -> Self::Wide;
     fn from_usize(value: usize) -> Self;
     fn from_float<F: FloatNumber>(value: F) -> Self;
@@ -189,7 +213,10 @@ impl IntNumber for i16 {
     const MAX: Self = Self::MAX;
     const MIN: Self = Self::MIN;
     const ZERO: Self = 0;
+    const ONE: Self = 1;
     const WIDE_ZERO: Self::Wide = 0;
+    const WIDE_ONE: Self::Wide = 1;
+    const WIDE_TWO: Self::Wide = 2;
 
     #[inline(always)]
     fn wide(self) -> Self::Wide {
@@ -245,7 +272,10 @@ impl IntNumber for i32 {
     const MAX: Self = Self::MAX;
     const MIN: Self = Self::MIN;
     const ZERO: Self = 0;
+    const ONE: Self = 1;
     const WIDE_ZERO: Self::Wide = 0;
+    const WIDE_ONE: Self::Wide = 1;
+    const WIDE_TWO: Self::Wide = 2;
     #[inline(always)]
     fn wide(self) -> Self::Wide {
         self as Self::Wide
@@ -301,7 +331,10 @@ impl IntNumber for i64 {
     const MAX: Self = Self::MAX;
     const MIN: Self = Self::MIN;
     const ZERO: Self = 0;
+    const ONE: Self = 1;
     const WIDE_ZERO: Self::Wide = 0;
+    const WIDE_ONE: Self::Wide = 1;
+    const WIDE_TWO: Self::Wide = 2;
     #[inline(always)]
     fn wide(self) -> Self::Wide {
         self as Self::Wide
