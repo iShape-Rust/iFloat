@@ -13,6 +13,8 @@ pub trait WideIntNumber:
     + Neg<Output = Self>
 {
     fn from_float_round<F: FloatNumber>(value: F) -> Self;
+    fn wrapping_add(self, rhs: Self) -> Self;
+    fn wrapping_sub(self, rhs: Self) -> Self;
     fn signum(self) -> Self;
     fn to_usize(self) -> usize;
     fn to_f32(self) -> f32;
@@ -23,6 +25,16 @@ impl WideIntNumber for i32 {
     #[inline(always)]
     fn from_float_round<F: FloatNumber>(value: F) -> Self {
         value.to_round_i32()
+    }
+
+    #[inline(always)]
+    fn wrapping_add(self, rhs: Self) -> Self {
+        self.wrapping_add(rhs)
+    }
+
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: Self) -> Self {
+        self.wrapping_sub(rhs)
     }
 
     #[inline(always)]
@@ -49,6 +61,16 @@ impl WideIntNumber for i64 {
     }
 
     #[inline(always)]
+    fn wrapping_add(self, rhs: Self) -> Self {
+        self.wrapping_add(rhs)
+    }
+
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: Self) -> Self {
+        self.wrapping_sub(rhs)
+    }
+
+    #[inline(always)]
     fn signum(self) -> Self {
         self.signum()
     }
@@ -70,6 +92,16 @@ impl WideIntNumber for i128 {
     #[inline(always)]
     fn from_float_round<F: FloatNumber>(value: F) -> Self {
         value.to_round_i128()
+    }
+
+    #[inline(always)]
+    fn wrapping_add(self, rhs: Self) -> Self {
+        self.wrapping_add(rhs)
+    }
+
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: Self) -> Self {
+        self.wrapping_sub(rhs)
     }
 
     #[inline(always)]
@@ -111,6 +143,8 @@ where
     fn from_usize(value: usize) -> Self;
     fn from_float<F: FloatNumber>(value: F) -> Self;
     fn from_float_round<F: FloatNumber>(value: F) -> Self;
+    fn wrapping_add(self, rhs: Self) -> Self;
+    fn wrapping_sub(self, rhs: Self) -> Self;
     fn to_usize(self) -> usize;
     fn to_f32(self) -> f32;
     fn to_f64(self) -> f64;
@@ -141,6 +175,16 @@ impl IntNumber for i16 {
     #[inline(always)]
     fn from_float_round<F: FloatNumber>(value: F) -> Self {
         value.to_round_i16()
+    }
+
+    #[inline(always)]
+    fn wrapping_add(self, rhs: Self) -> Self {
+        self.wrapping_add(rhs)
+    }
+
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: Self) -> Self {
+        self.wrapping_sub(rhs)
     }
 
     #[inline(always)]
@@ -185,6 +229,16 @@ impl IntNumber for i32 {
     }
 
     #[inline(always)]
+    fn wrapping_add(self, rhs: Self) -> Self {
+        self.wrapping_add(rhs)
+    }
+
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: Self) -> Self {
+        self.wrapping_sub(rhs)
+    }
+
+    #[inline(always)]
     fn to_usize(self) -> usize {
         self as usize
     }
@@ -223,6 +277,16 @@ impl IntNumber for i64 {
     #[inline(always)]
     fn from_float_round<F: FloatNumber>(value: F) -> Self {
         value.to_round_i64()
+    }
+
+    #[inline(always)]
+    fn wrapping_add(self, rhs: Self) -> Self {
+        self.wrapping_add(rhs)
+    }
+
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: Self) -> Self {
+        self.wrapping_sub(rhs)
     }
 
     #[inline(always)]
