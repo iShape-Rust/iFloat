@@ -135,7 +135,7 @@ impl IntNumber for i16 {
     }
     #[inline(always)]
     fn from_float<F: FloatNumber>(value: F) -> Self {
-        value.to_round_i16()
+        value.to_i16()
     }
 
     #[inline(always)]

@@ -232,11 +232,11 @@ mod tests {
     }
 
     #[test]
-    fn test_round_point_truncate_length() {
+    fn test_round_point_round_length() {
         let adapter =
             FloatPointAdapter::<[f64; 2], i32>::with_scale(FloatRect::new(-1.0, 1.0, -1.0, 1.0), 10.0);
 
         assert_eq!(adapter.float_to_int(&[0.16, -0.16]), IntPoint::new(2, -2));
-        assert_eq!(adapter.len_float_to_int(0.16), 1);
+        assert_eq!(adapter.len_float_to_int(0.16), 2);
     }
 }

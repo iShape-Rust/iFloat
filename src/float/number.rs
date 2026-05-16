@@ -31,7 +31,7 @@ where
     fn sin_cos(self) -> (Self, Self);
     fn acos(self) -> Self;
     fn asin(self) -> Self;
-    fn to_16(self) -> i16;
+    fn to_i16(self) -> i16;
     fn to_i32(self) -> i32;
     fn to_i64(self) -> i64;
     fn to_usize(self) -> usize;
@@ -125,7 +125,7 @@ impl FloatNumber for f32 {
     }
 
     #[inline(always)]
-    fn to_16(self) -> i16 {
+    fn to_i16(self) -> i16 {
         self as i16
     }
 
@@ -261,7 +261,7 @@ impl FloatNumber for f64 {
     }
 
     #[inline(always)]
-    fn to_16(self) -> i16 {
+    fn to_i16(self) -> i16 {
         self as i16
     }
 
