@@ -1,3 +1,4 @@
+use crate::float::number::FloatNumber;
 use core::fmt::{Binary, Display};
 use core::ops::{Add, Div, Mul, Neg, Sub};
 
@@ -11,57 +12,81 @@ pub trait WideIntNumber:
     + Div<Output = Self>
     + Neg<Output = Self>
 {
+    fn from_float_round<F: FloatNumber>(value: F) -> Self;
     fn signum(self) -> Self;
-    fn from_f64(value: f64) -> Self;
-    fn from_f64_round(value: f64) -> Self;
+    fn to_usize(self) -> usize;
+    fn to_f32(self) -> f32;
+    fn to_f64(self) -> f64;
 }
 
 impl WideIntNumber for i32 {
     #[inline(always)]
+    fn from_float_round<F: FloatNumber>(value: F) -> Self {
+        value.to_round_i32()
+    }
+
+    #[inline(always)]
     fn signum(self) -> Self {
         self.signum()
     }
-
     #[inline(always)]
-    fn from_f64(value: f64) -> Self {
-        value as Self
+    fn to_usize(self) -> usize {
+        self as usize
     }
-
     #[inline(always)]
-    fn from_f64_round(value: f64) -> Self {
-        (value + 0.5_f64.copysign(value)) as Self
+    fn to_f32(self) -> f32 {
+        self as f32
+    }
+    #[inline(always)]
+    fn to_f64(self) -> f64 {
+        self as f64
     }
 }
 impl WideIntNumber for i64 {
     #[inline(always)]
+    fn from_float_round<F: FloatNumber>(value: F) -> Self {
+        value.to_round_i64()
+    }
+
+    #[inline(always)]
     fn signum(self) -> Self {
         self.signum()
     }
 
     #[inline(always)]
-    fn from_f64(value: f64) -> Self {
-        value as Self
+    fn to_usize(self) -> usize {
+        self as usize
     }
-
     #[inline(always)]
-    fn from_f64_round(value: f64) -> Self {
-        (value + 0.5_f64.copysign(value)) as Self
+    fn to_f32(self) -> f32 {
+        self as f32
+    }
+    #[inline(always)]
+    fn to_f64(self) -> f64 {
+        self as f64
     }
 }
 impl WideIntNumber for i128 {
     #[inline(always)]
+    fn from_float_round<F: FloatNumber>(value: F) -> Self {
+        value.to_round_i128()
+    }
+
+    #[inline(always)]
     fn signum(self) -> Self {
         self.signum()
     }
-
     #[inline(always)]
-    fn from_f64(value: f64) -> Self {
-        value as Self
+    fn to_usize(self) -> usize {
+        self as usize
     }
-
     #[inline(always)]
-    fn from_f64_round(value: f64) -> Self {
-        (value + 0.5_f64.copysign(value)) as Self
+    fn to_f32(self) -> f32 {
+        self as f32
+    }
+    #[inline(always)]
+    fn to_f64(self) -> f64 {
+        self as f64
     }
 }
 pub trait IntNumber
@@ -84,8 +109,10 @@ where
     const WIDE_ZERO: Self::Wide;
     fn wide(self) -> Self::Wide;
     fn from_usize(value: usize) -> Self;
-    fn from_f64(value: f64) -> Self;
-    fn from_f64_round(value: f64) -> Self;
+    fn from_float<F: FloatNumber>(value: F) -> Self;
+    fn from_float_round<F: FloatNumber>(value: F) -> Self;
+    fn to_usize(self) -> usize;
+    fn to_f32(self) -> f32;
     fn to_f64(self) -> f64;
 }
 
@@ -106,17 +133,24 @@ impl IntNumber for i16 {
     fn from_usize(value: usize) -> Self {
         value as Self
     }
-
     #[inline(always)]
-    fn from_f64(value: f64) -> Self {
-        value as Self
+    fn from_float<F: FloatNumber>(value: F) -> Self {
+        value.to_round_i16()
     }
 
     #[inline(always)]
-    fn from_f64_round(value: f64) -> Self {
-        (value + 0.5_f64.copysign(value)) as Self
+    fn from_float_round<F: FloatNumber>(value: F) -> Self {
+        value.to_round_i16()
     }
 
+    #[inline(always)]
+    fn to_usize(self) -> usize {
+        self as usize
+    }
+    #[inline(always)]
+    fn to_f32(self) -> f32 {
+        self as f32
+    }
     #[inline(always)]
     fn to_f64(self) -> f64 {
         self as f64
@@ -141,15 +175,23 @@ impl IntNumber for i32 {
     }
 
     #[inline(always)]
-    fn from_f64(value: f64) -> Self {
-        value as Self
+    fn from_float<F: FloatNumber>(value: F) -> Self {
+        value.to_i32()
     }
 
     #[inline(always)]
-    fn from_f64_round(value: f64) -> Self {
-        (value + 0.5_f64.copysign(value)) as Self
+    fn from_float_round<F: FloatNumber>(value: F) -> Self {
+        value.to_round_i32()
     }
 
+    #[inline(always)]
+    fn to_usize(self) -> usize {
+        self as usize
+    }
+    #[inline(always)]
+    fn to_f32(self) -> f32 {
+        self as f32
+    }
     #[inline(always)]
     fn to_f64(self) -> f64 {
         self as f64
@@ -174,15 +216,23 @@ impl IntNumber for i64 {
     }
 
     #[inline(always)]
-    fn from_f64(value: f64) -> Self {
-        value as Self
+    fn from_float<F: FloatNumber>(value: F) -> Self {
+        value.to_i64()
     }
 
     #[inline(always)]
-    fn from_f64_round(value: f64) -> Self {
-        (value + 0.5_f64.copysign(value)) as Self
+    fn from_float_round<F: FloatNumber>(value: F) -> Self {
+        value.to_round_i64()
     }
 
+    #[inline(always)]
+    fn to_usize(self) -> usize {
+        self as usize
+    }
+    #[inline(always)]
+    fn to_f32(self) -> f32 {
+        self as f32
+    }
     #[inline(always)]
     fn to_f64(self) -> f64 {
         self as f64

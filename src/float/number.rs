@@ -1,3 +1,4 @@
+use crate::int::number::{IntNumber, WideIntNumber};
 use core::fmt::Display;
 use core::ops::{Add, Div, Mul, Neg, Sub};
 
@@ -14,12 +15,13 @@ where
 {
     const MAX: Self;
     const MIN: Self;
+    const BITS: u8;
     fn abs(self) -> Self;
     fn sqrt(self) -> Self;
     fn from_usize(value: usize) -> Self;
-    fn from_i32(value: i32) -> Self;
-    fn from_i64(value: i64) -> Self;
-    fn from_float(value: f64) -> Self;
+    fn from_int<I: IntNumber>(value: I) -> Self;
+    fn from_wide_int<I: WideIntNumber>(value: I) -> Self;
+    fn from_float<F: FloatNumber>(value: F) -> Self;
     fn max(self, other: Self) -> Self;
     fn min(self, other: Self) -> Self;
     fn log2(self) -> Self;
@@ -29,15 +31,23 @@ where
     fn sin_cos(self) -> (Self, Self);
     fn acos(self) -> Self;
     fn asin(self) -> Self;
+    fn to_16(self) -> i16;
     fn to_i32(self) -> i32;
+    fn to_i64(self) -> i64;
     fn to_usize(self) -> usize;
+    fn to_round_i16(self) -> i16;
+    fn to_round_i32(self) -> i32;
+    fn to_round_i64(self) -> i64;
+    fn to_round_i128(self) -> i128;
+    fn to_round_usize(self) -> usize;
+    fn to_f32(self) -> f32;
     fn to_f64(self) -> f64;
-    fn bit_width() -> u8;
 }
 
 impl FloatNumber for f32 {
     const MAX: Self = f32::MAX;
     const MIN: Self = f32::MIN;
+    const BITS: u8 = 32;
 
     #[inline(always)]
     fn abs(self) -> Self {
@@ -55,18 +65,18 @@ impl FloatNumber for f32 {
     }
 
     #[inline(always)]
-    fn from_i32(value: i32) -> Self {
-        value as f32
+    fn from_int<I: IntNumber>(value: I) -> Self {
+        value.to_f64() as f32
     }
 
     #[inline(always)]
-    fn from_i64(value: i64) -> Self {
-        value as f32
+    fn from_wide_int<I: WideIntNumber>(value: I) -> Self {
+        value.to_f32()
     }
 
     #[inline(always)]
-    fn from_float(value: f64) -> Self {
-        value as f32
+    fn from_float<F: FloatNumber>(value: F) -> Self {
+        value.to_f32()
     }
 
     #[inline(always)]
@@ -115,29 +125,65 @@ impl FloatNumber for f32 {
     }
 
     #[inline(always)]
+    fn to_16(self) -> i16 {
+        self as i16
+    }
+
+    #[inline(always)]
     fn to_i32(self) -> i32 {
-        (self + 0.5_f32.copysign(self)) as i32
+        self as i32
+    }
+
+    #[inline(always)]
+    fn to_i64(self) -> i64 {
+        self as i64
     }
 
     #[inline(always)]
     fn to_usize(self) -> usize {
+        self as usize
+    }
+
+    #[inline(always)]
+    fn to_round_i16(self) -> i16 {
+        (self + Self::from_float(0.5).copysign(self)) as i16
+    }
+
+    #[inline(always)]
+    fn to_round_i32(self) -> i32 {
+        (self + Self::from_float(0.5).copysign(self)) as i32
+    }
+
+    #[inline(always)]
+    fn to_round_i64(self) -> i64 {
+        (self + Self::from_float(0.5).copysign(self)) as i64
+    }
+
+    #[inline(always)]
+    fn to_round_i128(self) -> i128 {
+        (self + Self::from_float(0.5).copysign(self)) as i128
+    }
+
+    #[inline(always)]
+    fn to_round_usize(self) -> usize {
         (self + 0.5) as usize
+    }
+
+    #[inline(always)]
+    fn to_f32(self) -> f32 {
+        self
     }
 
     #[inline(always)]
     fn to_f64(self) -> f64 {
         self as f64
     }
-
-    #[inline(always)]
-    fn bit_width() -> u8 {
-        32
-    }
 }
 
 impl FloatNumber for f64 {
     const MAX: Self = f64::MAX;
     const MIN: Self = f64::MIN;
+    const BITS: u8 = 64;
 
     #[inline(always)]
     fn abs(self) -> Self {
@@ -155,18 +201,18 @@ impl FloatNumber for f64 {
     }
 
     #[inline(always)]
-    fn from_i32(value: i32) -> Self {
-        value as f64
+    fn from_int<I: IntNumber>(value: I) -> Self {
+        value.to_f64()
     }
 
     #[inline(always)]
-    fn from_i64(value: i64) -> Self {
-        value as f64
+    fn from_wide_int<I: WideIntNumber>(value: I) -> Self {
+        value.to_f64()
     }
 
     #[inline(always)]
-    fn from_float(value: f64) -> Self {
-        value
+    fn from_float<F: FloatNumber>(value: F) -> Self {
+        value.to_f64()
     }
 
     #[inline(always)]
@@ -215,22 +261,57 @@ impl FloatNumber for f64 {
     }
 
     #[inline(always)]
+    fn to_16(self) -> i16 {
+        self as i16
+    }
+
+    #[inline(always)]
     fn to_i32(self) -> i32 {
-        (self + 0.5_f64.copysign(self)) as i32
+        self as i32
+    }
+
+    #[inline(always)]
+    fn to_i64(self) -> i64 {
+        self as i64
     }
 
     #[inline(always)]
     fn to_usize(self) -> usize {
+        self as usize
+    }
+
+    #[inline(always)]
+    fn to_round_i16(self) -> i16 {
+        (self + Self::from_float(0.5).copysign(self)) as i16
+    }
+
+    #[inline(always)]
+    fn to_round_i32(self) -> i32 {
+        (self + Self::from_float(0.5).copysign(self)) as i32
+    }
+
+    #[inline(always)]
+    fn to_round_i64(self) -> i64 {
+        (self + Self::from_float(0.5).copysign(self)) as i64
+    }
+
+    #[inline(always)]
+    fn to_round_i128(self) -> i128 {
+        (self + Self::from_float(0.5).copysign(self)) as i128
+    }
+
+    #[inline(always)]
+    fn to_round_usize(self) -> usize {
         (self + 0.5) as usize
+    }
+
+    #[inline(always)]
+    fn to_f32(self) -> f32 {
+        self as f32
     }
 
     #[inline(always)]
     fn to_f64(self) -> f64 {
         self
-    }
-
-    #[inline(always)]
-    fn bit_width() -> u8 {
-        64
     }
 }

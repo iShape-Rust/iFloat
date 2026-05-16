@@ -103,8 +103,8 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
 
     #[inline(always)]
     pub fn int_to_float(&self, point: &IntPoint<I>) -> P {
-        let fx: P::Scalar = FloatNumber::from_float(point.x.to_f64());
-        let fy: P::Scalar = FloatNumber::from_float(point.y.to_f64());
+        let fx: P::Scalar = FloatNumber::from_int(point.x);
+        let fy: P::Scalar = FloatNumber::from_int(point.y);
         let x = fx * self.inv_scale + self.offset.x();
         let y = fy * self.inv_scale + self.offset.y();
         let float = P::from_xy(x, y);
@@ -135,8 +135,12 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
                 );
             }
         }
-        let x = I::from_f64_round(((point.x() - self.offset.x()) * self.dir_scale).to_f64());
-        let y = I::from_f64_round(((point.y() - self.offset.y()) * self.dir_scale).to_f64());
+
+        let sx = (point.x() - self.offset.x()) * self.dir_scale;
+        let sy = (point.y() - self.offset.y()) * self.dir_scale;
+
+        let x = I::from_float_round(sx);
+        let y = I::from_float_round(sy);
         IntPoint { x, y }
     }
 
@@ -144,12 +148,12 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
     pub fn sqr_float_to_int(&self, value: P::Scalar) -> I::Wide {
         let scale = self.dir_scale;
         let sqr_scale = scale * scale;
-        I::Wide::from_f64((sqr_scale * value).to_f64())
+        I::Wide::from_float_round(sqr_scale * value)
     }
 
     #[inline(always)]
     pub fn len_float_to_int(&self, value: P::Scalar) -> I {
-        I::from_f64((self.dir_scale * value).to_f64())
+        I::from_float_round(self.dir_scale * value)
     }
 }
 
