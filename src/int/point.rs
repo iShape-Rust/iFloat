@@ -1,4 +1,5 @@
 use crate::int::number::IntNumber;
+use crate::int::vector::IntVector;
 use core::cmp::Ordering;
 use core::{fmt, ops};
 
@@ -103,13 +104,13 @@ impl<T: IntNumber> ops::Add for IntPoint<T> {
 }
 
 impl<T: IntNumber> ops::Sub for IntPoint<T> {
-    type Output = Self;
+    type Output = IntVector<T>;
 
     #[inline(always)]
-    fn sub(self, other: Self) -> Self {
-        IntPoint {
-            x: self.x - other.x,
-            y: self.y - other.y,
+    fn sub(self, other: Self) -> Self::Output {
+        IntVector {
+            x: self.x.wide() - other.x.wide(),
+            y: self.y.wide() - other.y.wide(),
         }
     }
 }
@@ -154,5 +155,15 @@ mod tests {
 
         assert_eq!(alloc::format!("{}", a), "[1, 2]");
         assert!(a < b);
+    }
+
+    #[test]
+    fn test_sub_returns_wide_vector() {
+        let a = IntPoint::new(i32::MIN, i32::MIN);
+        let b = IntPoint::new(i32::MAX, i32::MAX);
+        let v = a - b;
+
+        assert_eq!(v.x, i32::MIN as i64 - i32::MAX as i64);
+        assert_eq!(v.y, i32::MIN as i64 - i32::MAX as i64);
     }
 }
