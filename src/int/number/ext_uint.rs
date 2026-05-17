@@ -3,6 +3,7 @@ use core::cmp::Ordering;
 
 pub trait ExtUIntNumber<U: UIntNumber>: Copy {
     fn multiply(a: U, b: U) -> Self;
+    fn divide_with_rounding(&self, divisor: U) -> U;
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -15,6 +16,11 @@ impl<U: UIntNumber> ExtUIntNumber<U> for ExtUIntNumber64 {
     fn multiply(a: U, b: U) -> Self {
         let value = a.to_u64() * b.to_u64();
         Self { value }
+    }
+
+    #[inline(always)]
+    fn divide_with_rounding(&self, divisor: U) -> U {
+        U::from_u64(self.value / divisor.to_u64())
     }
 }
 
@@ -61,6 +67,44 @@ impl<U: UIntNumber> ExtUIntNumber<U> for CompositeExtUIntNumber<U> {
         let low = (m_partial << U::HALF_BITS) | (ab00 & U::HALF_MASK);
 
         Self::new(high, low)
+    }
+
+    fn divide_with_rounding(&self, divisor: U) -> U {
+        if self.high == U::ZERO {
+            let result = self.low / divisor;
+            let remainder = self.low - result * divisor;
+            return if remainder >= (divisor + U::ONE) >> 1 {
+                result + U::ONE
+            } else {
+                result
+            };
+        }
+
+        let dn = divisor.leading_zeros();
+        let norm_divisor = divisor << dn;
+        let mut norm_dividend_high = (self.high << dn) | (self.low >> (U::BITS - dn));
+        let mut norm_dividend_low = self.low << dn;
+
+        let mut quotient = U::ZERO;
+
+        for _ in 0..U::BITS {
+            let bit = (norm_dividend_high & U::LAST_BIT) != U::ZERO;
+            norm_dividend_high = (norm_dividend_high << 1) | (norm_dividend_low >> U::LAST_BIT_INDEX);
+            norm_dividend_low <<= U::ONE;
+            quotient <<= U::ONE;
+            if norm_dividend_high >= norm_divisor || bit {
+                norm_dividend_high = norm_dividend_high.wrapping_sub(norm_divisor);
+                quotient |= U::ONE;
+            }
+        }
+
+        // Check remainder for rounding
+        let remainder = (norm_dividend_high << (U::BITS - dn)) | (norm_dividend_low >> dn);
+        if remainder >= (divisor + U::ONE) >> 1 {
+            quotient += U::ONE;
+        }
+
+        quotient
     }
 }
 
