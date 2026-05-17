@@ -11,16 +11,23 @@ pub struct ExtUIntNumber64 {
     pub value: u64,
 }
 
-impl<U: UIntNumber> ExtUIntNumber<U> for ExtUIntNumber64 {
+impl ExtUIntNumber<u32> for ExtUIntNumber64 {
     #[inline(always)]
-    fn multiply(a: U, b: U) -> Self {
-        let value = a.to_u64() * b.to_u64();
+    fn multiply(a: u32, b: u32) -> Self {
+        let value = a as u64 * b as u64;
         Self { value }
     }
 
     #[inline(always)]
-    fn divide_with_rounding(&self, divisor: U) -> U {
-        U::from_u64(self.value / divisor.to_u64())
+    fn divide_with_rounding(&self, divisor: u32) -> u32 {
+        let divisor = divisor as u64;
+        let result = self.value / divisor;
+        let remainder = self.value - result * divisor;
+        if remainder >= ((divisor >> 1) + (divisor & 1)) {
+            (result + 1) as u32
+        } else {
+            result as u32
+        }
     }
 }
 
@@ -128,7 +135,27 @@ impl<U: UIntNumber> Ord for CompositeExtUIntNumber<U> {
 
 #[cfg(test)]
 mod tests {
-    use crate::int::number::ext_uint::{CompositeExtUIntNumber, ExtUIntNumber};
+    use crate::int::number::ext_uint::{CompositeExtUIntNumber, ExtUIntNumber, ExtUIntNumber64};
+
+    #[test]
+    fn test_u64_rounding_down() {
+        let value = ExtUIntNumber64 { value: 7 };
+        assert_eq!(value.divide_with_rounding(3), 2);
+    }
+
+    #[test]
+    fn test_u64_rounding_up() {
+        let value = ExtUIntNumber64 { value: 5 };
+        assert_eq!(value.divide_with_rounding(2), 3);
+    }
+
+    #[test]
+    fn test_u64_rounding_max_divisor() {
+        let value = ExtUIntNumber64 {
+            value: (u32::MAX as u64 + 1) >> 1,
+        };
+        assert_eq!(value.divide_with_rounding(u32::MAX), 1);
+    }
 
     #[test]
     fn test_basic() {

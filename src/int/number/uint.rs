@@ -32,8 +32,6 @@ pub trait UIntNumber:
     fn overflowing_add(self, rhs: Self) -> (Self, bool);
     fn wrapping_sub(self, rhs: Self) -> Self;
     fn leading_zeros(self) -> u32;
-    fn from_u64(value: u64) -> Self;
-    fn to_u64(self) -> u64;
 }
 
 impl UIntNumber for u32 {
@@ -60,16 +58,6 @@ impl UIntNumber for u32 {
     #[inline(always)]
     fn leading_zeros(self) -> u32 {
         self.leading_zeros()
-    }
-
-    #[inline(always)]
-    fn from_u64(value: u64) -> Self {
-        value as u32
-    }
-
-    #[inline(always)]
-    fn to_u64(self) -> u64 {
-        self as u64
     }
 }
 
@@ -98,16 +86,6 @@ impl UIntNumber for u64 {
     fn leading_zeros(self) -> u32 {
         self.leading_zeros()
     }
-
-    #[inline(always)]
-    fn from_u64(value: u64) -> Self {
-        value
-    }
-
-    #[inline(always)]
-    fn to_u64(self) -> u64 {
-        self
-    }
 }
 
 impl UIntNumber for u128 {
@@ -133,15 +111,5 @@ impl UIntNumber for u128 {
     #[inline(always)]
     fn leading_zeros(self) -> u32 {
         self.leading_zeros()
-    }
-
-    #[inline(always)]
-    fn from_u64(value: u64) -> Self {
-        value as u128
-    }
-
-    #[inline(always)]
-    fn to_u64(self) -> u64 {
-        self as u64
     }
 }
