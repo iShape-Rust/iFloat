@@ -1,4 +1,4 @@
-use crate::int::number::ext_uint::{CompositeExtUIntNumber, ExtUIntNumber, ExtUIntNumber64};
+use crate::int::number::product_uint::{CompositeUIntProduct, UIntProduct, UIntProduct64};
 use core::fmt::Display;
 use core::ops::{Add, AddAssign, BitAnd, BitOr, BitOrAssign, Div, Mul, Shl, ShlAssign, Shr, Sub};
 
@@ -19,7 +19,7 @@ pub trait UIntNumber:
     + ShlAssign
     + AddAssign
 {
-    type ExtUInt: ExtUIntNumber<Self>;
+    type Product: UIntProduct<Self>;
     const BITS: u32;
     const HALF_BITS: u32;
     const HALF_MASK: Self;
@@ -35,7 +35,7 @@ pub trait UIntNumber:
 }
 
 impl UIntNumber for u32 {
-    type ExtUInt = ExtUIntNumber64;
+    type Product = UIntProduct64;
     const BITS: u32 = 32;
     const HALF_BITS: u32 = 16;
     const HALF_MASK: Self = 0xFFFF;
@@ -62,7 +62,7 @@ impl UIntNumber for u32 {
 }
 
 impl UIntNumber for u64 {
-    type ExtUInt = CompositeExtUIntNumber<Self>;
+    type Product = CompositeUIntProduct<Self>;
     const BITS: u32 = 64;
     const HALF_BITS: u32 = 32;
     const HALF_MASK: Self = 0xFFFF_FFFF;
@@ -89,7 +89,7 @@ impl UIntNumber for u64 {
 }
 
 impl UIntNumber for u128 {
-    type ExtUInt = CompositeExtUIntNumber<Self>;
+    type Product = CompositeUIntProduct<Self>;
     const BITS: u32 = 128;
     const HALF_BITS: u32 = 64;
     const HALF_MASK: Self = 0xFFFF_FFFF_FFFF_FFFF;
