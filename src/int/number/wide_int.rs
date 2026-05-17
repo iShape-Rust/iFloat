@@ -20,7 +20,7 @@ pub trait WideIntNumber:
     const TWO: Self;
     const FOUR: Self;
     fn from_usize(value: usize) -> Self;
-    fn from_float_round<F: FloatNumber>(value: F) -> Self;
+    fn from_rounded_float<F: FloatNumber>(value: F) -> Self;
     fn wrapping_add(self, rhs: Self) -> Self;
     fn wrapping_sub(self, rhs: Self) -> Self;
     fn wrapping_mul(self, rhs: Self) -> Self;
@@ -43,7 +43,7 @@ impl WideIntNumber for i32 {
         value as Self
     }
     #[inline(always)]
-    fn from_float_round<F: FloatNumber>(value: F) -> Self {
+    fn from_rounded_float<F: FloatNumber>(value: F) -> Self {
         value.to_round_i32()
     }
 
@@ -97,7 +97,7 @@ impl WideIntNumber for i64 {
     }
 
     #[inline(always)]
-    fn from_float_round<F: FloatNumber>(value: F) -> Self {
+    fn from_rounded_float<F: FloatNumber>(value: F) -> Self {
         value.to_round_i64()
     }
 
@@ -151,7 +151,7 @@ impl WideIntNumber for i128 {
     }
 
     #[inline(always)]
-    fn from_float_round<F: FloatNumber>(value: F) -> Self {
+    fn from_rounded_float<F: FloatNumber>(value: F) -> Self {
         value.to_round_i128()
     }
 

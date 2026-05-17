@@ -8,10 +8,10 @@ use core::marker::PhantomData;
 
 #[derive(Clone)]
 pub struct FloatPointAdapter<P: FloatPointCompatible, I: IntNumber> {
-    pub dir_scale: P::Scalar,
-    pub inv_scale: P::Scalar,
-    pub offset: P,
-    pub rect: FloatRect<P::Scalar>,
+    dir_scale: P::Scalar,
+    inv_scale: P::Scalar,
+    offset: P,
+    rect: FloatRect<P::Scalar>,
     int: PhantomData<I>,
 }
 
@@ -103,6 +103,26 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
     }
 
     #[inline(always)]
+    pub fn dir_scale(&self) -> P::Scalar {
+        self.dir_scale
+    }
+
+    #[inline(always)]
+    pub fn inv_scale(&self) -> P::Scalar {
+        self.inv_scale
+    }
+
+    #[inline(always)]
+    pub fn offset(&self) -> P {
+        self.offset
+    }
+
+    #[inline(always)]
+    pub fn rect(&self) -> &FloatRect<P::Scalar> {
+        &self.rect
+    }
+
+    #[inline(always)]
     pub fn int_to_float(&self, point: &IntPoint<I>) -> P {
         let fx: P::Scalar = FloatNumber::from_int(point.x);
         let fy: P::Scalar = FloatNumber::from_int(point.y);
@@ -140,21 +160,21 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
         let sx = (point.x() - self.offset.x()) * self.dir_scale;
         let sy = (point.y() - self.offset.y()) * self.dir_scale;
 
-        let x = I::from_float_round(sx);
-        let y = I::from_float_round(sy);
+        let x = I::from_rounded_float(sx);
+        let y = I::from_rounded_float(sy);
         IntPoint { x, y }
     }
 
     #[inline(always)]
-    pub fn sqr_float_to_int(&self, value: P::Scalar) -> I::Wide {
+    pub fn round_sqr_len_to_int(&self, value: P::Scalar) -> I::Wide {
         let scale = self.dir_scale;
         let sqr_scale = scale * scale;
-        I::Wide::from_float_round(sqr_scale * value)
+        I::Wide::from_rounded_float(sqr_scale * value)
     }
 
     #[inline(always)]
-    pub fn len_float_to_int(&self, value: P::Scalar) -> I {
-        I::from_float_round(self.dir_scale * value)
+    pub fn round_len_to_int(&self, value: P::Scalar) -> I {
+        I::from_rounded_float(self.dir_scale * value)
     }
 }
 
@@ -177,8 +197,8 @@ mod tests {
 
         let adapter = FloatPointAdapter::<FloatPoint<f64>, i32>::new(rect);
 
-        assert_eq!(adapter.dir_scale, 1.0);
-        assert_eq!(adapter.inv_scale, 1.0);
+        assert_eq!(adapter.dir_scale(), 1.0);
+        assert_eq!(adapter.inv_scale(), 1.0);
     }
 
     #[test]
@@ -238,6 +258,6 @@ mod tests {
             FloatPointAdapter::<[f64; 2], i32>::with_scale(FloatRect::new(-1.0, 1.0, -1.0, 1.0), 10.0);
 
         assert_eq!(adapter.float_to_int(&[0.16, -0.16]), IntPoint::new(2, -2));
-        assert_eq!(adapter.len_float_to_int(0.16), 2);
+        assert_eq!(adapter.round_len_to_int(0.16), 2);
     }
 }
