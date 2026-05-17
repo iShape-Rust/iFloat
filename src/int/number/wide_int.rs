@@ -21,6 +21,7 @@ pub trait WideIntNumber:
     const FOUR: Self;
     fn from_usize(value: usize) -> Self;
     fn from_rounded_float<F: FloatNumber>(value: F) -> Self;
+    fn from_uint(value: Self::UInt) -> Self;
     fn wrapping_add(self, rhs: Self) -> Self;
     fn wrapping_sub(self, rhs: Self) -> Self;
     fn wrapping_mul(self, rhs: Self) -> Self;
@@ -45,6 +46,11 @@ impl WideIntNumber for i32 {
     #[inline(always)]
     fn from_rounded_float<F: FloatNumber>(value: F) -> Self {
         value.to_round_i32()
+    }
+
+    #[inline(always)]
+    fn from_uint(value: Self::UInt) -> Self {
+        value as Self
     }
 
     #[inline(always)]
@@ -102,6 +108,11 @@ impl WideIntNumber for i64 {
     }
 
     #[inline(always)]
+    fn from_uint(value: Self::UInt) -> Self {
+        value as Self
+    }
+
+    #[inline(always)]
     fn wrapping_add(self, rhs: Self) -> Self {
         self.wrapping_add(rhs)
     }
@@ -153,6 +164,11 @@ impl WideIntNumber for i128 {
     #[inline(always)]
     fn from_rounded_float<F: FloatNumber>(value: F) -> Self {
         value.to_round_i128()
+    }
+
+    #[inline(always)]
+    fn from_uint(value: Self::UInt) -> Self {
+        value as Self
     }
 
     #[inline(always)]

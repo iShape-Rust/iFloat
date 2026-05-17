@@ -21,11 +21,8 @@ where
     const MIN: Self;
     const ZERO: Self;
     const ONE: Self;
-    const WIDE_ZERO: Self::Wide;
-    const WIDE_ONE: Self::Wide;
-    const WIDE_TWO: Self::Wide;
-
     fn wide(self) -> Self::Wide;
+    fn from_wide(value: Self::Wide) -> Self;
     fn from_usize(value: usize) -> Self;
     fn from_float<F: FloatNumber>(value: F) -> Self;
     fn from_rounded_float<F: FloatNumber>(value: F) -> Self;
@@ -44,13 +41,15 @@ impl IntNumber for i16 {
     const MIN: Self = Self::MIN;
     const ZERO: Self = 0;
     const ONE: Self = 1;
-    const WIDE_ZERO: Self::Wide = 0;
-    const WIDE_ONE: Self::Wide = 1;
-    const WIDE_TWO: Self::Wide = 2;
 
     #[inline(always)]
     fn wide(self) -> Self::Wide {
         self as Self::Wide
+    }
+
+    #[inline(always)]
+    fn from_wide(value: Self::Wide) -> Self {
+        value as Self
     }
 
     #[inline(always)]
@@ -103,12 +102,14 @@ impl IntNumber for i32 {
     const MIN: Self = Self::MIN;
     const ZERO: Self = 0;
     const ONE: Self = 1;
-    const WIDE_ZERO: Self::Wide = 0;
-    const WIDE_ONE: Self::Wide = 1;
-    const WIDE_TWO: Self::Wide = 2;
     #[inline(always)]
     fn wide(self) -> Self::Wide {
         self as Self::Wide
+    }
+
+    #[inline(always)]
+    fn from_wide(value: Self::Wide) -> Self {
+        value as Self
     }
 
     #[inline(always)]
@@ -162,12 +163,14 @@ impl IntNumber for i64 {
     const MIN: Self = Self::MIN;
     const ZERO: Self = 0;
     const ONE: Self = 1;
-    const WIDE_ZERO: Self::Wide = 0;
-    const WIDE_ONE: Self::Wide = 1;
-    const WIDE_TWO: Self::Wide = 2;
     #[inline(always)]
     fn wide(self) -> Self::Wide {
         self as Self::Wide
+    }
+
+    #[inline(always)]
+    fn from_wide(value: Self::Wide) -> Self {
+        value as Self
     }
 
     #[inline(always)]

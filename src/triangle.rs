@@ -13,27 +13,27 @@ impl Triangle {
 
     #[inline(always)]
     pub fn area<T: IntNumber>(p0: IntPoint<T>, p1: IntPoint<T>, p2: IntPoint<T>) -> T::Wide {
-        Self::area_two(p0, p1, p2) / T::WIDE_TWO
+        Self::area_two(p0, p1, p2) / T::Wide::TWO
     }
 
     #[inline(always)]
     pub fn is_clockwise<T: IntNumber>(p0: IntPoint<T>, p1: IntPoint<T>, p2: IntPoint<T>) -> bool {
-        Self::area_two(p0, p1, p2) > T::WIDE_ZERO
+        Self::area_two(p0, p1, p2) > T::Wide::ZERO
     }
 
     #[inline(always)]
     pub fn is_cw_or_line<T: IntNumber>(p0: IntPoint<T>, p1: IntPoint<T>, p2: IntPoint<T>) -> bool {
-        Self::area_two(p0, p1, p2) >= T::WIDE_ZERO
+        Self::area_two(p0, p1, p2) >= T::Wide::ZERO
     }
 
     #[inline(always)]
     pub fn is_not_line<T: IntNumber>(p0: IntPoint<T>, p1: IntPoint<T>, p2: IntPoint<T>) -> bool {
-        Self::area_two(p0, p1, p2) != T::WIDE_ZERO
+        Self::area_two(p0, p1, p2) != T::Wide::ZERO
     }
 
     #[inline(always)]
     pub fn is_line<T: IntNumber>(p0: IntPoint<T>, p1: IntPoint<T>, p2: IntPoint<T>) -> bool {
-        Self::area_two(p0, p1, p2) == T::WIDE_ZERO
+        Self::area_two(p0, p1, p2) == T::Wide::ZERO
     }
 
     #[inline(always)]
@@ -52,8 +52,8 @@ impl Triangle {
         let q1 = (p - p2).cross_product(p1 - p2);
         let q2 = (p - p0).cross_product(p2 - p0);
 
-        let has_neg = q0 < T::WIDE_ZERO || q1 < T::WIDE_ZERO || q2 < T::WIDE_ZERO;
-        let has_pos = q0 > T::WIDE_ZERO || q1 > T::WIDE_ZERO || q2 > T::WIDE_ZERO;
+        let has_neg = q0 < T::Wide::ZERO || q1 < T::Wide::ZERO || q2 < T::Wide::ZERO;
+        let has_pos = q0 > T::Wide::ZERO || q1 > T::Wide::ZERO || q2 > T::Wide::ZERO;
 
         !(has_neg && has_pos)
     }
@@ -69,8 +69,8 @@ impl Triangle {
         let q1 = (p - p2).cross_product(p1 - p2);
         let q2 = (p - p0).cross_product(p2 - p0);
 
-        let has_neg = q0 <= T::WIDE_ZERO || q1 <= T::WIDE_ZERO || q2 <= T::WIDE_ZERO;
-        let has_pos = q0 >= T::WIDE_ZERO || q1 >= T::WIDE_ZERO || q2 >= T::WIDE_ZERO;
+        let has_neg = q0 <= T::Wide::ZERO || q1 <= T::Wide::ZERO || q2 <= T::Wide::ZERO;
+        let has_pos = q0 >= T::Wide::ZERO || q1 >= T::Wide::ZERO || q2 >= T::Wide::ZERO;
 
         has_neg && has_pos
     }
@@ -85,10 +85,10 @@ impl Triangle {
         let q1 = (p - p2).cross_product(p1 - p2);
         let q2 = (p - p0).cross_product(p2 - p0);
 
-        let has_neg = q0 < T::WIDE_ZERO || q1 < T::WIDE_ZERO || q2 < T::WIDE_ZERO;
-        let has_pos = q0 > T::WIDE_ZERO || q1 > T::WIDE_ZERO || q2 > T::WIDE_ZERO;
+        let has_neg = q0 < T::Wide::ZERO || q1 < T::Wide::ZERO || q2 < T::Wide::ZERO;
+        let has_pos = q0 > T::Wide::ZERO || q1 > T::Wide::ZERO || q2 > T::Wide::ZERO;
 
-        !(has_neg && has_pos) && q0 != T::WIDE_ZERO && q1 != T::WIDE_ZERO && q2 != T::WIDE_ZERO
+        !(has_neg && has_pos) && q0 != T::Wide::ZERO && q1 != T::Wide::ZERO && q2 != T::Wide::ZERO
     }
 
     #[inline]
@@ -102,14 +102,14 @@ impl Triangle {
         let q1 = (p - p2).cross_product(p1 - p2);
         let q2 = (p - p0).cross_product(p2 - p0);
 
-        let has_neg = q0 <= T::WIDE_ZERO || q1 <= T::WIDE_ZERO || q2 <= T::WIDE_ZERO;
-        let has_pos = q0 >= T::WIDE_ZERO || q1 >= T::WIDE_ZERO || q2 >= T::WIDE_ZERO;
+        let has_neg = q0 <= T::Wide::ZERO || q1 <= T::Wide::ZERO || q2 <= T::Wide::ZERO;
+        let has_pos = q0 >= T::Wide::ZERO || q1 >= T::Wide::ZERO || q2 >= T::Wide::ZERO;
 
         has_neg && has_pos
     }
 
     #[inline(always)]
     pub fn clock_order_point<T: IntNumber>(p0: IntPoint<T>, p1: IntPoint<T>, p2: IntPoint<T>) -> Ordering {
-        T::WIDE_ZERO.cmp(&Self::area_two(p0, p1, p2))
+        T::Wide::ZERO.cmp(&Self::area_two(p0, p1, p2))
     }
 }

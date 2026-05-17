@@ -6,6 +6,16 @@ use crate::int::number::wide_int::WideIntNumber;
 use crate::int::point::IntPoint;
 use core::marker::PhantomData;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FloatPointAdapterScaleError {
+    /// Requested scale is larger than the safe adapter scale for the input bounds.
+    ScaleTooLarge,
+    /// Requested scale is zero or negative.
+    ScaleNonPositive,
+    /// Requested scale is NaN or infinite.
+    ScaleNotFinite,
+}
+
 #[derive(Clone)]
 pub struct FloatPointAdapter<P: FloatPointCompatible, I: IntNumber> {
     dir_scale: P::Scalar,
@@ -94,12 +104,55 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
     }
 
     #[inline]
+    pub fn try_with_scale(
+        rect: FloatRect<P::Scalar>,
+        scale: P::Scalar,
+    ) -> Result<Self, FloatPointAdapterScaleError> {
+        let scale_f64 = Self::validate_scale(scale)?;
+        let mut adapter = Self::new(rect);
+
+        let zero = P::Scalar::from_float(0.0);
+        let is_degenerate = adapter.rect.width() == zero && adapter.rect.height() == zero;
+        if !is_degenerate && adapter.dir_scale < scale {
+            return Err(FloatPointAdapterScaleError::ScaleTooLarge);
+        }
+
+        adapter.dir_scale = scale;
+        adapter.inv_scale = P::Scalar::from_float(1.0 / scale_f64);
+        Ok(adapter)
+    }
+
+    #[inline]
     pub fn with_iter<'a, Q>(iter: Q) -> Self
     where
         Q: Iterator<Item = &'a P>,
         P: 'a,
     {
         Self::new(FloatRect::with_iter(iter).unwrap_or(FloatRect::zero()))
+    }
+
+    #[inline]
+    pub fn with_iter_and_scale_checked<'a, Q>(
+        iter: Q,
+        scale: P::Scalar,
+    ) -> Result<Self, FloatPointAdapterScaleError>
+    where
+        Q: Iterator<Item = &'a P>,
+        P: 'a,
+    {
+        Self::try_with_scale(FloatRect::with_iter(iter).unwrap_or(FloatRect::zero()), scale)
+    }
+
+    #[inline]
+    fn validate_scale(scale: P::Scalar) -> Result<f64, FloatPointAdapterScaleError> {
+        let scale_f64 = scale.to_f64();
+        if !scale_f64.is_finite() {
+            return Err(FloatPointAdapterScaleError::ScaleNotFinite);
+        }
+        if scale_f64 <= 0.0 {
+            return Err(FloatPointAdapterScaleError::ScaleNonPositive);
+        }
+        Ok(scale_f64)
     }
 
     #[inline(always)]
@@ -180,7 +233,7 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
 
 #[cfg(test)]
 mod tests {
-    use crate::adapter::FloatPointAdapter;
+    use crate::adapter::{FloatPointAdapter, FloatPointAdapterScaleError};
     use crate::float::compatible::FloatPointCompatible;
     use crate::float::point::FloatPoint;
     use crate::float::rect::FloatRect;
@@ -259,5 +312,61 @@ mod tests {
 
         assert_eq!(adapter.float_to_int(&[0.16, -0.16]), IntPoint::new(2, -2));
         assert_eq!(adapter.round_len_to_int(0.16), 2);
+    }
+
+    #[test]
+    fn test_try_with_scale() {
+        let adapter =
+            FloatPointAdapter::<[f64; 2], i32>::try_with_scale(FloatRect::new(-1.0, 1.0, -1.0, 1.0), 10.0)
+                .unwrap();
+
+        assert_eq!(adapter.dir_scale(), 10.0);
+        assert_eq!(adapter.inv_scale(), 0.1);
+        assert_eq!(adapter.float_to_int(&[0.16, -0.16]), IntPoint::new(2, -2));
+    }
+
+    #[test]
+    fn test_try_with_scale_errors() {
+        let rect = FloatRect::new(-1.0, 1.0, -1.0, 1.0);
+
+        assert_eq!(
+            FloatPointAdapter::<[f64; 2], i32>::try_with_scale(rect.clone(), 0.0)
+                .err()
+                .unwrap(),
+            FloatPointAdapterScaleError::ScaleNonPositive
+        );
+        assert_eq!(
+            FloatPointAdapter::<[f64; 2], i32>::try_with_scale(rect.clone(), f64::INFINITY)
+                .err()
+                .unwrap(),
+            FloatPointAdapterScaleError::ScaleNotFinite
+        );
+        assert_eq!(
+            FloatPointAdapter::<[f64; 2], i32>::try_with_scale(rect, i32::MAX as f64)
+                .err()
+                .unwrap(),
+            FloatPointAdapterScaleError::ScaleTooLarge
+        );
+    }
+
+    #[test]
+    fn test_with_iter_and_scale_checked() {
+        let points = [[-2.0, -4.0], [-2.0, 3.0], [5.0, 3.0], [5.0, -4.0]];
+
+        let adapter =
+            FloatPointAdapter::<[f64; 2], i32>::with_iter_and_scale_checked(points.iter(), 100.0).unwrap();
+
+        assert_eq!(adapter.dir_scale(), 100.0);
+        assert_eq!(adapter.float_to_int(&[1.25, 2.25]), IntPoint::new(-25, 275));
+    }
+
+    #[test]
+    fn test_degenerate_try_with_scale_keeps_requested_scale() {
+        let adapter =
+            FloatPointAdapter::<[f64; 2], i32>::try_with_scale(FloatRect::new(1.0, 1.0, -2.0, -2.0), 1000.0)
+                .unwrap();
+
+        assert_eq!(adapter.dir_scale(), 1000.0);
+        assert_eq!(adapter.float_to_int(&[1.0, -2.0]), IntPoint::ZERO);
     }
 }
