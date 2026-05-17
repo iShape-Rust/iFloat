@@ -1,4 +1,4 @@
-use crate::int::number::IntNumber;
+use crate::int::number::int::IntNumber;
 use crate::int::vector::IntVector;
 use core::cmp::Ordering;
 use core::{fmt, ops};

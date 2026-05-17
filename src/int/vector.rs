@@ -1,4 +1,4 @@
-use crate::int::number::IntNumber;
+use crate::int::number::int::IntNumber;
 use core::fmt;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

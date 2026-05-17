@@ -1,7 +1,8 @@
 use crate::float::compatible::FloatPointCompatible;
 use crate::float::number::FloatNumber;
 use crate::float::rect::FloatRect;
-use crate::int::number::{IntNumber, WideIntNumber};
+use crate::int::number::int::IntNumber;
+use crate::int::number::wide_int::WideIntNumber;
 use crate::int::point::IntPoint;
 use core::marker::PhantomData;
 

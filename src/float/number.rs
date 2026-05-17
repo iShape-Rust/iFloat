@@ -1,4 +1,5 @@
-use crate::int::number::{IntNumber, WideIntNumber};
+use crate::int::number::int::IntNumber;
+use crate::int::number::wide_int::WideIntNumber;
 use core::fmt::Display;
 use core::ops::{Add, Div, Mul, Neg, Sub};
 
