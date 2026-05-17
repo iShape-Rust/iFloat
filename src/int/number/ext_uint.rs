@@ -3,6 +3,11 @@ use core::cmp::Ordering;
 
 pub trait ExtUIntNumber<U: UIntNumber>: Copy {
     fn multiply(a: U, b: U) -> Self;
+
+    /// Divides this extended-width value by `divisor` and rounds to the nearest integer.
+    ///
+    /// The caller must guarantee that `divisor` is non-zero and its highest bit is not set:
+    /// `0 < divisor < U::LAST_BIT`.
     fn divide_with_rounding(&self, divisor: U) -> U;
 }
 
@@ -20,6 +25,9 @@ impl ExtUIntNumber<u32> for ExtUIntNumber64 {
 
     #[inline(always)]
     fn divide_with_rounding(&self, divisor: u32) -> u32 {
+        debug_assert!(divisor > 0);
+        debug_assert!(divisor < <u32 as UIntNumber>::LAST_BIT);
+
         let divisor = divisor as u64;
         let result = self.value / divisor;
         let remainder = self.value - result * divisor;
@@ -77,6 +85,9 @@ impl<U: UIntNumber> ExtUIntNumber<U> for CompositeExtUIntNumber<U> {
     }
 
     fn divide_with_rounding(&self, divisor: U) -> U {
+        debug_assert!(divisor > U::ZERO);
+        debug_assert!(divisor < U::LAST_BIT);
+
         if self.high == U::ZERO {
             let result = self.low / divisor;
             let remainder = self.low - result * divisor;
@@ -150,11 +161,12 @@ mod tests {
     }
 
     #[test]
-    fn test_u64_rounding_max_divisor() {
+    fn test_u64_rounding_max_allowed_divisor() {
+        let divisor = <u32 as crate::int::number::uint::UIntNumber>::LAST_BIT - 1;
         let value = ExtUIntNumber64 {
-            value: (u32::MAX as u64 + 1) >> 1,
+            value: (divisor as u64 + 1) >> 1,
         };
-        assert_eq!(value.divide_with_rounding(u32::MAX), 1);
+        assert_eq!(value.divide_with_rounding(divisor), 1);
     }
 
     #[test]
