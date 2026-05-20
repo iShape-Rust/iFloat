@@ -109,7 +109,7 @@ impl Triangle {
     }
 
     #[inline(always)]
-    pub fn clock_order_point<T: IntNumber>(p0: IntPoint<T>, p1: IntPoint<T>, p2: IntPoint<T>) -> Ordering {
+    pub fn clock_order<T: IntNumber>(p0: IntPoint<T>, p1: IntPoint<T>, p2: IntPoint<T>) -> Ordering {
         T::Wide::ZERO.cmp(&Self::area_two(p0, p1, p2))
     }
 }

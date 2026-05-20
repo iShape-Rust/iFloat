@@ -1,11 +1,13 @@
 use crate::float::number::FloatNumber;
 use crate::int::number::uint::UIntNumber;
 use core::fmt::Display;
-use core::ops::{Add, BitAnd, Div, Mul, Neg, Sub};
+use core::ops::{Add, BitAnd, Div, Mul, Neg, Shl, Sub};
 
 pub trait WideIntNumber:
     Copy
     + Ord
+    + Send
+    + Sync
     + Display
     + Add<Output = Self>
     + BitAnd<Output = Self>
@@ -13,6 +15,7 @@ pub trait WideIntNumber:
     + Mul<Output = Self>
     + Div<Output = Self>
     + Neg<Output = Self>
+    + Shl<u32, Output = Self>
 {
     type UInt: UIntNumber;
     const ZERO: Self;
@@ -22,6 +25,7 @@ pub trait WideIntNumber:
     fn from_usize(value: usize) -> Self;
     fn from_rounded_float<F: FloatNumber>(value: F) -> Self;
     fn from_uint(value: Self::UInt) -> Self;
+    fn to_uint(self) -> Self::UInt;
     fn wrapping_add(self, rhs: Self) -> Self;
     fn wrapping_sub(self, rhs: Self) -> Self;
     fn wrapping_mul(self, rhs: Self) -> Self;
@@ -30,6 +34,11 @@ pub trait WideIntNumber:
     fn to_usize(self) -> usize;
     fn to_f32(self) -> f32;
     fn to_f64(self) -> f64;
+
+    #[inline(always)]
+    fn one_shl(power: u32) -> Self {
+        Self::ONE << power
+    }
 }
 
 impl WideIntNumber for i32 {
@@ -51,6 +60,11 @@ impl WideIntNumber for i32 {
     #[inline(always)]
     fn from_uint(value: Self::UInt) -> Self {
         value as Self
+    }
+
+    #[inline(always)]
+    fn to_uint(self) -> Self::UInt {
+        self as Self::UInt
     }
 
     #[inline(always)]
@@ -113,6 +127,11 @@ impl WideIntNumber for i64 {
     }
 
     #[inline(always)]
+    fn to_uint(self) -> Self::UInt {
+        self as Self::UInt
+    }
+
+    #[inline(always)]
     fn wrapping_add(self, rhs: Self) -> Self {
         self.wrapping_add(rhs)
     }
@@ -169,6 +188,11 @@ impl WideIntNumber for i128 {
     #[inline(always)]
     fn from_uint(value: Self::UInt) -> Self {
         value as Self
+    }
+
+    #[inline(always)]
+    fn to_uint(self) -> Self::UInt {
+        self as Self::UInt
     }
 
     #[inline(always)]

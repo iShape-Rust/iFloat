@@ -6,6 +6,8 @@ pub trait UIntNumber:
     Copy
     + Clone
     + Ord
+    + Send
+    + Sync
     + Display
     + Add<Output = Self>
     + Sub<Output = Self>
@@ -30,8 +32,19 @@ pub trait UIntNumber:
     const LAST_BIT: Self;
 
     fn overflowing_add(self, rhs: Self) -> (Self, bool);
+    fn from_u64(value: u64) -> Self;
     fn wrapping_sub(self, rhs: Self) -> Self;
     fn leading_zeros(self) -> u32;
+
+    #[inline(always)]
+    fn ilog2(self) -> u32 {
+        Self::LAST_BIT_INDEX - self.leading_zeros()
+    }
+
+    #[inline(always)]
+    fn one_shl(power: u32) -> Self {
+        Self::ONE << power
+    }
 }
 
 impl UIntNumber for u32 {
@@ -48,6 +61,11 @@ impl UIntNumber for u32 {
     #[inline(always)]
     fn overflowing_add(self, rhs: Self) -> (Self, bool) {
         self.overflowing_add(rhs)
+    }
+
+    #[inline(always)]
+    fn from_u64(value: u64) -> Self {
+        value as Self
     }
 
     #[inline(always)]
@@ -78,6 +96,11 @@ impl UIntNumber for u64 {
     }
 
     #[inline(always)]
+    fn from_u64(value: u64) -> Self {
+        value
+    }
+
+    #[inline(always)]
     fn wrapping_sub(self, rhs: Self) -> Self {
         self.wrapping_sub(rhs)
     }
@@ -101,6 +124,11 @@ impl UIntNumber for u128 {
     #[inline(always)]
     fn overflowing_add(self, rhs: Self) -> (Self, bool) {
         self.overflowing_add(rhs)
+    }
+
+    #[inline(always)]
+    fn from_u64(value: u64) -> Self {
+        value as Self
     }
 
     #[inline(always)]

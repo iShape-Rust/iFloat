@@ -3,7 +3,7 @@ use crate::int::point::IntPoint;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone)]
-pub struct IntRect<T: IntNumber> {
+pub struct IntRect<T: IntNumber = i32> {
     pub min_x: T,
     pub max_x: T,
     pub min_y: T,

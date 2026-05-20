@@ -23,6 +23,10 @@ where
     const ONE: Self;
     fn wide(self) -> Self::Wide;
     fn from_wide(value: Self::Wide) -> Self;
+    #[inline(always)]
+    fn from_uint(value: <Self::Wide as WideIntNumber>::UInt) -> Self {
+        Self::from_wide(Self::Wide::from_uint(value))
+    }
     fn from_usize(value: usize) -> Self;
     fn from_float<F: FloatNumber>(value: F) -> Self;
     fn from_rounded_float<F: FloatNumber>(value: F) -> Self;
