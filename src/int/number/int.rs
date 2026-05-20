@@ -13,7 +13,9 @@ where
         + Neg<Output = Self>
         + Binary
         + Display
-        + Ord,
+        + Ord
+        + Send
+        + Sync,
 {
     type Wide: WideIntNumber;
     const BITS: u32;
