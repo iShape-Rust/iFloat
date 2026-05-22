@@ -1,4 +1,5 @@
 use crate::float::number::FloatNumber;
+use crate::int::number::uint::UIntNumber;
 use crate::int::number::wide_int::WideIntNumber;
 use core::fmt::{Binary, Display};
 use core::ops::{Add, AddAssign, Div, Mul, Neg, Shl, Shr, Sub};
@@ -20,7 +21,8 @@ where
         + Send
         + Sync,
 {
-    type Wide: WideIntNumber;
+    type WideUInt: UIntNumber;
+    type Wide: WideIntNumber<UInt = Self::WideUInt>;
     const BITS: u32;
     const MAX: Self;
     const MIN: Self;
@@ -30,10 +32,7 @@ where
     const FOUR: Self;
     fn wide(self) -> Self::Wide;
     fn from_wide(value: Self::Wide) -> Self;
-    #[inline(always)]
-    fn from_uint(value: <Self::Wide as WideIntNumber>::UInt) -> Self {
-        Self::from_wide(Self::Wide::from_uint(value))
-    }
+    fn from_uint(value: Self::WideUInt) -> Self;
     fn from_usize(value: usize) -> Self;
     fn from_float<F: FloatNumber>(value: F) -> Self;
     fn from_rounded_float<F: FloatNumber>(value: F) -> Self;
@@ -44,10 +43,11 @@ where
     fn to_usize(self) -> usize;
     fn to_f32(self) -> f32;
     fn to_f64(self) -> f64;
-    fn to_uint(self) -> <<Self as IntNumber>::Wide as WideIntNumber>::UInt;
+    fn to_uint(self) -> Self::WideUInt;
 }
 
 impl IntNumber for i16 {
+    type WideUInt = u32;
     type Wide = i32;
     const BITS: u32 = i16::BITS;
     const MAX: Self = Self::MAX;
@@ -63,6 +63,11 @@ impl IntNumber for i16 {
 
     #[inline(always)]
     fn from_wide(value: Self::Wide) -> Self {
+        value as Self
+    }
+
+    #[inline(always)]
+    fn from_uint(value: Self::WideUInt) -> Self {
         value as Self
     }
 
@@ -112,12 +117,13 @@ impl IntNumber for i16 {
     }
 
     #[inline(always)]
-    fn to_uint(self) -> <<Self as IntNumber>::Wide as WideIntNumber>::UInt {
-        self as <<Self as IntNumber>::Wide as WideIntNumber>::UInt
+    fn to_uint(self) -> Self::WideUInt {
+        self as Self::WideUInt
     }
 }
 
 impl IntNumber for i32 {
+    type WideUInt = u64;
     type Wide = i64;
     const BITS: u32 = i32::BITS;
     const MAX: Self = Self::MAX;
@@ -133,6 +139,11 @@ impl IntNumber for i32 {
 
     #[inline(always)]
     fn from_wide(value: Self::Wide) -> Self {
+        value as Self
+    }
+
+    #[inline(always)]
+    fn from_uint(value: Self::WideUInt) -> Self {
         value as Self
     }
 
@@ -185,12 +196,13 @@ impl IntNumber for i32 {
     }
 
     #[inline(always)]
-    fn to_uint(self) -> <<Self as IntNumber>::Wide as WideIntNumber>::UInt {
-        self as <<Self as IntNumber>::Wide as WideIntNumber>::UInt
+    fn to_uint(self) -> Self::WideUInt {
+        self as Self::WideUInt
     }
 }
 
 impl IntNumber for i64 {
+    type WideUInt = u128;
     type Wide = i128;
     const BITS: u32 = i64::BITS;
     const MAX: Self = Self::MAX;
@@ -206,6 +218,11 @@ impl IntNumber for i64 {
 
     #[inline(always)]
     fn from_wide(value: Self::Wide) -> Self {
+        value as Self
+    }
+
+    #[inline(always)]
+    fn from_uint(value: Self::WideUInt) -> Self {
         value as Self
     }
 
@@ -256,7 +273,7 @@ impl IntNumber for i64 {
         self as f64
     }
     #[inline(always)]
-    fn to_uint(self) -> <<Self as IntNumber>::Wide as WideIntNumber>::UInt {
-        self as <<Self as IntNumber>::Wide as WideIntNumber>::UInt
+    fn to_uint(self) -> Self::WideUInt {
+        self as Self::WideUInt
     }
 }
