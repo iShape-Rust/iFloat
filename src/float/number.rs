@@ -16,7 +16,7 @@ where
 {
     const MAX: Self;
     const MIN: Self;
-    const BITS: u8;
+    const BITS: u32;
 
     // Construction.
     fn from_usize(value: usize) -> Self;
@@ -56,7 +56,7 @@ where
 impl FloatNumber for f32 {
     const MAX: Self = f32::MAX;
     const MIN: Self = f32::MIN;
-    const BITS: u8 = 32;
+    const BITS: u32 = 32;
 
     // Construction.
     #[inline(always)]
@@ -196,7 +196,7 @@ impl FloatNumber for f32 {
 impl FloatNumber for f64 {
     const MAX: Self = f64::MAX;
     const MIN: Self = f64::MIN;
-    const BITS: u8 = 64;
+    const BITS: u32 = 64;
 
     // Construction.
     #[inline(always)]

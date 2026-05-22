@@ -34,11 +34,6 @@ pub trait WideIntNumber:
     fn to_usize(self) -> usize;
     fn to_f32(self) -> f32;
     fn to_f64(self) -> f64;
-
-    #[inline(always)]
-    fn one_shl(power: u32) -> Self {
-        Self::ONE << power
-    }
 }
 
 impl WideIntNumber for i32 {

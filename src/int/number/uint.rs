@@ -35,16 +35,7 @@ pub trait UIntNumber:
     fn from_u64(value: u64) -> Self;
     fn wrapping_sub(self, rhs: Self) -> Self;
     fn leading_zeros(self) -> u32;
-
-    #[inline(always)]
-    fn ilog2(self) -> u32 {
-        Self::LAST_BIT_INDEX - self.leading_zeros()
-    }
-
-    #[inline(always)]
-    fn one_shl(power: u32) -> Self {
-        Self::ONE << power
-    }
+    fn ilog2(self) -> u32;
 }
 
 impl UIntNumber for u32 {
@@ -62,7 +53,6 @@ impl UIntNumber for u32 {
     fn overflowing_add(self, rhs: Self) -> (Self, bool) {
         self.overflowing_add(rhs)
     }
-
     #[inline(always)]
     fn from_u64(value: u64) -> Self {
         value as Self
@@ -77,6 +67,9 @@ impl UIntNumber for u32 {
     fn leading_zeros(self) -> u32 {
         self.leading_zeros()
     }
+
+    #[inline(always)]
+    fn ilog2(self) -> u32 { self.ilog2() }
 }
 
 impl UIntNumber for u64 {
@@ -109,6 +102,9 @@ impl UIntNumber for u64 {
     fn leading_zeros(self) -> u32 {
         self.leading_zeros()
     }
+
+    #[inline(always)]
+    fn ilog2(self) -> u32 { self.ilog2() }
 }
 
 impl UIntNumber for u128 {
@@ -140,4 +136,7 @@ impl UIntNumber for u128 {
     fn leading_zeros(self) -> u32 {
         self.leading_zeros()
     }
+
+    #[inline(always)]
+    fn ilog2(self) -> u32 { self.ilog2() }
 }
