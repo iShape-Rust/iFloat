@@ -69,7 +69,7 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
     }
 
     #[inline]
-    pub fn with_scale(rect: FloatRect<P::Scalar>, scale: f64) -> Self {
+    pub fn with_scale(rect: FloatRect<P::Scalar>, scale: P::Scalar) -> Self {
         let a = rect.width() * FloatNumber::from_float(0.5);
         let b = rect.height() * FloatNumber::from_float(0.5);
 
@@ -91,8 +91,8 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
             };
         }
 
-        let dir_scale = FloatNumber::from_float(scale);
-        let inv_scale = FloatNumber::from_float(1.0 / scale);
+        let dir_scale = scale;
+        let inv_scale = <P::Scalar as FloatNumber>::from_float(1.0) / scale;
 
         Self {
             dir_scale,

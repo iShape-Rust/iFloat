@@ -19,7 +19,8 @@ where
         + Display
         + Ord
         + Send
-        + Sync,
+        + Sync
+        + Default
 {
     type WideUInt: UIntNumber;
     type Wide: WideIntNumber<UInt = Self::WideUInt>;
