@@ -1,7 +1,7 @@
 use crate::float::number::FloatNumber;
 use crate::int::number::uint::UIntNumber;
 use core::fmt::Display;
-use core::ops::{Add, BitAnd, Div, Mul, Neg, Shl, Sub};
+use core::ops::{Add, BitAnd, Div, Mul, Neg, Shl, Shr, Sub};
 
 pub trait WideIntNumber:
     Copy
@@ -16,6 +16,7 @@ pub trait WideIntNumber:
     + Div<Output = Self>
     + Neg<Output = Self>
     + Shl<u32, Output = Self>
+    + Shr<u32, Output = Self>
 {
     type UInt: UIntNumber;
     const ZERO: Self;
@@ -31,6 +32,7 @@ pub trait WideIntNumber:
     fn wrapping_mul(self, rhs: Self) -> Self;
     fn unsigned_abs(self) -> Self::UInt;
     fn signum(self) -> Self;
+    fn ilog2(self) -> u32;
     fn to_usize(self) -> usize;
     fn to_f32(self) -> f32;
     fn to_f64(self) -> f64;
@@ -85,6 +87,10 @@ impl WideIntNumber for i32 {
     #[inline(always)]
     fn signum(self) -> Self {
         self.signum()
+    }
+    #[inline(always)]
+    fn ilog2(self) -> u32 {
+        self.ilog2()
     }
     #[inline(always)]
     fn to_usize(self) -> usize {
@@ -149,7 +155,10 @@ impl WideIntNumber for i64 {
     fn signum(self) -> Self {
         self.signum()
     }
-
+    #[inline(always)]
+    fn ilog2(self) -> u32 {
+        self.ilog2()
+    }
     #[inline(always)]
     fn to_usize(self) -> usize {
         self as usize
@@ -212,6 +221,10 @@ impl WideIntNumber for i128 {
     #[inline(always)]
     fn signum(self) -> Self {
         self.signum()
+    }
+    #[inline(always)]
+    fn ilog2(self) -> u32 {
+        self.ilog2()
     }
     #[inline(always)]
     fn to_usize(self) -> usize {

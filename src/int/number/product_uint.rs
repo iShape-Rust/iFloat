@@ -1,7 +1,7 @@
 use crate::int::number::uint::UIntNumber;
 use core::cmp::Ordering;
 
-pub trait UIntProduct<U: UIntNumber>: Copy {
+pub trait UIntProduct<U: UIntNumber>: Copy + PartialOrd {
     fn multiply(a: U, b: U) -> Self;
 
     /// Divides this extended-width value by `divisor` and rounds to the nearest integer.
@@ -11,7 +11,7 @@ pub trait UIntProduct<U: UIntNumber>: Copy {
     fn divide_with_rounding(&self, divisor: U) -> U;
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct UIntProduct64 {
     value: u64,
 }
@@ -158,7 +158,7 @@ mod tests {
     use crate::int::number::product_uint::{CompositeUIntProduct, UIntProduct, UIntProduct64};
     use crate::int::number::uint::UIntNumber;
 
-    #[derive(Debug, Copy, Clone)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
     struct UIntProduct128 {
         value: u128,
     }

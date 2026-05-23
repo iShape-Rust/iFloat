@@ -36,6 +36,7 @@ pub trait UIntNumber:
     fn wrapping_sub(self, rhs: Self) -> Self;
     fn leading_zeros(self) -> u32;
     fn ilog2(self) -> u32;
+    fn to_f64(self) -> f64;
 }
 
 impl UIntNumber for u32 {
@@ -69,7 +70,14 @@ impl UIntNumber for u32 {
     }
 
     #[inline(always)]
-    fn ilog2(self) -> u32 { self.ilog2() }
+    fn ilog2(self) -> u32 {
+        self.ilog2()
+    }
+
+    #[inline(always)]
+    fn to_f64(self) -> f64 {
+        self as f64
+    }
 }
 
 impl UIntNumber for u64 {
@@ -104,7 +112,14 @@ impl UIntNumber for u64 {
     }
 
     #[inline(always)]
-    fn ilog2(self) -> u32 { self.ilog2() }
+    fn ilog2(self) -> u32 {
+        self.ilog2()
+    }
+
+    #[inline(always)]
+    fn to_f64(self) -> f64 {
+        self as f64
+    }
 }
 
 impl UIntNumber for u128 {
@@ -138,5 +153,12 @@ impl UIntNumber for u128 {
     }
 
     #[inline(always)]
-    fn ilog2(self) -> u32 { self.ilog2() }
+    fn ilog2(self) -> u32 {
+        self.ilog2()
+    }
+
+    #[inline(always)]
+    fn to_f64(self) -> f64 {
+        self as f64
+    }
 }
