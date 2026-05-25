@@ -11,11 +11,6 @@ impl Triangle {
         (p1 - p0).cross_product(p2 - p0)
     }
 
-    // #[inline(always)]
-    // pub fn area<T: IntNumber>(p0: IntPoint<T>, p1: IntPoint<T>, p2: IntPoint<T>) -> T::Wide {
-    //     Self::area_two(p0, p1, p2) / T::Wide::TWO
-    // }
-
     #[inline(always)]
     pub fn is_clockwise<T: IntNumber>(p0: IntPoint<T>, p1: IntPoint<T>, p2: IntPoint<T>) -> bool {
         Self::area_two(p0, p1, p2) < T::Wide::ZERO
