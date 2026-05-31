@@ -229,6 +229,12 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
     pub fn round_len_to_int(&self, value: P::Scalar) -> I {
         I::from_rounded_float(self.dir_scale * value)
     }
+
+    #[inline(always)]
+    pub fn len_to_float(&self, value: I) -> P::Scalar {
+        let f: P::Scalar = FloatNumber::from_int(value);
+        f * self.inv_scale
+    }
 }
 
 #[cfg(test)]

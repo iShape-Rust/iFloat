@@ -2,7 +2,7 @@ use crate::float::compatible::FloatPointCompatible;
 use crate::float::number::FloatNumber;
 use core::fmt;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct FloatRect<T: FloatNumber> {
     pub min_x: T,
     pub max_x: T,
@@ -84,7 +84,7 @@ impl<T: FloatNumber> FloatRect<T> {
     }
 
     #[inline]
-    pub fn with_rects(rect_0: &Self, rect_1: &Self) -> Self {
+    pub fn with_rects(rect_0: Self, rect_1: Self) -> Self {
         let min_x = rect_0.min_x.min(rect_1.min_x);
         let max_x = rect_0.max_x.max(rect_1.max_x);
         let min_y = rect_0.min_y.min(rect_1.min_y);
@@ -93,7 +93,7 @@ impl<T: FloatNumber> FloatRect<T> {
     }
 
     #[inline]
-    pub fn with_optional_rects(rect_0: Option<&Self>, rect_1: Option<&Self>) -> Option<Self> {
+    pub fn with_optional_rects(rect_0: Option<Self>, rect_1: Option<Self>) -> Option<Self> {
         match (rect_0, rect_1) {
             (Some(r0), Some(r1)) => Some(Self::with_rects(r0, r1)),
             (Some(r0), None) => Some(r0.clone()),
@@ -139,6 +139,14 @@ impl<T: FloatNumber> FloatRect<T> {
             self.min_y = point.y()
         } else if self.max_y < point.y() {
             self.max_y = point.y()
+        }
+    }
+
+    #[inline]
+    pub fn optional_add_point<P: FloatPointCompatible<Scalar = T>>(rect: &mut Option<Self>, point: &P) {
+        match rect {
+            Some(rect) => rect.unsafe_add_point(point),
+            None => *rect = Some(FloatRect::with_point(*point)),
         }
     }
 
@@ -188,8 +196,8 @@ mod tests {
 
     #[test]
     fn test_1() {
-        let r0 = Some(&FloatRect::new(-2.0, 2.0, -2.0, 2.0));
-        let r1 = Some(&FloatRect::new(-4.0, 4.0, -4.0, 4.0));
+        let r0 = Some(FloatRect::new(-2.0, 2.0, -2.0, 2.0));
+        let r1 = Some(FloatRect::new(-4.0, 4.0, -4.0, 4.0));
         let rr = FloatRect::with_optional_rects(r0, r1).unwrap();
 
         assert_eq!(-4.0, rr.min_x);
