@@ -96,8 +96,8 @@ impl<T: FloatNumber> FloatRect<T> {
     pub fn with_optional_rects(rect_0: Option<Self>, rect_1: Option<Self>) -> Option<Self> {
         match (rect_0, rect_1) {
             (Some(r0), Some(r1)) => Some(Self::with_rects(r0, r1)),
-            (Some(r0), None) => Some(r0.clone()),
-            (None, Some(r1)) => Some(r1.clone()),
+            (Some(r0), None) => Some(r0),
+            (None, Some(r1)) => Some(r1),
             (None, None) => None,
         }
     }
