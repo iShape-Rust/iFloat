@@ -16,6 +16,12 @@ pub enum FloatPointAdapterScaleError {
     ScaleNotFinite,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FloatPointAdapterRangeError {
+    /// Point is outside the adapter rectangle.
+    PointOutOfRange,
+}
+
 #[derive(Clone)]
 pub struct FloatPointAdapter<P: FloatPointCompatible, I: IntNumber> {
     dir_scale: P::Scalar,
@@ -197,6 +203,21 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
     }
 
     #[inline(always)]
+    pub fn try_int_to_float(&self, point: &IntPoint<I>) -> Result<P, FloatPointAdapterRangeError> {
+        let fx: P::Scalar = FloatNumber::from_int(point.x);
+        let fy: P::Scalar = FloatNumber::from_int(point.y);
+        let x = fx * self.inv_scale + self.offset.x();
+        let y = fy * self.inv_scale + self.offset.y();
+        let float = P::from_xy(x, y);
+
+        if self.rect.contains(&float) {
+            Ok(float)
+        } else {
+            Err(FloatPointAdapterRangeError::PointOutOfRange)
+        }
+    }
+
+    #[inline(always)]
     pub fn float_to_int(&self, point: &P) -> IntPoint<I> {
         if cfg!(debug_assertions) {
             let radius = self.rect.height().max(self.rect.width()) * P::Scalar::from_float(0.01);
@@ -216,6 +237,20 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
         let x = I::from_rounded_float(sx);
         let y = I::from_rounded_float(sy);
         IntPoint { x, y }
+    }
+
+    #[inline(always)]
+    pub fn try_float_to_int(&self, point: &P) -> Result<IntPoint<I>, FloatPointAdapterRangeError> {
+        if !self.rect.contains(point) {
+            return Err(FloatPointAdapterRangeError::PointOutOfRange);
+        }
+
+        let sx = (point.x() - self.offset.x()) * self.dir_scale;
+        let sy = (point.y() - self.offset.y()) * self.dir_scale;
+
+        let x = I::from_rounded_float(sx);
+        let y = I::from_rounded_float(sy);
+        Ok(IntPoint { x, y })
     }
 
     #[inline(always)]
@@ -239,7 +274,7 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
 
 #[cfg(test)]
 mod tests {
-    use crate::adapter::{FloatPointAdapter, FloatPointAdapterScaleError};
+    use crate::adapter::{FloatPointAdapter, FloatPointAdapterRangeError, FloatPointAdapterScaleError};
     use crate::float::compatible::FloatPointCompatible;
     use crate::float::point::FloatPoint;
     use crate::float::rect::FloatRect;
@@ -374,5 +409,35 @@ mod tests {
 
         assert_eq!(adapter.dir_scale(), 1000.0);
         assert_eq!(adapter.float_to_int(&[1.0, -2.0]), IntPoint::ZERO);
+    }
+
+    #[test]
+    fn test_try_float_to_int_range() {
+        let adapter =
+            FloatPointAdapter::<[f64; 2], i32>::with_scale(FloatRect::new(-1.0, 1.0, -1.0, 1.0), 10.0);
+
+        assert_eq!(
+            adapter.try_float_to_int(&[1.0, -1.0]).unwrap(),
+            IntPoint::new(10, -10)
+        );
+        assert_eq!(
+            adapter.try_float_to_int(&[1.01, 0.0]).err().unwrap(),
+            FloatPointAdapterRangeError::PointOutOfRange
+        );
+    }
+
+    #[test]
+    fn test_try_int_to_float_range() {
+        let adapter =
+            FloatPointAdapter::<[f64; 2], i32>::with_scale(FloatRect::new(-1.0, 1.0, -1.0, 1.0), 10.0);
+
+        assert_eq!(
+            adapter.try_int_to_float(&IntPoint::new(10, -10)).unwrap(),
+            [1.0, -1.0]
+        );
+        assert_eq!(
+            adapter.try_int_to_float(&IntPoint::new(11, 0)).err().unwrap(),
+            FloatPointAdapterRangeError::PointOutOfRange
+        );
     }
 }
