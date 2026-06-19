@@ -33,12 +33,11 @@ impl<T: FloatNumber> FloatRect<T> {
 
     #[inline(always)]
     pub fn zero() -> Self {
-        let zero = FloatNumber::from_float(0.0);
         Self {
-            min_x: zero,
-            max_x: zero,
-            min_y: zero,
-            max_y: zero,
+            min_x: T::ZERO,
+            max_x: T::ZERO,
+            min_y: T::ZERO,
+            max_y: T::ZERO,
         }
     }
 
@@ -166,6 +165,13 @@ impl<T: FloatNumber> FloatRect<T> {
         let max_y = self.max_y + radius;
         min_x <= point.x() && point.x() <= max_x && min_y <= point.y() && point.y() <= max_y
     }
+
+    #[inline]
+    pub fn is_intersect_with_padding(&self, other: &Self, padding: T) -> bool {
+        let x = self.min_x < padding + other.max_x && padding + self.max_x > other.min_x;
+        let y = self.min_y < padding + other.max_y && padding + self.max_y > other.min_y;
+        x && y
+    }
 }
 
 impl<T: FloatNumber> fmt::Display for FloatRect<T> {
@@ -207,5 +213,19 @@ mod tests {
         assert!(FloatRect::with_optional_rects(r0, None).is_some());
         assert!(FloatRect::with_optional_rects(None, r1).is_some());
         assert!(FloatRect::<f32>::with_optional_rects(None, None).is_none());
+    }
+
+    #[test]
+    fn is_intersect_with_padding() {
+        let rect = FloatRect::new(0.0, 10.0, 0.0, 10.0);
+
+        assert!(rect.is_intersect_with_padding(&FloatRect::new(11.0, 12.0, 0.0, 10.0), 2.0));
+        assert!(rect.is_intersect_with_padding(&FloatRect::new(-3.0, -1.0, 0.0, 10.0), 2.0));
+        assert!(rect.is_intersect_with_padding(&FloatRect::new(9.0, 11.0, 9.0, 11.0), 0.0));
+        assert!(!rect.is_intersect_with_padding(&FloatRect::new(10.0, 12.0, 0.0, 10.0), 0.0));
+        assert!(rect.is_intersect_with_padding(&FloatRect::new(10.5, 12.0, 0.0, 10.0), 1.0));
+        assert!(!rect.is_intersect_with_padding(&FloatRect::new(11.0, 12.0, 0.0, 10.0), 1.0));
+        assert!(!rect.is_intersect_with_padding(&FloatRect::new(12.0, 13.0, 0.0, 10.0), 1.0));
+        assert!(!rect.is_intersect_with_padding(&FloatRect::new(9.0, 11.0, 11.0, 12.0), 1.0));
     }
 }

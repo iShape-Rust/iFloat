@@ -17,6 +17,11 @@ where
     const MAX: Self;
     const MIN: Self;
     const BITS: u32;
+    const ZERO: Self;
+    const ONE: Self;
+    const TWO: Self;
+    const THREE: Self;
+    const HALF: Self;
 
     // Construction.
     fn from_usize(value: usize) -> Self;
@@ -36,7 +41,7 @@ where
     fn sin_cos(self) -> (Self, Self);
     fn acos(self) -> Self;
     fn asin(self) -> Self;
-
+    fn signum(self) -> Self;
     // Truncating casts.
     fn to_i16(self) -> i16;
     fn to_i32(self) -> i32;
@@ -57,6 +62,11 @@ impl FloatNumber for f32 {
     const MAX: Self = f32::MAX;
     const MIN: Self = f32::MIN;
     const BITS: u32 = 32;
+    const ZERO: Self = 0.0;
+    const ONE: Self = 1.0;
+    const TWO: Self = 2.0;
+    const THREE: Self = 3.0;
+    const HALF: Self = 0.5;
 
     // Construction.
     #[inline(always)]
@@ -135,6 +145,11 @@ impl FloatNumber for f32 {
         libm::asinf(self)
     }
 
+    #[inline(always)]
+    fn signum(self) -> Self {
+        self.signum()
+    }
+
     // Truncating casts.
     #[inline(always)]
     fn to_i16(self) -> i16 {
@@ -169,27 +184,27 @@ impl FloatNumber for f32 {
     // Rounding casts.
     #[inline(always)]
     fn to_round_i16(self) -> i16 {
-        (self + Self::from_float(0.5).copysign(self)) as i16
+        (self + Self::HALF.copysign(self)) as i16
     }
 
     #[inline(always)]
     fn to_round_i32(self) -> i32 {
-        (self + Self::from_float(0.5).copysign(self)) as i32
+        (self + Self::HALF.copysign(self)) as i32
     }
 
     #[inline(always)]
     fn to_round_i64(self) -> i64 {
-        (self + Self::from_float(0.5).copysign(self)) as i64
+        (self + Self::HALF.copysign(self)) as i64
     }
 
     #[inline(always)]
     fn to_round_i128(self) -> i128 {
-        (self + Self::from_float(0.5).copysign(self)) as i128
+        (self + Self::HALF.copysign(self)) as i128
     }
 
     #[inline(always)]
     fn to_round_usize(self) -> usize {
-        (self + 0.5) as usize
+        (self + Self::HALF) as usize
     }
 }
 
@@ -197,7 +212,11 @@ impl FloatNumber for f64 {
     const MAX: Self = f64::MAX;
     const MIN: Self = f64::MIN;
     const BITS: u32 = 64;
-
+    const ZERO: Self = 0.0;
+    const ONE: Self = 1.0;
+    const TWO: Self = 2.0;
+    const THREE: Self = 3.0;
+    const HALF: Self = 0.5;
     // Construction.
     #[inline(always)]
     fn from_usize(value: usize) -> Self {
@@ -275,6 +294,11 @@ impl FloatNumber for f64 {
         libm::asin(self)
     }
 
+    #[inline(always)]
+    fn signum(self) -> Self {
+        self.signum()
+    }
+
     // Truncating casts.
     #[inline(always)]
     fn to_i16(self) -> i16 {
@@ -309,26 +333,26 @@ impl FloatNumber for f64 {
     // Rounding casts.
     #[inline(always)]
     fn to_round_i16(self) -> i16 {
-        (self + Self::from_float(0.5).copysign(self)) as i16
+        (self + Self::HALF.copysign(self)) as i16
     }
 
     #[inline(always)]
     fn to_round_i32(self) -> i32 {
-        (self + Self::from_float(0.5).copysign(self)) as i32
+        (self + Self::HALF.copysign(self)) as i32
     }
 
     #[inline(always)]
     fn to_round_i64(self) -> i64 {
-        (self + Self::from_float(0.5).copysign(self)) as i64
+        (self + Self::HALF.copysign(self)) as i64
     }
 
     #[inline(always)]
     fn to_round_i128(self) -> i128 {
-        (self + Self::from_float(0.5).copysign(self)) as i128
+        (self + Self::HALF.copysign(self)) as i128
     }
 
     #[inline(always)]
     fn to_round_usize(self) -> usize {
-        (self + 0.5) as usize
+        (self + Self::HALF) as usize
     }
 }

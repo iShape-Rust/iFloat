@@ -33,7 +33,7 @@ impl<P: FloatPointCompatible> FloatPointMath<P> {
 
     #[inline(always)]
     pub fn normalize(p: &P) -> P {
-        let inv_len = P::Scalar::from_float(1.0) / Self::length(p);
+        let inv_len = P::Scalar::ONE / Self::length(p);
         P::from_xy(p.x() * inv_len, p.y() * inv_len)
     }
 

@@ -1,5 +1,6 @@
 use crate::float::compatible::FloatPointCompatible;
 use crate::float::number::FloatNumber;
+use crate::float::point::FloatPoint;
 use crate::float::rect::FloatRect;
 use crate::int::number::int::IntNumber;
 use crate::int::number::wide_int::WideIntNumber;
@@ -36,8 +37,8 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
 
     #[inline]
     pub fn new(rect: FloatRect<P::Scalar>) -> Self {
-        let a = rect.width() * FloatNumber::from_float(0.5);
-        let b = rect.height() * FloatNumber::from_float(0.5);
+        let a = rect.width() * P::Scalar::HALF;
+        let b = rect.height() * P::Scalar::HALF;
 
         let x = rect.min_x + a;
         let y = rect.min_y + b;
@@ -47,10 +48,10 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
         let max = a.max(b);
 
         // degenerate case
-        if max == FloatNumber::from_float(0.0) {
+        if max == P::Scalar::ZERO {
             return Self {
-                dir_scale: FloatNumber::from_float(1.0),
-                inv_scale: FloatNumber::from_float(1.0),
+                dir_scale: P::Scalar::ONE,
+                inv_scale: P::Scalar::ONE,
                 offset,
                 rect,
                 int: PhantomData,
@@ -76,8 +77,8 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
 
     #[inline]
     pub fn with_scale(rect: FloatRect<P::Scalar>, scale: P::Scalar) -> Self {
-        let a = rect.width() * FloatNumber::from_float(0.5);
-        let b = rect.height() * FloatNumber::from_float(0.5);
+        let a = rect.width() * P::Scalar::HALF;
+        let b = rect.height() * P::Scalar::HALF;
 
         let x = rect.min_x + a;
         let y = rect.min_y + b;
@@ -87,10 +88,10 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
         let max = a.max(b);
 
         // degenerate case
-        if max == FloatNumber::from_float(0.0) {
+        if max == P::Scalar::ZERO {
             return Self {
-                dir_scale: FloatNumber::from_float(1.0),
-                inv_scale: FloatNumber::from_float(1.0),
+                dir_scale: P::Scalar::ONE,
+                inv_scale: P::Scalar::ONE,
                 offset,
                 rect,
                 int: PhantomData,
@@ -98,7 +99,7 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
         }
 
         let dir_scale = scale;
-        let inv_scale = <P::Scalar as FloatNumber>::from_float(1.0) / scale;
+        let inv_scale = P::Scalar::ONE / scale;
 
         Self {
             dir_scale,
@@ -117,7 +118,7 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
         let scale_f64 = Self::validate_scale(scale)?;
         let mut adapter = Self::new(rect);
 
-        let zero = P::Scalar::from_float(0.0);
+        let zero = P::Scalar::ZERO;
         let is_degenerate = adapter.rect.width() == zero && adapter.rect.height() == zero;
         if !is_degenerate && adapter.dir_scale < scale {
             return Err(FloatPointAdapterScaleError::ScaleTooLarge);
@@ -126,6 +127,12 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
         adapter.dir_scale = scale;
         adapter.inv_scale = P::Scalar::from_float(1.0 / scale_f64);
         Ok(adapter)
+    }
+
+    #[inline]
+    pub fn with_radius_and_scale(radius: P::Scalar, scale: P::Scalar) -> FloatPointAdapter<P, I> {
+        let rect = FloatRect::new(-radius, radius, -radius, radius);
+        FloatPointAdapter::with_scale(rect, scale)
     }
 
     #[inline]
@@ -269,6 +276,17 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
     pub fn len_to_float(&self, value: I) -> P::Scalar {
         let f: P::Scalar = FloatNumber::from_int(value);
         f * self.inv_scale
+    }
+
+    #[inline(always)]
+    pub fn to_float_point_adapter(&self) -> FloatPointAdapter<FloatPoint<P::Scalar>, I> {
+        FloatPointAdapter {
+            dir_scale: self.dir_scale,
+            inv_scale: self.inv_scale,
+            offset: FloatPoint::from_point(self.offset),
+            rect: self.rect,
+            int: self.int,
+        }
     }
 }
 

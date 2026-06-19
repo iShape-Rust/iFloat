@@ -14,14 +14,19 @@ impl<T: FloatNumber> FloatPoint<T> {
     #[inline(always)]
     pub fn zero() -> Self {
         Self {
-            x: FloatNumber::from_float(0.0),
-            y: FloatNumber::from_float(0.0),
+            x: T::ZERO,
+            y: T::ZERO,
         }
     }
 
     #[inline(always)]
     pub fn new(x: T, y: T) -> Self {
         Self { x, y }
+    }
+
+    #[inline(always)]
+    pub fn from_point<P: FloatPointCompatible<Scalar = T>>(p: P) -> Self {
+        Self { x: p.x(), y: p.y() }
     }
 
     #[inline(always)]
@@ -56,6 +61,11 @@ impl<T: FloatNumber> FloatPoint<T> {
             x: self.x / l,
             y: self.y / l,
         }
+    }
+
+    #[inline(always)]
+    pub fn midpoint(self, other: Self) -> Self {
+        (self + other) * T::HALF
     }
 }
 
@@ -137,5 +147,33 @@ impl<T: FloatNumber> FloatPointCompatible for FloatPoint<T> {
     #[inline(always)]
     fn y(&self) -> T {
         self.y
+    }
+}
+
+impl From<[f32; 2]> for FloatPoint<f32> {
+    #[inline(always)]
+    fn from(value: [f32; 2]) -> Self {
+        Self::from_point(value)
+    }
+}
+
+impl From<[f64; 2]> for FloatPoint<f64> {
+    #[inline(always)]
+    fn from(value: [f64; 2]) -> Self {
+        Self::from_point(value)
+    }
+}
+
+impl From<FloatPoint<f32>> for [f32; 2] {
+    #[inline(always)]
+    fn from(value: FloatPoint<f32>) -> Self {
+        [value.x, value.y]
+    }
+}
+
+impl From<FloatPoint<f64>> for [f64; 2] {
+    #[inline(always)]
+    fn from(value: FloatPoint<f64>) -> Self {
+        [value.x, value.y]
     }
 }
