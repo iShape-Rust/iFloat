@@ -36,6 +36,7 @@ pub trait WideIntNumber:
     fn unsigned_abs(self) -> Self::UInt;
     fn signum(self) -> Self;
     fn ilog2(self) -> u32;
+    fn isqrt(self) -> Self;
     fn to_usize(self) -> usize;
     fn to_f32(self) -> f32;
     fn to_f64(self) -> f64;
@@ -113,6 +114,11 @@ impl WideIntNumber for i32 {
     fn to_f64(self) -> f64 {
         self as f64
     }
+
+    #[inline(always)]
+    fn isqrt(self) -> Self {
+        self.isqrt()
+    }
 }
 impl WideIntNumber for i64 {
     type UInt = u64;
@@ -173,6 +179,10 @@ impl WideIntNumber for i64 {
     #[inline(always)]
     fn ilog2(self) -> u32 {
         self.ilog2()
+    }
+    #[inline(always)]
+    fn isqrt(self) -> Self {
+        self.isqrt()
     }
     #[inline(always)]
     fn to_usize(self) -> usize {
@@ -246,6 +256,10 @@ impl WideIntNumber for i128 {
     #[inline(always)]
     fn ilog2(self) -> u32 {
         self.ilog2()
+    }
+    #[inline(always)]
+    fn isqrt(self) -> Self {
+        self.isqrt()
     }
     #[inline(always)]
     fn to_usize(self) -> usize {

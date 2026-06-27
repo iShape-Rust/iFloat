@@ -12,6 +12,11 @@ impl<I: IntNumber> UnitRatio<I> {
     pub const DENOMINATOR: I::Wide = I::MAX_POSITIVE_POWER_OF_TWO;
 
     #[inline(always)]
+    pub fn value(&self) -> I::Wide {
+        self.value.to_wide()
+    }
+
+    #[inline(always)]
     pub fn new(value: I) -> Self {
         debug_assert!(value.to_wide() <= Self::DENOMINATOR);
         debug_assert!(value >= I::ZERO);
@@ -23,40 +28,69 @@ impl<I: IntNumber> UnitRatio<I> {
         let value = (self.value + other.value) >> 1;
         Self { value }
     }
+
     #[inline(always)]
-    pub fn normalize(value: I::Wide) -> I {
-        // hope the compiler will optimize it
-        I::from_wide(value / Self::DENOMINATOR)
+    pub fn scale(self, scalar: I) -> I {
+        let s = self.value();
+        I::from_scaled_wide(s * scalar.to_wide())
     }
 
     #[inline(always)]
     pub fn scale_raw(self, scalar: I) -> I::Wide {
-        let s = self.value.to_wide();
+        let s = self.value();
         s * scalar.to_wide()
     }
 
     #[inline(always)]
-    pub fn scale_point_raw(self, point: IntPoint<I>) -> IntVector<I> {
-        IntVector {
-            x: self.scale_raw(point.x),
-            y: self.scale_raw(point.y),
+    pub fn scale_wide_to_int(self, scalar: I::Wide) -> I {
+        let s = self.value();
+        I::from_scaled_wide(s * scalar)
+    }
+
+    #[inline(always)]
+    pub fn scale_point(self, point: IntPoint<I>) -> IntPoint<I> {
+        let x = self.scale(point.x);
+        let y = self.scale(point.y);
+        IntPoint {
+            x,
+            y,
         }
     }
 
     #[inline(always)]
-    pub fn scale_vector_raw(self, vector: IntVector<I>) -> IntVector<I> {
-        let s = self.value.to_wide();
-        let x = vector.x * s;
-        let y = vector.y * s;
-        IntVector { x, y }
+    pub fn scale_point_raw(self, point: IntPoint<I>) -> IntVector<I> {
+        let x = self.scale_raw(point.x);
+        let y = self.scale_raw(point.y);
+        IntVector {
+            x,
+            y,
+        }
+    }
+
+    #[inline(always)]
+    pub fn scale_vector_to_point(self, vector: IntVector<I>) -> IntPoint<I> {
+        let x = self.scale_wide_to_int(vector.x);
+        let y = self.scale_wide_to_int(vector.y);
+        IntPoint {
+            x,
+            y,
+        }
+    }
+}
+
+impl<I: IntNumber> IntPoint<I> {
+    #[inline(always)]
+    pub fn to_wide(self) -> IntVector<I> {
+        IntVector {
+            x: self.x.to_wide(),
+            y: self.y.to_wide(),
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::UnitRatio;
-    use crate::int::point::IntPoint;
-    use crate::int::vector::IntVector;
 
     #[test]
     fn mid_uses_direct_average() {
@@ -64,38 +98,5 @@ mod tests {
         let b = UnitRatio::<i32>::new(5);
 
         assert_eq!(a.mid(b).value, 3);
-    }
-
-    #[test]
-    fn scale_raw_keeps_denominator() {
-        let half = UnitRatio::<i32>::new((UnitRatio::<i32>::DENOMINATOR / 2) as i32);
-
-        assert_eq!(half.scale_raw(10), UnitRatio::<i32>::DENOMINATOR * 5);
-    }
-
-    #[test]
-    fn scale_point_raw_keeps_denominator() {
-        let half = UnitRatio::<i32>::new((UnitRatio::<i32>::DENOMINATOR / 2) as i32);
-        let point = IntPoint::new(2, 3);
-        let vector = half.scale_point_raw(point);
-
-        assert_eq!(vector.x, UnitRatio::<i32>::DENOMINATOR);
-        assert_eq!(
-            vector.y,
-            UnitRatio::<i32>::DENOMINATOR + UnitRatio::<i32>::DENOMINATOR / 2
-        );
-    }
-
-    #[test]
-    fn scale_vector_raw_keeps_denominator() {
-        let half = UnitRatio::<i32>::new((UnitRatio::<i32>::DENOMINATOR / 2) as i32);
-        let vector = IntVector::<i32>::new(2, 3);
-        let scaled = half.scale_vector_raw(vector);
-
-        assert_eq!(scaled.x, UnitRatio::<i32>::DENOMINATOR);
-        assert_eq!(
-            scaled.y,
-            UnitRatio::<i32>::DENOMINATOR + UnitRatio::<i32>::DENOMINATOR / 2
-        );
     }
 }

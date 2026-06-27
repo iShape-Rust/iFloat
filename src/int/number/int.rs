@@ -31,9 +31,14 @@ where
     const ONE: Self;
     const TWO: Self;
     const FOUR: Self;
+    const HALF_POWER_OF_TWO: u32;
     const MAX_POWER_OF_TWO: u32;
     const MAX_POSITIVE_POWER_OF_TWO: Self::Wide;
     fn from_wide(value: Self::Wide) -> Self;
+    #[inline(always)]
+    fn from_scaled_wide(value: Self::Wide) -> Self {
+        Self::from_wide(value / Self::MAX_POSITIVE_POWER_OF_TWO)
+    }
     fn from_uint(value: Self::WideUInt) -> Self;
     fn from_u32(value: u32) -> Self;
     fn from_usize(value: usize) -> Self;
@@ -43,11 +48,19 @@ where
     fn wrapping_sub(self, rhs: Self) -> Self;
     fn wrapping_mul(self, rhs: Self) -> Self;
     fn ilog2(self) -> u32;
+    #[inline(always)]
+    fn scaled_isqrt(self) -> Self::Wide {
+        self.to_scaled_wide().isqrt() << Self::HALF_POWER_OF_TWO
+    }
     fn to_usize(self) -> usize;
     fn to_f32(self) -> f32;
     fn to_f64(self) -> f64;
     fn to_wide(self) -> Self::Wide;
     fn to_uint(self) -> Self::WideUInt;
+    #[inline(always)]
+    fn to_scaled_wide(self) -> Self::Wide {
+        self.to_wide() << Self::MAX_POWER_OF_TWO
+    }
 }
 
 impl IntNumber for i16 {
@@ -60,12 +73,9 @@ impl IntNumber for i16 {
     const ONE: Self = 1;
     const TWO: Self = 2;
     const FOUR: Self = 4;
-    const MAX_POWER_OF_TWO: u32 = Self::BITS - 2;
+    const HALF_POWER_OF_TWO: u32 = (Self::BITS - 2) >> 1;
+    const MAX_POWER_OF_TWO: u32 = Self::HALF_POWER_OF_TWO << 1;
     const MAX_POSITIVE_POWER_OF_TWO: Self::Wide = 1 << Self::MAX_POWER_OF_TWO;
-    #[inline(always)]
-    fn to_wide(self) -> Self::Wide {
-        self as Self::Wide
-    }
     #[inline(always)]
     fn from_wide(value: Self::Wide) -> Self {
         value as Self
@@ -119,6 +129,11 @@ impl IntNumber for i16 {
         self as f64
     }
     #[inline(always)]
+    fn to_wide(self) -> Self::Wide {
+        self as Self::Wide
+    }
+
+    #[inline(always)]
     fn to_uint(self) -> Self::WideUInt {
         self as Self::WideUInt
     }
@@ -134,13 +149,9 @@ impl IntNumber for i32 {
     const ONE: Self = 1;
     const TWO: Self = 2;
     const FOUR: Self = 4;
-    const MAX_POWER_OF_TWO: u32 = Self::BITS - 2;
+    const HALF_POWER_OF_TWO: u32 = (Self::BITS - 2) >> 1;
+    const MAX_POWER_OF_TWO: u32 = Self::HALF_POWER_OF_TWO << 1;
     const MAX_POSITIVE_POWER_OF_TWO: Self::Wide = 1 << Self::MAX_POWER_OF_TWO;
-    #[inline(always)]
-    fn to_wide(self) -> Self::Wide {
-        self as Self::Wide
-    }
-
     #[inline(always)]
     fn from_wide(value: Self::Wide) -> Self {
         value as Self
@@ -155,11 +166,11 @@ impl IntNumber for i32 {
     fn from_u32(value: u32) -> Self {
         value as Self
     }
+
     #[inline(always)]
     fn from_usize(value: usize) -> Self {
         value as Self
     }
-
     #[inline(always)]
     fn from_float<F: FloatNumber>(value: F) -> Self {
         value.to_i32()
@@ -204,6 +215,11 @@ impl IntNumber for i32 {
     }
 
     #[inline(always)]
+    fn to_wide(self) -> Self::Wide {
+        self as Self::Wide
+    }
+
+    #[inline(always)]
     fn to_uint(self) -> Self::WideUInt {
         self as Self::WideUInt
     }
@@ -219,13 +235,9 @@ impl IntNumber for i64 {
     const ONE: Self = 1;
     const TWO: Self = 2;
     const FOUR: Self = 4;
-    const MAX_POWER_OF_TWO: u32 = Self::BITS - 2;
+    const HALF_POWER_OF_TWO: u32 = (Self::BITS - 2) >> 1;
+    const MAX_POWER_OF_TWO: u32 = Self::HALF_POWER_OF_TWO << 1;
     const MAX_POSITIVE_POWER_OF_TWO: Self::Wide = 1 << Self::MAX_POWER_OF_TWO;
-    #[inline(always)]
-    fn to_wide(self) -> Self::Wide {
-        self as Self::Wide
-    }
-
     #[inline(always)]
     fn from_wide(value: Self::Wide) -> Self {
         value as Self
@@ -235,6 +247,7 @@ impl IntNumber for i64 {
     fn from_uint(value: Self::WideUInt) -> Self {
         value as Self
     }
+
     #[inline(always)]
     fn from_u32(value: u32) -> Self {
         value as Self
@@ -243,7 +256,6 @@ impl IntNumber for i64 {
     fn from_usize(value: usize) -> Self {
         value as Self
     }
-
     #[inline(always)]
     fn from_float<F: FloatNumber>(value: F) -> Self {
         value.to_i64()
@@ -273,6 +285,7 @@ impl IntNumber for i64 {
     fn ilog2(self) -> u32 {
         self.ilog2()
     }
+
     #[inline(always)]
     fn to_usize(self) -> usize {
         self as usize
@@ -286,7 +299,76 @@ impl IntNumber for i64 {
         self as f64
     }
     #[inline(always)]
+    fn to_wide(self) -> Self::Wide {
+        self as Self::Wide
+    }
+
+    #[inline(always)]
     fn to_uint(self) -> Self::WideUInt {
         self as Self::WideUInt
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::IntNumber;
+    use crate::int::number::wide_int::WideIntNumber;
+
+    fn assert_scaled_isqrt<T>(values: &[T])
+    where
+        T: IntNumber,
+    {
+        let step = T::Wide::ONE << T::HALF_POWER_OF_TWO;
+        let mask = step - T::Wide::ONE;
+
+        for &value in values {
+            let root = value.scaled_isqrt();
+            let q = root >> T::HALF_POWER_OF_TWO;
+            let scaled_value = value.to_scaled_wide();
+
+            assert!(root & mask == T::Wide::ZERO);
+            assert!(q * q <= scaled_value);
+            assert!((q + T::Wide::ONE) * (q + T::Wide::ONE) > scaled_value);
+            assert!(root == q << T::HALF_POWER_OF_TWO);
+        }
+    }
+
+    #[test]
+    fn scaled_isqrt_matches_fixed_point_scale_for_i16() {
+        assert_scaled_isqrt::<i16>(&[0, 1, 2, 3, 4, 5, 10, 255, i16::MAX]);
+
+        let scale = <i16 as IntNumber>::MAX_POSITIVE_POWER_OF_TWO;
+        assert_eq!(0i16.scaled_isqrt(), 0);
+        assert_eq!(1i16.scaled_isqrt(), scale);
+        assert_eq!(4i16.scaled_isqrt(), 2 * scale);
+        assert_eq!(9i16.scaled_isqrt(), 3 * scale);
+    }
+
+    #[test]
+    fn scaled_isqrt_matches_fixed_point_scale_for_i32() {
+        assert_scaled_isqrt::<i32>(&[0, 1, 2, 3, 4, 5, 10, 65_535, i32::MAX]);
+
+        let scale = <i32 as IntNumber>::MAX_POSITIVE_POWER_OF_TWO;
+        assert_eq!(0i32.scaled_isqrt(), 0);
+        assert_eq!(1i32.scaled_isqrt(), scale);
+        assert_eq!(4i32.scaled_isqrt(), 2 * scale);
+        assert_eq!(9i32.scaled_isqrt(), 3 * scale);
+    }
+
+    #[test]
+    fn scaled_isqrt_matches_fixed_point_scale_for_i64() {
+        assert_scaled_isqrt::<i64>(&[0, 1, 2, 3, 4, 5, 10, 4_294_967_295, i64::MAX]);
+
+        let scale = <i64 as IntNumber>::MAX_POSITIVE_POWER_OF_TWO;
+        assert_eq!(0i64.scaled_isqrt(), 0);
+        assert_eq!(1i64.scaled_isqrt(), scale);
+        assert_eq!(4i64.scaled_isqrt(), 2 * scale);
+        assert_eq!(9i64.scaled_isqrt(), 3 * scale);
+    }
+
+    #[test]
+    #[should_panic]
+    fn scaled_isqrt_panics_for_negative_values() {
+        (-1i32).scaled_isqrt();
     }
 }

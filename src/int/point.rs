@@ -115,6 +115,16 @@ impl<T: IntNumber> ops::Sub for IntPoint<T> {
     }
 }
 
+impl<T: IntNumber> From<IntVector<T>> for IntPoint<T> {
+    #[inline(always)]
+    fn from(value: IntVector<T>) -> Self {
+        Self {
+            x: T::from_wide(value.x),
+            y: T::from_wide(value.y),
+        }
+    }
+}
+
 #[macro_export]
 macro_rules! int_pnt {
     ($x:expr, $y:expr) => {

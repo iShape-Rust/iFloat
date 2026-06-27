@@ -36,7 +36,6 @@ impl<T: IntNumber> IntVector<T> {
         x * x + y * y
     }
 }
-
 impl<T: IntNumber> fmt::Display for IntVector<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[{}, {}]", self.x, self.y)
