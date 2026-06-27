@@ -31,9 +31,11 @@ where
     const ONE: Self;
     const TWO: Self;
     const FOUR: Self;
-    fn wide(self) -> Self::Wide;
+    const MAX_POWER_OF_TWO: u32;
+    const MAX_POSITIVE_POWER_OF_TWO: Self::Wide;
     fn from_wide(value: Self::Wide) -> Self;
     fn from_uint(value: Self::WideUInt) -> Self;
+    fn from_u32(value: u32) -> Self;
     fn from_usize(value: usize) -> Self;
     fn from_float<F: FloatNumber>(value: F) -> Self;
     fn from_rounded_float<F: FloatNumber>(value: F) -> Self;
@@ -44,6 +46,7 @@ where
     fn to_usize(self) -> usize;
     fn to_f32(self) -> f32;
     fn to_f64(self) -> f64;
+    fn to_wide(self) -> Self::Wide;
     fn to_uint(self) -> Self::WideUInt;
 }
 
@@ -57,21 +60,24 @@ impl IntNumber for i16 {
     const ONE: Self = 1;
     const TWO: Self = 2;
     const FOUR: Self = 4;
+    const MAX_POWER_OF_TWO: u32 = Self::BITS - 2;
+    const MAX_POSITIVE_POWER_OF_TWO: Self::Wide = 1 << Self::MAX_POWER_OF_TWO;
     #[inline(always)]
-    fn wide(self) -> Self::Wide {
+    fn to_wide(self) -> Self::Wide {
         self as Self::Wide
     }
-
     #[inline(always)]
     fn from_wide(value: Self::Wide) -> Self {
         value as Self
     }
-
     #[inline(always)]
     fn from_uint(value: Self::WideUInt) -> Self {
         value as Self
     }
-
+    #[inline(always)]
+    fn from_u32(value: u32) -> Self {
+        value as Self
+    }
     #[inline(always)]
     fn from_usize(value: usize) -> Self {
         value as Self
@@ -80,22 +86,18 @@ impl IntNumber for i16 {
     fn from_float<F: FloatNumber>(value: F) -> Self {
         value.to_i16()
     }
-
     #[inline(always)]
     fn from_rounded_float<F: FloatNumber>(value: F) -> Self {
         value.to_round_i16()
     }
-
     #[inline(always)]
     fn wrapping_add(self, rhs: Self) -> Self {
         self.wrapping_add(rhs)
     }
-
     #[inline(always)]
     fn wrapping_sub(self, rhs: Self) -> Self {
         self.wrapping_sub(rhs)
     }
-
     #[inline(always)]
     fn wrapping_mul(self, rhs: Self) -> Self {
         self.wrapping_mul(rhs)
@@ -116,7 +118,6 @@ impl IntNumber for i16 {
     fn to_f64(self) -> f64 {
         self as f64
     }
-
     #[inline(always)]
     fn to_uint(self) -> Self::WideUInt {
         self as Self::WideUInt
@@ -133,8 +134,10 @@ impl IntNumber for i32 {
     const ONE: Self = 1;
     const TWO: Self = 2;
     const FOUR: Self = 4;
+    const MAX_POWER_OF_TWO: u32 = Self::BITS - 2;
+    const MAX_POSITIVE_POWER_OF_TWO: Self::Wide = 1 << Self::MAX_POWER_OF_TWO;
     #[inline(always)]
-    fn wide(self) -> Self::Wide {
+    fn to_wide(self) -> Self::Wide {
         self as Self::Wide
     }
 
@@ -148,6 +151,10 @@ impl IntNumber for i32 {
         value as Self
     }
 
+    #[inline(always)]
+    fn from_u32(value: u32) -> Self {
+        value as Self
+    }
     #[inline(always)]
     fn from_usize(value: usize) -> Self {
         value as Self
@@ -212,8 +219,10 @@ impl IntNumber for i64 {
     const ONE: Self = 1;
     const TWO: Self = 2;
     const FOUR: Self = 4;
+    const MAX_POWER_OF_TWO: u32 = Self::BITS - 2;
+    const MAX_POSITIVE_POWER_OF_TWO: Self::Wide = 1 << Self::MAX_POWER_OF_TWO;
     #[inline(always)]
-    fn wide(self) -> Self::Wide {
+    fn to_wide(self) -> Self::Wide {
         self as Self::Wide
     }
 
@@ -226,7 +235,10 @@ impl IntNumber for i64 {
     fn from_uint(value: Self::WideUInt) -> Self {
         value as Self
     }
-
+    #[inline(always)]
+    fn from_u32(value: u32) -> Self {
+        value as Self
+    }
     #[inline(always)]
     fn from_usize(value: usize) -> Self {
         value as Self

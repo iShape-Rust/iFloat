@@ -19,10 +19,13 @@ pub trait WideIntNumber:
     + Shr<u32, Output = Self>
 {
     type UInt: UIntNumber;
+    const MAX: Self;
+    const MIN: Self;
     const ZERO: Self;
     const ONE: Self;
     const TWO: Self;
     const FOUR: Self;
+    fn from_u32(value: u32) -> Self;
     fn from_usize(value: usize) -> Self;
     fn from_rounded_float<F: FloatNumber>(value: F) -> Self;
     fn from_uint(value: Self::UInt) -> Self;
@@ -40,6 +43,8 @@ pub trait WideIntNumber:
 
 impl WideIntNumber for i32 {
     type UInt = u32;
+    const MAX: Self = Self::MAX;
+    const MIN: Self = Self::MIN;
     const ZERO: Self = 0;
     const ONE: Self = 1;
     const TWO: Self = 2;
@@ -54,6 +59,10 @@ impl WideIntNumber for i32 {
         value.to_round_i32()
     }
 
+    #[inline(always)]
+    fn from_u32(value: u32) -> Self {
+        value as Self
+    }
     #[inline(always)]
     fn from_uint(value: Self::UInt) -> Self {
         value as Self
@@ -107,11 +116,17 @@ impl WideIntNumber for i32 {
 }
 impl WideIntNumber for i64 {
     type UInt = u64;
+    const MAX: Self = Self::MAX;
+    const MIN: Self = Self::MIN;
     const ZERO: Self = 0;
     const ONE: Self = 1;
     const TWO: Self = 2;
     const FOUR: Self = 4;
 
+    #[inline(always)]
+    fn from_u32(value: u32) -> Self {
+        value as Self
+    }
     #[inline(always)]
     fn from_usize(value: usize) -> Self {
         value as Self
@@ -174,11 +189,17 @@ impl WideIntNumber for i64 {
 }
 impl WideIntNumber for i128 {
     type UInt = u128;
+    const MAX: Self = Self::MAX;
+    const MIN: Self = Self::MIN;
     const ZERO: Self = 0;
     const ONE: Self = 1;
     const TWO: Self = 2;
     const FOUR: Self = 4;
 
+    #[inline(always)]
+    fn from_u32(value: u32) -> Self {
+        value as Self
+    }
     #[inline(always)]
     fn from_usize(value: usize) -> Self {
         value as Self

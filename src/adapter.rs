@@ -261,6 +261,17 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
     }
 
     #[inline(always)]
+    pub fn snap_to_grid(&self, point: &P) -> P {
+        self.int_to_float(&self.float_to_int(point))
+    }
+
+    #[inline(always)]
+    pub fn try_snap_to_grid(&self, point: &P) -> Result<P, FloatPointAdapterRangeError> {
+        self.try_float_to_int(point)
+            .map(|point| self.int_to_float(&point))
+    }
+
+    #[inline(always)]
     pub fn round_sqr_len_to_int(&self, value: P::Scalar) -> I::Wide {
         let scale = self.dir_scale;
         let sqr_scale = scale * scale;
@@ -371,6 +382,27 @@ mod tests {
 
         assert_eq!(adapter.float_to_int(&[0.16, -0.16]), IntPoint::new(2, -2));
         assert_eq!(adapter.round_len_to_int(0.16), 2);
+    }
+
+    #[test]
+    fn test_snap_to_grid() {
+        let adapter =
+            FloatPointAdapter::<[f64; 2], i32>::with_scale(FloatRect::new(-1.0, 1.0, -1.0, 1.0), 10.0);
+
+        assert_eq!(adapter.snap_to_grid(&[0.16, -0.16]), [0.2, -0.2]);
+        assert_eq!(adapter.snap_to_grid(&[0.14, -0.14]), [0.1, -0.1]);
+    }
+
+    #[test]
+    fn test_try_snap_to_grid_range() {
+        let adapter =
+            FloatPointAdapter::<[f64; 2], i32>::with_scale(FloatRect::new(-1.0, 1.0, -1.0, 1.0), 10.0);
+
+        assert_eq!(adapter.try_snap_to_grid(&[1.0, -1.0]).unwrap(), [1.0, -1.0]);
+        assert_eq!(
+            adapter.try_snap_to_grid(&[1.01, 0.0]).err().unwrap(),
+            FloatPointAdapterRangeError::PointOutOfRange
+        );
     }
 
     #[test]
