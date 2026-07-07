@@ -5,6 +5,11 @@ pub trait FloatPointCompatible: Copy {
     fn from_xy(x: Self::Scalar, y: Self::Scalar) -> Self;
     fn x(&self) -> Self::Scalar;
     fn y(&self) -> Self::Scalar;
+
+    #[inline(always)]
+    fn is_finite(&self) -> bool {
+        self.x().is_finite() && self.y().is_finite()
+    }
 }
 
 impl<T: FloatNumber> FloatPointCompatible for [T; 2] {
@@ -38,5 +43,12 @@ mod tests {
         let a1 = <[f64; 2]>::from_xy(x, y);
 
         assert_eq!(a0, a1);
+    }
+
+    #[test]
+    fn test_is_finite() {
+        assert!([2.0, 5.0].is_finite());
+        assert!(![f64::NAN, 5.0].is_finite());
+        assert!(![2.0, f64::INFINITY].is_finite());
     }
 }

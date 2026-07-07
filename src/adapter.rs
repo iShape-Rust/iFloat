@@ -115,7 +115,7 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
         rect: FloatRect<P::Scalar>,
         scale: P::Scalar,
     ) -> Result<Self, FloatPointAdapterScaleError> {
-        let scale_f64 = Self::validate_scale(scale)?;
+        let scale = Self::validate_scale(scale)?;
         let mut adapter = Self::new(rect);
 
         let zero = P::Scalar::ZERO;
@@ -125,7 +125,7 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
         }
 
         adapter.dir_scale = scale;
-        adapter.inv_scale = P::Scalar::from_float(1.0 / scale_f64);
+        adapter.inv_scale = P::Scalar::ONE / scale;
         Ok(adapter)
     }
 
@@ -157,15 +157,14 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
     }
 
     #[inline]
-    fn validate_scale(scale: P::Scalar) -> Result<f64, FloatPointAdapterScaleError> {
-        let scale_f64 = scale.to_f64();
-        if !scale_f64.is_finite() {
+    fn validate_scale(scale: P::Scalar) -> Result<P::Scalar, FloatPointAdapterScaleError> {
+        if !scale.is_finite() {
             return Err(FloatPointAdapterScaleError::ScaleNotFinite);
         }
-        if scale_f64 <= 0.0 {
+        if scale <= P::Scalar::ZERO {
             return Err(FloatPointAdapterScaleError::ScaleNonPositive);
         }
-        Ok(scale_f64)
+        Ok(scale)
     }
 
     #[inline(always)]
@@ -248,7 +247,7 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
 
     #[inline(always)]
     pub fn try_float_to_int(&self, point: &P) -> Result<IntPoint<I>, FloatPointAdapterRangeError> {
-        if !self.rect.contains(point) {
+        if !point.is_finite() || !self.rect.contains(point) {
             return Err(FloatPointAdapterRangeError::PointOutOfRange);
         }
 
@@ -440,6 +439,21 @@ mod tests {
         );
         assert_eq!(
             adapter.try_float_to_int(&[1.01, 0.0]).err().unwrap(),
+            FloatPointAdapterRangeError::PointOutOfRange
+        );
+    }
+
+    #[test]
+    fn test_try_float_to_int_not_finite() {
+        let adapter =
+            FloatPointAdapter::<[f64; 2], i32>::with_scale(FloatRect::new(-1.0, 1.0, -1.0, 1.0), 10.0);
+
+        assert_eq!(
+            adapter.try_float_to_int(&[f64::NAN, 0.0]).err().unwrap(),
+            FloatPointAdapterRangeError::PointOutOfRange
+        );
+        assert_eq!(
+            adapter.try_float_to_int(&[0.0, f64::INFINITY]).err().unwrap(),
             FloatPointAdapterRangeError::PointOutOfRange
         );
     }
