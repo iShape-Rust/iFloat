@@ -3,6 +3,7 @@ use crate::int::number::uint::UIntNumber;
 use crate::int::number::wide_int::WideIntNumber;
 use core::fmt::{Binary, Display};
 use core::ops::{Add, AddAssign, Div, Mul, Neg, Shl, Shr, Sub};
+use crate::int::number::fixed_scale::FixedScale;
 
 pub trait IntNumber
 where
@@ -35,10 +36,6 @@ where
     const MAX_POWER_OF_TWO: u32;
     const MAX_POSITIVE_POWER_OF_TWO: Self::Wide;
     fn from_wide(value: Self::Wide) -> Self;
-    #[inline(always)]
-    fn from_scaled_wide(value: Self::Wide) -> Self {
-        Self::from_wide(value / Self::MAX_POSITIVE_POWER_OF_TWO)
-    }
     fn from_uint(value: Self::WideUInt) -> Self;
     fn from_u32(value: u32) -> Self;
     fn from_usize(value: usize) -> Self;
@@ -59,7 +56,7 @@ where
     fn to_uint(self) -> Self::WideUInt;
     #[inline(always)]
     fn to_scaled_wide(self) -> Self::Wide {
-        self.to_wide() << Self::MAX_POWER_OF_TWO
+        self.to_wide() << FixedScale::<Self>::SHIFT
     }
 }
 

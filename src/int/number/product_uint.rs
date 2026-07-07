@@ -2,6 +2,8 @@ use crate::int::number::uint::UIntNumber;
 use core::cmp::Ordering;
 
 pub trait UIntProduct<U: UIntNumber>: Copy + PartialOrd {
+    fn from_uint(value: U) -> Self;
+
     fn multiply(a: U, b: U) -> Self;
 
     /// Divides this extended-width value by `divisor` and rounds to the nearest integer.
@@ -17,6 +19,11 @@ pub struct UIntProduct64 {
 }
 
 impl UIntProduct<u32> for UIntProduct64 {
+    #[inline(always)]
+    fn from_uint(value: u32) -> Self {
+        Self { value: value as u64 }
+    }
+
     #[inline(always)]
     fn multiply(a: u32, b: u32) -> Self {
         let value = a as u64 * b as u64;
@@ -68,6 +75,11 @@ impl<U: UIntNumber> CompositeUIntProduct<U> {
     }
 }
 impl<U: UIntNumber> UIntProduct<U> for CompositeUIntProduct<U> {
+    #[inline(always)]
+    fn from_uint(value: U) -> Self {
+        Self::new(U::ZERO, value)
+    }
+
     #[inline]
     fn multiply(a: U, b: U) -> Self {
         if a.leading_zeros() + b.leading_zeros() >= U::BITS {
@@ -165,6 +177,11 @@ mod tests {
 
     impl UIntProduct<u64> for UIntProduct128 {
         #[inline(always)]
+        fn from_uint(value: u64) -> Self {
+            Self { value: value as u128 }
+        }
+
+        #[inline(always)]
         fn multiply(a: u64, b: u64) -> Self {
             Self {
                 value: a as u128 * b as u128,
@@ -213,6 +230,21 @@ mod tests {
             value: (divisor as u64 + 1) >> 1,
         };
         assert_eq!(value.divide_with_rounding(divisor), 1);
+    }
+
+    #[test]
+    fn test_u64_from_uint() {
+        let value = UIntProduct64::from_uint(7);
+
+        assert_eq!(value.value, 7);
+    }
+
+    #[test]
+    fn test_composite_from_uint() {
+        let value = CompositeUIntProduct::<u64>::from_uint(7);
+
+        assert_eq!(value.high, 0);
+        assert_eq!(value.low, 7);
     }
 
     #[test]

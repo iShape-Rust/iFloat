@@ -490,4 +490,10 @@ mod tests {
             FloatPointAdapterRangeError::PointOutOfRange
         );
     }
+
+    #[test]
+    fn test_000() {
+        [[0, 1, 2, 3], [0, 1, 2, 3], [0, 1, -2, 3]].iter().position(|contour.|);
+
+    }
 }
