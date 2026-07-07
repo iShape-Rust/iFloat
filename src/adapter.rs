@@ -118,8 +118,8 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
         let scale = Self::validate_scale(scale)?;
         let mut adapter = Self::new(rect);
 
-        let zero = P::Scalar::ZERO;
-        let is_degenerate = adapter.rect.width() == zero && adapter.rect.height() == zero;
+        let is_degenerate =
+            adapter.rect.width() == P::Scalar::ZERO && adapter.rect.height() == P::Scalar::ZERO;
         if !is_degenerate && adapter.dir_scale < scale {
             return Err(FloatPointAdapterScaleError::ScaleTooLarge);
         }
