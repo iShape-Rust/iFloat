@@ -176,7 +176,9 @@ impl<T: IntNumber> IntRect<T> {
 
 impl<I: IntNumber> From<[IntPoint<I>; 2]> for IntRect<I> {
     #[inline]
-    fn from(points: [IntPoint<I>; 2]) -> Self { IntRect::with_ab(points[0], points[1]) }
+    fn from(points: [IntPoint<I>; 2]) -> Self {
+        IntRect::with_ab(points[0], points[1])
+    }
 }
 
 #[cfg(test)]

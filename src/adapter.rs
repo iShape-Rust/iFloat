@@ -75,6 +75,53 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
         }
     }
 
+    /// Creates an adapter whose converted coordinates have magnitude at most
+    /// `2^coordinate_bits` for every point inside `rect`.
+    ///
+    /// The selected scale is a power of two. `coordinate_bits` may not exceed
+    /// the highest non-sign bit index in `I`.
+    #[inline]
+    pub fn with_coordinate_bits(rect: FloatRect<P::Scalar>, coordinate_bits: u32) -> Self {
+        assert!(coordinate_bits <= I::BITS - 2);
+
+        let a = rect.width() * P::Scalar::HALF;
+        let b = rect.height() * P::Scalar::HALF;
+
+        let x = rect.min_x + a;
+        let y = rect.min_y + b;
+
+        let offset = P::from_xy(x, y);
+        let max = a.max(b);
+
+        // degenerate case
+        if max == P::Scalar::ZERO {
+            return Self {
+                dir_scale: P::Scalar::ONE,
+                inv_scale: P::Scalar::ONE,
+                offset,
+                rect,
+                int: PhantomData,
+            };
+        }
+
+        let log2 = max.log2().to_i32();
+        let log2_scale = P::Scalar::from_float(libm::exp2(log2 as f64));
+        let ceil_log2 = if log2_scale < max { log2 + 1 } else { log2 };
+        let exponent = coordinate_bits as i32 - ceil_log2;
+        let e = exponent as f64;
+
+        let dir_scale = P::Scalar::from_float(libm::exp2(e));
+        let inv_scale = P::Scalar::from_float(libm::exp2(-e));
+
+        Self {
+            dir_scale,
+            inv_scale,
+            offset,
+            rect,
+            int: PhantomData,
+        }
+    }
+
     #[inline]
     pub fn with_scale(rect: FloatRect<P::Scalar>, scale: P::Scalar) -> Self {
         let a = rect.width() * P::Scalar::HALF;
@@ -117,6 +164,28 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
     ) -> Result<Self, FloatPointAdapterScaleError> {
         let scale_f64 = Self::validate_scale(scale)?;
         let mut adapter = Self::new(rect);
+
+        let zero = P::Scalar::ZERO;
+        let is_degenerate = adapter.rect.width() == zero && adapter.rect.height() == zero;
+        if !is_degenerate && adapter.dir_scale < scale {
+            return Err(FloatPointAdapterScaleError::ScaleTooLarge);
+        }
+
+        adapter.dir_scale = scale;
+        adapter.inv_scale = P::Scalar::from_float(1.0 / scale_f64);
+        Ok(adapter)
+    }
+
+    /// Creates an adapter with an explicit scale, rejecting scales that can
+    /// produce coordinates with magnitude greater than `2^coordinate_bits`.
+    #[inline]
+    pub fn try_with_scale_and_coordinate_bits(
+        rect: FloatRect<P::Scalar>,
+        scale: P::Scalar,
+        coordinate_bits: u32,
+    ) -> Result<Self, FloatPointAdapterScaleError> {
+        let scale_f64 = Self::validate_scale(scale)?;
+        let mut adapter = Self::with_coordinate_bits(rect, coordinate_bits);
 
         let zero = P::Scalar::ZERO;
         let is_degenerate = adapter.rect.width() == zero && adapter.rect.height() == zero;
@@ -376,6 +445,30 @@ mod tests {
     }
 
     #[test]
+    fn coordinate_bits_bound_integer_magnitude() {
+        let adapter = FloatPointAdapter::<[f64; 2], i32>::with_coordinate_bits(
+            FloatRect::new(-3.0, 3.0, -0.25, 0.25),
+            10,
+        );
+
+        assert_eq!(adapter.dir_scale(), 256.0);
+        assert_eq!(adapter.float_to_int(&[-3.0, -0.25]), IntPoint::new(-768, -64));
+        assert_eq!(adapter.float_to_int(&[3.0, 0.25]), IntPoint::new(768, 64));
+    }
+
+    #[test]
+    fn coordinate_bits_include_exact_power_of_two_boundary() {
+        let adapter = FloatPointAdapter::<[f64; 2], i32>::with_coordinate_bits(
+            FloatRect::new(-4.0, 4.0, -0.25, 0.25),
+            10,
+        );
+
+        assert_eq!(adapter.dir_scale(), 256.0);
+        assert_eq!(adapter.float_to_int(&[-4.0, 0.0]), IntPoint::new(-1024, 0));
+        assert_eq!(adapter.float_to_int(&[4.0, 0.0]), IntPoint::new(1024, 0));
+    }
+
+    #[test]
     fn test_round_point_round_length() {
         let adapter =
             FloatPointAdapter::<[f64; 2], i32>::with_scale(FloatRect::new(-1.0, 1.0, -1.0, 1.0), 10.0);
@@ -414,6 +507,22 @@ mod tests {
         assert_eq!(adapter.dir_scale(), 10.0);
         assert_eq!(adapter.inv_scale(), 0.1);
         assert_eq!(adapter.float_to_int(&[0.16, -0.16]), IntPoint::new(2, -2));
+    }
+
+    #[test]
+    fn test_try_with_scale_and_coordinate_bits() {
+        let rect = FloatRect::new(-4.0, 4.0, -1.0, 1.0);
+        let adapter =
+            FloatPointAdapter::<[f64; 2], i32>::try_with_scale_and_coordinate_bits(rect.clone(), 128.0, 10)
+                .unwrap();
+
+        assert_eq!(adapter.float_to_int(&[4.0, 1.0]), IntPoint::new(512, 128));
+        assert_eq!(
+            FloatPointAdapter::<[f64; 2], i32>::try_with_scale_and_coordinate_bits(rect, 512.0, 10)
+                .err()
+                .unwrap(),
+            FloatPointAdapterScaleError::ScaleTooLarge
+        );
     }
 
     #[test]

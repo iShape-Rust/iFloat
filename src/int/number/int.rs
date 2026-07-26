@@ -1,9 +1,9 @@
 use crate::float::number::FloatNumber;
+use crate::int::number::fixed_scale::FixedScale;
 use crate::int::number::uint::UIntNumber;
 use crate::int::number::wide_int::WideIntNumber;
 use core::fmt::{Binary, Display};
 use core::ops::{Add, AddAssign, Div, Mul, Neg, Shl, Shr, Sub};
-use crate::int::number::fixed_scale::FixedScale;
 
 pub trait IntNumber
 where
