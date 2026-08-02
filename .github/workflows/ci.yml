@@ -1,0 +1,96 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  quality:
+    name: Quality and tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust components
+        run: rustup component add rustfmt clippy
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run Clippy
+        run: cargo clippy --lib --all-features -- -D warnings
+
+      - name: Run tests
+        run: cargo test --all-targets --all-features
+
+      - name: Run release tests
+        run: cargo test --release --all-targets --all-features
+
+      - name: Run documentation tests
+        run: cargo test --doc --all-features
+
+      - name: Build documentation
+        env:
+          RUSTDOCFLAGS: -D warnings
+        run: cargo doc --no-deps --all-features
+
+  feature-matrix:
+    name: Features / ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: no-default
+            args: --no-default-features
+          - name: core
+            args: --no-default-features --features core
+          - name: glam
+            args: --no-default-features --features glam
+          - name: serde
+            args: --no-default-features --features serde
+          - name: all
+            args: --all-features
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check feature configuration
+        run: cargo check ${{ matrix.args }}
+
+  msrv:
+    name: MSRV / Rust 1.85
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MSRV toolchain
+        run: rustup toolchain install 1.85.0 --profile minimal
+
+      - name: Check all features on MSRV
+        run: cargo +1.85.0 check --all-features
+
+  distribution:
+    name: Wasm and package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install wasm target
+        run: rustup target add wasm32-unknown-unknown
+
+      - name: Check wasm target
+        run: cargo check --target wasm32-unknown-unknown --all-features
+
+      - name: Verify package
+        run: cargo package
