@@ -21,6 +21,7 @@ where
     const ONE: Self;
     const TWO: Self;
     const THREE: Self;
+    const FOUR: Self;
     const HALF: Self;
 
     // Construction.
@@ -42,6 +43,7 @@ where
     fn acos(self) -> Self;
     fn asin(self) -> Self;
     fn signum(self) -> Self;
+    fn is_finite(self) -> bool;
     // Truncating casts.
     fn to_i16(self) -> i16;
     fn to_i32(self) -> i32;
@@ -66,6 +68,7 @@ impl FloatNumber for f32 {
     const ONE: Self = 1.0;
     const TWO: Self = 2.0;
     const THREE: Self = 3.0;
+    const FOUR: Self = 4.0;
     const HALF: Self = 0.5;
 
     // Construction.
@@ -150,6 +153,11 @@ impl FloatNumber for f32 {
         self.signum()
     }
 
+    #[inline(always)]
+    fn is_finite(self) -> bool {
+        self.is_finite()
+    }
+
     // Truncating casts.
     #[inline(always)]
     fn to_i16(self) -> i16 {
@@ -216,6 +224,7 @@ impl FloatNumber for f64 {
     const ONE: Self = 1.0;
     const TWO: Self = 2.0;
     const THREE: Self = 3.0;
+    const FOUR: Self = 4.0;
     const HALF: Self = 0.5;
     // Construction.
     #[inline(always)]
@@ -297,6 +306,11 @@ impl FloatNumber for f64 {
     #[inline(always)]
     fn signum(self) -> Self {
         self.signum()
+    }
+
+    #[inline(always)]
+    fn is_finite(self) -> bool {
+        self.is_finite()
     }
 
     // Truncating casts.
