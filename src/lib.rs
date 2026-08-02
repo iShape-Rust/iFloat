@@ -1,14 +1,14 @@
 #![no_std]
+#![doc = include_str!("../README.md")]
 extern crate alloc;
 
 #[cfg(feature = "core")]
 pub mod adapter;
 #[cfg(feature = "core")]
+pub mod float;
+#[cfg(feature = "core")]
 pub mod int;
 #[cfg(feature = "core")]
 pub mod triangle;
-
-#[cfg(feature = "float_pt")]
-pub mod float;
 
 pub mod integration;

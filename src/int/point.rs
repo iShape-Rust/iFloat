@@ -5,6 +5,24 @@ use core::{fmt, ops};
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+/// A two-dimensional integer point.
+///
+/// # Arithmetic range
+///
+/// Point differences use [`IntVector`] and therefore widen each coordinate to
+/// [`IntNumber::Wide`]. Products of those components are still evaluated in
+/// the same wide type. A conservative common precondition for `dot_product`,
+/// `cross_product`, `sqr_length`, `sqr_distance`, and operations on vectors
+/// obtained by subtracting points is:
+///
+/// ```text
+/// -2^(T::BITS - 2) < coordinate < 2^(T::BITS - 2)
+/// ```
+///
+/// This guarantees enough headroom for a point difference and for the sum or
+/// difference of two products. Arithmetic is unchecked beyond Rust's normal
+/// debug overflow checks. Callers may use a wider range only when they prove
+/// that the intermediate values used by their particular algorithm still fit.
 pub struct IntPoint<T: IntNumber = i32> {
     pub x: T,
     pub y: T,
@@ -24,23 +42,23 @@ impl<T: IntNumber> IntPoint<T> {
 
     #[inline(always)]
     pub fn cross_product(self, v: Self) -> T::Wide {
-        let a = self.x.wide() * v.y.wide();
-        let b = self.y.wide() * v.x.wide();
+        let a = self.x.to_wide() * v.y.to_wide();
+        let b = self.y.to_wide() * v.x.to_wide();
 
         a - b
     }
 
     #[inline(always)]
     pub fn dot_product(self, v: Self) -> T::Wide {
-        let xx = self.x.wide() * v.x.wide();
-        let yy = self.y.wide() * v.y.wide();
+        let xx = self.x.to_wide() * v.x.to_wide();
+        let yy = self.y.to_wide() * v.y.to_wide();
         xx + yy
     }
 
     #[inline(always)]
     pub fn sqr_length(self) -> T::Wide {
-        let x = self.x.wide();
-        let y = self.y.wide();
+        let x = self.x.to_wide();
+        let y = self.y.to_wide();
         x * x + y * y
     }
 
@@ -109,8 +127,18 @@ impl<T: IntNumber> ops::Sub for IntPoint<T> {
     #[inline(always)]
     fn sub(self, other: Self) -> Self::Output {
         IntVector {
-            x: self.x.wide() - other.x.wide(),
-            y: self.y.wide() - other.y.wide(),
+            x: self.x.to_wide() - other.x.to_wide(),
+            y: self.y.to_wide() - other.y.to_wide(),
+        }
+    }
+}
+
+impl<T: IntNumber> From<IntVector<T>> for IntPoint<T> {
+    #[inline(always)]
+    fn from(value: IntVector<T>) -> Self {
+        Self {
+            x: T::from_wide(value.x),
+            y: T::from_wide(value.y),
         }
     }
 }

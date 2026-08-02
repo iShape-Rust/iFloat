@@ -3,6 +3,7 @@ name = "i_float"
 version = "4.0.0"
 authors = ["Nail Sharipov <nailxsharipov@gmail.com>"]
 edition = "2024"
+rust-version = "1.85"
 description = "This fixed float math library provides an efficient and deterministic solution for arithmetic and geometric operations."
 license = "MIT"
 repository = "https://github.com/iShape-Rust/iFloat"
@@ -11,10 +12,9 @@ categories = ["no-std", "mathematics"]
 
 [features]
 default = ["core"]
-core = ["float_pt"]
-float_pt = []
-glam = ["dep:glam"]
-serde = ["dep:serde"]
+core = []
+glam = ["dep:glam", "core"]
+serde = ["dep:serde", "core"]
 
 [dependencies]
 serde = { version = "^1.0", default-features = false, features = ["derive"], optional = true }

@@ -2,7 +2,15 @@ use crate::int::number::uint::UIntNumber;
 use core::cmp::Ordering;
 
 pub trait UIntProduct<U: UIntNumber>: Copy + PartialOrd {
+    fn from_uint(value: U) -> Self;
+
     fn multiply(a: U, b: U) -> Self;
+
+    /// Adds two extended-width values, returning `None` on overflow.
+    fn checked_add(self, other: Self) -> Option<Self>;
+
+    /// Subtracts two extended-width values, returning `None` when the result would be negative.
+    fn checked_sub(self, other: Self) -> Option<Self>;
 
     /// Divides this extended-width value by `divisor` and rounds to the nearest integer.
     ///
@@ -18,9 +26,24 @@ pub struct UIntProduct64 {
 
 impl UIntProduct<u32> for UIntProduct64 {
     #[inline(always)]
+    fn from_uint(value: u32) -> Self {
+        Self { value: value as u64 }
+    }
+
+    #[inline(always)]
     fn multiply(a: u32, b: u32) -> Self {
         let value = a as u64 * b as u64;
         Self { value }
+    }
+
+    #[inline(always)]
+    fn checked_add(self, other: Self) -> Option<Self> {
+        self.value.checked_add(other.value).map(|value| Self { value })
+    }
+
+    #[inline(always)]
+    fn checked_sub(self, other: Self) -> Option<Self> {
+        self.value.checked_sub(other.value).map(|value| Self { value })
     }
 
     #[inline(always)]
@@ -68,6 +91,11 @@ impl<U: UIntNumber> CompositeUIntProduct<U> {
     }
 }
 impl<U: UIntNumber> UIntProduct<U> for CompositeUIntProduct<U> {
+    #[inline(always)]
+    fn from_uint(value: U) -> Self {
+        Self::new(U::ZERO, value)
+    }
+
     #[inline]
     fn multiply(a: U, b: U) -> Self {
         if a.leading_zeros() + b.leading_zeros() >= U::BITS {
@@ -86,6 +114,31 @@ impl<U: UIntNumber> UIntProduct<U> for CompositeUIntProduct<U> {
         let low = (m_partial << U::HALF_BITS) | (ab00 & U::HALF_MASK);
 
         Self::new(high, low)
+    }
+
+    #[inline(always)]
+    fn checked_add(self, other: Self) -> Option<Self> {
+        let (low, carry) = self.low.overflowing_add(other.low);
+        let (high, overflow0) = self.high.overflowing_add(other.high);
+        let (high, overflow1) = high.overflowing_add(if carry { U::ONE } else { U::ZERO });
+
+        if overflow0 || overflow1 {
+            None
+        } else {
+            Some(Self::new(high, low))
+        }
+    }
+
+    #[inline(always)]
+    fn checked_sub(self, other: Self) -> Option<Self> {
+        if self < other {
+            return None;
+        }
+
+        let borrow = self.low < other.low;
+        let low = self.low.wrapping_sub(other.low);
+        let high = self.high - other.high - if borrow { U::ONE } else { U::ZERO };
+        Some(Self::new(high, low))
     }
 
     fn divide_with_rounding(&self, divisor: U) -> U {
@@ -165,10 +218,23 @@ mod tests {
 
     impl UIntProduct<u64> for UIntProduct128 {
         #[inline(always)]
+        fn from_uint(value: u64) -> Self {
+            Self { value: value as u128 }
+        }
+
+        #[inline(always)]
         fn multiply(a: u64, b: u64) -> Self {
             Self {
                 value: a as u128 * b as u128,
             }
+        }
+
+        fn checked_add(self, other: Self) -> Option<Self> {
+            self.value.checked_add(other.value).map(|value| Self { value })
+        }
+
+        fn checked_sub(self, other: Self) -> Option<Self> {
+            self.value.checked_sub(other.value).map(|value| Self { value })
         }
 
         #[inline(always)]
@@ -213,6 +279,56 @@ mod tests {
             value: (divisor as u64 + 1) >> 1,
         };
         assert_eq!(value.divide_with_rounding(divisor), 1);
+    }
+
+    #[test]
+    fn test_u64_from_uint() {
+        let value = UIntProduct64::from_uint(7);
+
+        assert_eq!(value.value, 7);
+    }
+
+    #[test]
+    fn test_u64_checked_add_and_sub() {
+        let a = UIntProduct64::multiply(u32::MAX, u32::MAX);
+        let b = UIntProduct64::from_uint(1);
+
+        assert_eq!(a.checked_add(b).unwrap().value, a.value + 1);
+        assert_eq!(a.checked_add(a), None);
+        assert_eq!(a.checked_sub(b).unwrap().value, a.value - 1);
+        assert_eq!(b.checked_sub(a), None);
+    }
+
+    #[test]
+    fn test_composite_from_uint() {
+        let value = CompositeUIntProduct::<u64>::from_uint(7);
+
+        assert_eq!(value.high, 0);
+        assert_eq!(value.low, 7);
+    }
+
+    #[test]
+    fn test_composite_checked_add_carries_between_halves() {
+        let a = CompositeUIntProduct::<u64>::new(7, u64::MAX);
+        let b = CompositeUIntProduct::<u64>::from_uint(1);
+
+        assert_eq!(a.checked_add(b), Some(CompositeUIntProduct::new(8, 0)));
+    }
+
+    #[test]
+    fn test_composite_checked_add_reports_overflow() {
+        let max = CompositeUIntProduct::<u64>::new(u64::MAX, u64::MAX);
+
+        assert_eq!(max.checked_add(CompositeUIntProduct::from_uint(1)), None);
+    }
+
+    #[test]
+    fn test_composite_checked_sub_borrows_between_halves() {
+        let a = CompositeUIntProduct::<u64>::new(8, 0);
+        let b = CompositeUIntProduct::<u64>::from_uint(1);
+
+        assert_eq!(a.checked_sub(b), Some(CompositeUIntProduct::new(7, u64::MAX)));
+        assert_eq!(b.checked_sub(a), None);
     }
 
     #[test]

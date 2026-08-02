@@ -3,6 +3,15 @@ use core::fmt;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+/// A two-dimensional vector whose components use the wide type associated
+/// with `T`.
+///
+/// Widening the components does not widen their products again. Consequently,
+/// [`Self::cross_product`], [`Self::dot_product`], and [`Self::sqr_length`]
+/// require their intermediate products and final sum or difference to fit in
+/// [`IntNumber::Wide`]. Vectors obtained by subtracting [`IntPoint`](crate::int::point::IntPoint)
+/// values are covered by the conservative coordinate range documented on
+/// `IntPoint`; vectors constructed directly from arbitrary wide values are not.
 pub struct IntVector<T: IntNumber> {
     pub x: T::Wide,
     pub y: T::Wide,
@@ -36,7 +45,6 @@ impl<T: IntNumber> IntVector<T> {
         x * x + y * y
     }
 }
-
 impl<T: IntNumber> fmt::Display for IntVector<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[{}, {}]", self.x, self.y)

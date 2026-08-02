@@ -2,7 +2,7 @@ use crate::int::number::int::IntNumber;
 use crate::int::point::IntPoint;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct IntRect<T: IntNumber = i32> {
     pub min_x: T,
     pub max_x: T,
@@ -174,6 +174,13 @@ impl<T: IntNumber> IntRect<T> {
     }
 }
 
+impl<I: IntNumber> From<[IntPoint<I>; 2]> for IntRect<I> {
+    #[inline]
+    fn from(points: [IntPoint<I>; 2]) -> Self {
+        IntRect::with_ab(points[0], points[1])
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::int::point::IntPoint;
@@ -239,5 +246,23 @@ mod tests {
         assert!(rect.contains(IntPoint::new(8, -2)));
         assert!(rect.contains_with_radius(IntPoint::new(10, -2), 2));
         assert!(!rect.contains_with_radius(IntPoint::new(11, -2), 2));
+    }
+
+    #[test]
+    fn test_is_intersect_0() {
+        let r0 = IntRect::with_ab(IntPoint::new(0, 0), IntPoint::new(2, 2));
+        let r1 = IntRect::with_ab(IntPoint::new(2, 2), IntPoint::new(4, 4));
+
+        assert_eq!(r0.is_intersect_border_include(&r1), true);
+        assert_eq!(r0.is_intersect_border_exclude(&r1), false);
+    }
+
+    #[test]
+    fn test_is_intersect_1() {
+        let r0 = IntRect::with_ab(IntPoint::new(0, 0), IntPoint::new(2, 2));
+        let r1 = IntRect::with_ab(IntPoint::new(0, 0), IntPoint::new(2, 2));
+
+        assert_eq!(r0.is_intersect_border_include(&r1), true);
+        assert_eq!(r0.is_intersect_border_exclude(&r1), true);
     }
 }
