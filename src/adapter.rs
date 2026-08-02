@@ -200,7 +200,7 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
         scale: P::Scalar,
         coordinate_bits: u32,
     ) -> Result<Self, FloatPointAdapterScaleError> {
-        let scale_f64 = Self::validate_scale(scale)?;
+        let scale = Self::validate_scale(scale)?;
         let mut adapter = Self::with_coordinate_bits(rect, coordinate_bits);
 
         let zero = P::Scalar::ZERO;
@@ -210,7 +210,7 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
         }
 
         adapter.dir_scale = scale;
-        adapter.inv_scale = P::Scalar::from_float(1.0 / scale_f64);
+        adapter.inv_scale = P::Scalar::ONE / scale;
         Ok(adapter)
     }
 
