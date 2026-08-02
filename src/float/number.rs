@@ -43,6 +43,7 @@ where
     fn acos(self) -> Self;
     fn asin(self) -> Self;
     fn signum(self) -> Self;
+    fn is_finite(self) -> bool;
     // Truncating casts.
     fn to_i16(self) -> i16;
     fn to_i32(self) -> i32;
@@ -150,6 +151,11 @@ impl FloatNumber for f32 {
     #[inline(always)]
     fn signum(self) -> Self {
         self.signum()
+    }
+
+    #[inline(always)]
+    fn is_finite(self) -> bool {
+        self.is_finite()
     }
 
     // Truncating casts.
@@ -300,6 +306,11 @@ impl FloatNumber for f64 {
     #[inline(always)]
     fn signum(self) -> Self {
         self.signum()
+    }
+
+    #[inline(always)]
+    fn is_finite(self) -> bool {
+        self.is_finite()
     }
 
     // Truncating casts.
