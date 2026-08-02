@@ -51,8 +51,8 @@ impl<I: IntNumber> UnitRatio<I> {
 
     #[inline(always)]
     pub fn mid(self, other: Self) -> Self {
-        let value = (self.value + other.value) >> 1;
-        Self { value }
+        let value = (self.value() + other.value()) >> 1;
+        Self::new(I::from_wide(value))
     }
 
     #[inline(always)]
@@ -114,6 +114,17 @@ mod tests {
         let b = UnitRatio::<i32>::new(5);
 
         assert_eq!(a.mid(b).value, 3);
+    }
+
+    #[test]
+    fn mid_preserves_upper_boundary() {
+        let one_i16 = UnitRatio::<i16>::new(UnitRatio::<i16>::DENOMINATOR as i16);
+        let one_i32 = UnitRatio::<i32>::new(UnitRatio::<i32>::DENOMINATOR as i32);
+        let one_i64 = UnitRatio::<i64>::new(UnitRatio::<i64>::DENOMINATOR as i64);
+
+        assert_eq!(one_i16.mid(one_i16), one_i16);
+        assert_eq!(one_i32.mid(one_i32), one_i32);
+        assert_eq!(one_i64.mid(one_i64), one_i64);
     }
 
     #[test]

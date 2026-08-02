@@ -11,10 +11,9 @@ categories = ["no-std", "mathematics"]
 
 [features]
 default = ["core"]
-core = ["float_pt"]
-float_pt = []
-glam = ["dep:glam"]
-serde = ["dep:serde"]
+core = []
+glam = ["dep:glam", "core"]
+serde = ["dep:serde", "core"]
 
 [dependencies]
 serde = { version = "^1.0", default-features = false, features = ["derive"], optional = true }
