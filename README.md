@@ -134,12 +134,6 @@ These preconditions are checked by debug assertions.
 | `serde` | no | Enables serialization for supported geometry types and also enables `core` |
 | `glam` | no | Adds conversions for `glam::Vec2`, `DVec2`, and `IVec2` and also enables `core` |
 
-Example with optional integration:
-
-```toml
-[dependencies]
-i_float = { version = "4.0", features = ["serde", "glam"] }
-```
 
 ## License
 
