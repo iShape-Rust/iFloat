@@ -5,6 +5,24 @@ use core::{fmt, ops};
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+/// A two-dimensional integer point.
+///
+/// # Arithmetic range
+///
+/// Point differences use [`IntVector`] and therefore widen each coordinate to
+/// [`IntNumber::Wide`]. Products of those components are still evaluated in
+/// the same wide type. A conservative common precondition for `dot_product`,
+/// `cross_product`, `sqr_length`, `sqr_distance`, and operations on vectors
+/// obtained by subtracting points is:
+///
+/// ```text
+/// -2^(T::BITS - 2) < coordinate < 2^(T::BITS - 2)
+/// ```
+///
+/// This guarantees enough headroom for a point difference and for the sum or
+/// difference of two products. Arithmetic is unchecked beyond Rust's normal
+/// debug overflow checks. Callers may use a wider range only when they prove
+/// that the intermediate values used by their particular algorithm still fit.
 pub struct IntPoint<T: IntNumber = i32> {
     pub x: T,
     pub y: T,

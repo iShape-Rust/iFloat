@@ -24,6 +24,14 @@ pub enum FloatPointAdapterRangeError {
 }
 
 #[derive(Clone)]
+/// Maps a bounded floating-point coordinate space onto an integer grid.
+///
+/// The adapter controls converted coordinate magnitude, but it cannot prove
+/// that every expression in a downstream integer algorithm is safe. For a
+/// conservative general-purpose budget covering point differences, dot and
+/// cross products, and squared lengths, use [`Self::with_coordinate_bits`]
+/// with `coordinate_bits <= I::BITS - 3`. A larger value is appropriate only
+/// when the downstream algorithm has a stronger range analysis.
 pub struct FloatPointAdapter<P: FloatPointCompatible, I: IntNumber> {
     dir_scale: P::Scalar,
     inv_scale: P::Scalar,
@@ -35,6 +43,11 @@ pub struct FloatPointAdapter<P: FloatPointCompatible, I: IntNumber> {
 impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
     const SCALE_SAFETY_BITS: i32 = 3;
 
+    /// Creates an adapter and automatically selects a power-of-two scale while
+    /// reserving internal coordinate safety bits.
+    ///
+    /// Algorithms with a precise bit budget should prefer
+    /// [`Self::with_coordinate_bits`].
     #[inline]
     pub fn new(rect: FloatRect<P::Scalar>) -> Self {
         let a = rect.width() * P::Scalar::HALF;
@@ -79,7 +92,10 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
     /// `2^coordinate_bits` for every point inside `rect`.
     ///
     /// The selected scale is a power of two. `coordinate_bits` may not exceed
-    /// the highest non-sign bit index in `I`.
+    /// the highest non-sign bit index in `I`. This bounds converted coordinate
+    /// magnitude but does not independently guarantee that every downstream
+    /// product fits. `I::BITS - 3` is a conservative budget for the general
+    /// point and vector operations provided by this crate.
     #[inline]
     pub fn with_coordinate_bits(rect: FloatRect<P::Scalar>, coordinate_bits: u32) -> Self {
         assert!(coordinate_bits <= I::BITS - 2);

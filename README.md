@@ -43,11 +43,34 @@ assert_eq!(Triangle::area_two(a, b, c), 100_i64);
 assert!(!Triangle::is_clockwise(a, b, c));
 ```
 
+### Coordinate range
+
 Integer geometry intentionally uses a coordinate range narrower than the full
-range of the underlying integer. Although intermediate values are widened,
-dot products, cross products, and squared lengths still require enough headroom
-for their products. Floating-point input should normally be mapped with
-`FloatPointAdapter`, which reserves coordinate safety bits automatically.
+range of the underlying integer. Although point differences are widened, dot
+products, cross products, and squared lengths multiply wide values without
+widening them again.
+
+A conservative common bound for all point and vector operations is:
+
+```text
+-2^(I::BITS - 2) < coordinate < 2^(I::BITS - 2)
+```
+
+For example, `i32` coordinates should stay strictly between
+`-1_073_741_824` and `1_073_741_824`. This leaves enough headroom for the
+difference of two points and for the sum or difference of two products in
+`I::Wide`. Operations use normal integer arithmetic and do not perform runtime
+range checks.
+
+This bound is deliberately universal and conservative. An algorithm may use a
+wider range when it proves that its particular intermediate expressions still
+fit. Conversely, an `IntVector` constructed directly from arbitrary wide values
+is not covered by the point-coordinate bound.
+
+Floating-point input should normally be mapped with `FloatPointAdapter`. For an
+explicit general-purpose safety margin, use `with_coordinate_bits` with at most
+`I::BITS - 3`; algorithms with stronger range analysis may select a larger bit
+budget.
 
 ## Floating-point adapter
 
@@ -72,8 +95,10 @@ assert!((restored[1] - source[1]).abs() <= tolerance);
 ```
 
 Use `with_coordinate_bits` when an algorithm has an explicit coordinate-bit
-budget. Use `try_with_scale` or `try_with_scale_and_coordinate_bits` when a
-caller supplies the scale and invalid or unsafe scales must be rejected.
+budget. The value controls only the converted coordinate magnitude; it does not
+prove that every later arithmetic expression is safe. Use `try_with_scale` or
+`try_with_scale_and_coordinate_bits` when a caller supplies the scale and
+invalid or unsafe scales must be rejected.
 
 ## Fixed-scale ratios
 

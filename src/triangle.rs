@@ -3,6 +3,12 @@ use crate::int::number::wide_int::WideIntNumber;
 use crate::int::point::IntPoint;
 use core::cmp::Ordering;
 
+/// Integer triangle predicates.
+///
+/// These predicates compute cross products in [`IntNumber::Wide`] and assume
+/// that the result fits. The conservative point-coordinate range documented on
+/// [`IntPoint`] is sufficient for these operations. Inputs outside that range
+/// require algorithm-specific overflow analysis by the caller.
 pub struct Triangle;
 
 impl Triangle {
