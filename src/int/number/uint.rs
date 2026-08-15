@@ -36,6 +36,8 @@ pub trait UIntNumber:
     fn wrapping_sub(self, rhs: Self) -> Self;
     fn leading_zeros(self) -> u32;
     fn ilog2(self) -> u32;
+    fn isqrt(self) -> Self;
+    fn to_usize(self) -> usize;
     fn to_f64(self) -> f64;
 }
 
@@ -72,6 +74,15 @@ impl UIntNumber for u32 {
     #[inline(always)]
     fn ilog2(self) -> u32 {
         self.ilog2()
+    }
+
+    #[inline(always)]
+    fn isqrt(self) -> Self {
+        self.isqrt()
+    }
+    #[inline(always)]
+    fn to_usize(self) -> usize {
+        self as usize
     }
 
     #[inline(always)]
@@ -117,6 +128,15 @@ impl UIntNumber for u64 {
     }
 
     #[inline(always)]
+    fn isqrt(self) -> Self {
+        self.isqrt()
+    }
+    #[inline(always)]
+    fn to_usize(self) -> usize {
+        self as usize
+    }
+
+    #[inline(always)]
     fn to_f64(self) -> f64 {
         self as f64
     }
@@ -155,6 +175,15 @@ impl UIntNumber for u128 {
     #[inline(always)]
     fn ilog2(self) -> u32 {
         self.ilog2()
+    }
+
+    #[inline(always)]
+    fn isqrt(self) -> Self {
+        self.isqrt()
+    }
+    #[inline(always)]
+    fn to_usize(self) -> usize {
+        self as usize
     }
 
     #[inline(always)]
