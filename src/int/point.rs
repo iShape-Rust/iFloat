@@ -1,4 +1,5 @@
 use crate::int::number::int::IntNumber;
+use crate::int::number::wide_int::WideIntNumber;
 use crate::int::vector::IntVector;
 use core::cmp::Ordering;
 use core::{fmt, ops};
@@ -56,14 +57,16 @@ impl<T: IntNumber> IntPoint<T> {
     }
 
     #[inline(always)]
-    pub fn sqr_length(self) -> T::Wide {
+    pub fn sqr_length(self) -> T::WideUInt {
         let x = self.x.to_wide();
         let y = self.y.to_wide();
-        x * x + y * y
+        let xx = x * x;
+        let yy = y * y;
+        xx.to_uint() + yy.to_uint()
     }
 
     #[inline(always)]
-    pub fn sqr_distance(self, other: Self) -> T::Wide {
+    pub fn sqr_distance(self, other: Self) -> T::WideUInt {
         (self - other).sqr_length()
     }
 }

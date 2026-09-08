@@ -1,4 +1,5 @@
 use crate::int::number::int::IntNumber;
+use crate::int::number::wide_int::WideIntNumber;
 use core::fmt;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -39,10 +40,12 @@ impl<T: IntNumber> IntVector<T> {
     }
 
     #[inline(always)]
-    pub fn sqr_length(self) -> T::Wide {
+    pub fn sqr_length(self) -> T::WideUInt {
         let x = self.x;
         let y = self.y;
-        x * x + y * y
+        let xx = x * x;
+        let yy = y * y;
+        xx.to_uint() + yy.to_uint()
     }
 }
 impl<T: IntNumber> fmt::Display for IntVector<T> {
