@@ -358,8 +358,9 @@ impl<P: FloatPointCompatible, I: IntNumber> FloatPointAdapter<P, I> {
     #[inline(always)]
     pub fn round_sqr_len_to_int(&self, value: P::Scalar) -> I::Wide {
         let scale = self.dir_scale;
-        let sqr_scale = scale * scale;
-        I::Wide::from_rounded_float(sqr_scale * value)
+        // Multiply the area first: scale * scale can overflow even when
+        // the scaled area fits, especially with f32 and the i64 engine.
+        I::Wide::from_rounded_float((value * scale) * scale)
     }
 
     #[inline(always)]
@@ -392,6 +393,28 @@ mod tests {
     use crate::float::point::FloatPoint;
     use crate::float::rect::FloatRect;
     use crate::int::point::IntPoint;
+
+    #[test]
+    fn round_sqr_len_to_int_avoids_intermediate_overflow() {
+        let points = [[0.0_f32, 0.0], [0.01, 0.01]];
+        let adapter = FloatPointAdapter::<[f32; 2], i64>::with_iter(points.iter());
+        let scale = adapter.dir_scale();
+        assert!(scale.is_finite());
+        assert!((scale * scale).is_infinite());
+
+        let value = 1e-6_f32;
+        let wide_scale = f64::from(scale);
+        let expected = (wide_scale * f64::from(value) * wide_scale) as i128;
+        assert!(expected > 0 && expected < i128::MAX);
+        assert_eq!(adapter.round_sqr_len_to_int(value), expected);
+        assert_eq!(adapter.round_sqr_len_to_int(0.0), 0);
+
+        // Round the final area, rather than a length that is then squared.
+        for (area, expected) in [(1.5_f64, 2_i128), (2.5, 3)] {
+            let value = (area / wide_scale / wide_scale) as f32;
+            assert_eq!(adapter.round_sqr_len_to_int(value), expected);
+        }
+    }
 
     #[test]
     fn test_0() {
