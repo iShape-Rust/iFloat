@@ -72,6 +72,31 @@ explicit general-purpose safety margin, use `with_coordinate_bits` with at most
 `I::BITS - 3`; algorithms with stronger range analysis may select a larger bit
 budget.
 
+### Fast normalization
+
+`IntVector::fast_normalize()` returns an approximate `UnitIntVector<T>`, or
+`None` for a zero vector. It favors speed over precision: about 6, 14, or 30 bits
+of direction precision for `i16`, `i32`, or `i64`, respectively.
+The length is at most one. Normalization uses `sqr_length()` under the same
+arithmetic-range contract as other vector operations on point differences.
+It shifts the squared length to retain fractional precision in the reciprocal,
+then applies that reciprocal to the original components.
+
+```rust
+use i_float::int::vector::IntVector;
+
+let direction = IntVector::<i32>::new(3, 4).fast_normalize().unwrap();
+let offset = direction * 10;
+assert_eq!(offset, IntVector::<i32>::new(6, 8));
+assert!(IntVector::<i32>::new(0, 0).fast_normalize().is_none());
+```
+
+`UnitIntVector::x()` and `y()` return stored integers with scale `2^14`, `2^30`,
+or `2^62` for `i16`, `i32`, or `i64`, respectively. Multiplication by a scalar
+of type `T` (or `.scale(scalar)`) returns an `IntVector<T>`, rounding to the
+nearest integer with midpoint values away from zero. Approximation error in
+the direction grows with the magnitude of the scalar.
+
 ## Floating-point adapter
 
 `FloatPointAdapter` maps a bounded floating-point coordinate space onto an

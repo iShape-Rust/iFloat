@@ -20,3 +20,8 @@ serde = ["dep:serde", "core"]
 serde = { version = "^1.0", default-features = false, features = ["derive"], optional = true }
 glam = { optional = true, version = ">=0.27" }
 libm = "^0.2"
+
+[[bench]]
+name = "unit_vector_normalization"
+harness = false
+required-features = ["core"]
