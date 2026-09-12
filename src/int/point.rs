@@ -20,6 +20,8 @@ use core::{fmt, ops};
 /// -2^(T::BITS - 2) < coordinate < 2^(T::BITS - 2)
 /// ```
 ///
+/// Use [`Self::is_in_safe_range`] to check this precondition.
+///
 /// This guarantees enough headroom for a point difference and for the sum or
 /// difference of two products. Arithmetic is unchecked beyond Rust's normal
 /// debug overflow checks. Callers may use a wider range only when they prove
@@ -39,6 +41,17 @@ impl<T: IntNumber> IntPoint<T> {
     #[inline(always)]
     pub fn new(x: T, y: T) -> Self {
         Self { x, y }
+    }
+
+    /// Returns whether both coordinates are in the conservative arithmetic range.
+    ///
+    /// Each coordinate must be strictly between `-2^(T::BITS - 2)` and
+    /// `2^(T::BITS - 2)`. See the type's arithmetic range documentation.
+    #[inline(always)]
+    pub fn is_in_safe_range(&self) -> bool {
+        let limit = T::ONE << (T::BITS - 2);
+        let min = -limit;
+        self.x > min && self.x < limit && self.y > min && self.y < limit
     }
 
     #[inline(always)]
@@ -155,7 +168,39 @@ macro_rules! int_pnt {
 
 #[cfg(test)]
 mod tests {
+    use crate::int::number::int::IntNumber;
     use crate::int::point::IntPoint;
+
+    fn assert_safe_range<T: IntNumber>(limit: T) {
+        assert!(IntPoint::<T>::ZERO.is_in_safe_range());
+        assert!(!IntPoint::<T>::EMPTY.is_in_safe_range());
+
+        for x in [-limit + T::ONE, T::ZERO, limit - T::ONE] {
+            for y in [-limit + T::ONE, T::ZERO, limit - T::ONE] {
+                assert!(IntPoint::new(x, y).is_in_safe_range());
+            }
+        }
+
+        for value in [T::MIN, -limit - T::ONE, -limit, limit, limit + T::ONE, T::MAX] {
+            assert!(!IntPoint::new(value, T::ZERO).is_in_safe_range());
+            assert!(!IntPoint::new(T::ZERO, value).is_in_safe_range());
+        }
+    }
+
+    #[test]
+    fn test_safe_range_i16() {
+        assert_safe_range::<i16>(16_384);
+    }
+
+    #[test]
+    fn test_safe_range_i32() {
+        assert_safe_range::<i32>(1_073_741_824);
+    }
+
+    #[test]
+    fn test_safe_range_i64() {
+        assert_safe_range::<i64>(4_611_686_018_427_387_904);
+    }
 
     #[test]
     fn test_0() {

@@ -11,6 +11,18 @@ pub struct IntRect<T: IntNumber = i32> {
 }
 
 impl<T: IntNumber> IntRect<T> {
+    /// Returns whether all four bounds are in the conservative arithmetic range.
+    ///
+    /// Each bound must be strictly between `-2^(T::BITS - 2)` and
+    /// `2^(T::BITS - 2)`, as in [`IntPoint::is_in_safe_range`].
+    /// This checks coordinate range only, not whether each minimum is at most
+    /// its corresponding maximum.
+    #[inline(always)]
+    pub fn is_in_safe_range(&self) -> bool {
+        IntPoint::new(self.min_x, self.min_y).is_in_safe_range()
+            && IntPoint::new(self.max_x, self.max_y).is_in_safe_range()
+    }
+
     #[inline(always)]
     pub fn width(&self) -> T {
         self.max_x - self.min_x
@@ -183,8 +195,42 @@ impl<I: IntNumber> From<[IntPoint<I>; 2]> for IntRect<I> {
 
 #[cfg(test)]
 mod tests {
+    use crate::int::number::int::IntNumber;
     use crate::int::point::IntPoint;
     use crate::int::rect::IntRect;
+
+    fn assert_safe_range<T: IntNumber>(limit: T) {
+        let min = -limit + T::ONE;
+        let max = limit - T::ONE;
+        assert!(IntRect::new(min, max, min, max).is_in_safe_range());
+        assert!(IntRect::new(max, min, max, min).is_in_safe_range());
+
+        for value in [min, T::ZERO, max] {
+            assert!(IntRect::with_point(IntPoint::new(value, value)).is_in_safe_range());
+        }
+
+        for value in [T::MIN, -limit - T::ONE, -limit, limit, limit + T::ONE, T::MAX] {
+            assert!(!IntRect::new(value, max, min, max).is_in_safe_range());
+            assert!(!IntRect::new(min, value, min, max).is_in_safe_range());
+            assert!(!IntRect::new(min, max, value, max).is_in_safe_range());
+            assert!(!IntRect::new(min, max, min, value).is_in_safe_range());
+        }
+    }
+
+    #[test]
+    fn test_safe_range_i16() {
+        assert_safe_range::<i16>(16_384);
+    }
+
+    #[test]
+    fn test_safe_range_i32() {
+        assert_safe_range::<i32>(1_073_741_824);
+    }
+
+    #[test]
+    fn test_safe_range_i64() {
+        assert_safe_range::<i64>(4_611_686_018_427_387_904);
+    }
 
     #[test]
     fn test_0() {
