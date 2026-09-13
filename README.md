@@ -151,6 +151,20 @@ stored value between zero and `DENOMINATOR`, `from_float` expects a finite value
 between zero and one, and `from_int` expects `0 <= numerator <= denominator`.
 These preconditions are checked by debug assertions.
 
+## Integer rotations
+
+`int::angle::{Angle, Rotation}` provides integer CORDIC angle measurement and
+reusable rotation matrices for `UnitIntVector`. Arc subdivision and storage stay
+in the consumer. See the [API, accuracy results, and reproducible arc benchmark](docs/cordic.md).
+`Rotation::<i32>::with_precision(angle, 4)` selects fewer iterations with an angle/16
+error budget (3 gives angle/8). `Rotation<I>` stores coefficients in `I`, sharing
+the vector scale (Q14/Q30/Q62); i64 retains Q30 kernel precision. `rotation.angle()`
+reports the achieved step for calculating counts and remainders.
+For runtime iteration/precision controls, run
+`cargo run --release --example cordic_precision -- --sweep`;
+or use `--relative 16 --step 20` to select rotation iterations from a relative
+angular tolerance. See the [precision experiment](docs/cordic-precision.md).
+
 ## Features
 
 | Feature | Default | Description |

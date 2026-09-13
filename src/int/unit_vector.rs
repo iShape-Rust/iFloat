@@ -14,6 +14,9 @@ use core::ops::Mul;
 /// Normalization favors speed over precision: it keeps about 6, 14, or 30 bits
 /// of direction precision for `i16`, `i32`, or `i64`, respectively.
 /// The storage scale does not imply that all stored bits are accurate.
+/// [`Rotation::apply`](crate::int::angle::Rotation::apply) preserves the upper
+/// length bound, but repeated rotations accumulate contraction and angular
+/// error; the normalization precision above is not a bound on that accumulation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct UnitIntVector<T: IntNumber = i32> {
     x: T,
@@ -21,6 +24,11 @@ pub struct UnitIntVector<T: IntNumber = i32> {
 }
 
 impl<T: IntNumber> UnitIntVector<T> {
+    // Only for arithmetic that proves the resulting norm is at most one.
+    #[inline(always)]
+    pub(crate) fn from_components(x: T, y: T) -> Self {
+        Self { x, y }
+    }
     /// The stored integer value representing one: 2^14, 2^30, or 2^62.
     pub const DENOMINATOR: T::Wide = FixedScale::<T>::DENOMINATOR;
 
