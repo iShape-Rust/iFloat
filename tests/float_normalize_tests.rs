@@ -14,15 +14,11 @@ macro_rules! check_normalize {
                 }
                 let unit = result.expect("every nonzero wide vector can be normalized");
                 let (a, b) = (unit.x() as $wide, unit.y() as $wide);
-                assert!(a * a + b * b <= scale * scale);
                 assert!(a != 0 || b != 0);
-                if y == 0 {
-                    assert_eq!((a, b), (x.signum() * scale, 0));
-                } else if x == 0 {
-                    assert_eq!((a, b), (0, y.signum() * scale));
-                }
                 let length = (x as f64).hypot(y as f64);
                 let tolerance = 1.0 / scale as f64 + 8.0 * f64::EPSILON;
+                let norm = (a as f64 / scale as f64).hypot(b as f64 / scale as f64);
+                assert!((norm - 1.0).abs() <= 2.0 * tolerance);
                 assert!((a as f64 / scale as f64 - x as f64 / length).abs() <= tolerance);
                 assert!((b as f64 / scale as f64 - y as f64 / length).abs() <= tolerance);
                 if x != <$wide>::MIN && y != <$wide>::MIN {
@@ -63,3 +59,14 @@ macro_rules! check_normalize {
 check_normalize!(normalize_i16, i16, i32);
 check_normalize!(normalize_i32, i32, i64);
 check_normalize!(normalize_i64, i64, i128);
+
+#[test]
+fn near_axis_roundoff_does_not_reject_nonzero_vector() {
+    let unit = UnitIntVector::<i64>::normalize_with_float(IntVector::new(1 << 30, 1)).unwrap();
+    let scale = UnitIntVector::<i64>::DENOMINATOR;
+    let (x, y) = (unit.x() as i128, unit.y() as i128);
+    // f64 loses the small squared component. A slight overshoot is intentional.
+    assert!(x * x + y * y > scale * scale);
+    assert!((x as f64 / scale as f64 - 1.0).abs() <= f64::EPSILON);
+    assert!(y > 0);
+}

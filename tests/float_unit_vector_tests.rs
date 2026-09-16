@@ -14,6 +14,7 @@ macro_rules! float_conversion {
                 (0.5, 0.5),
             ] {
                 let unit = UnitIntVector::<$int>::try_from_float(x, y).unwrap();
+                assert_eq!(unit, UnitIntVector::<$int>::from_float_unchecked(x, y));
                 let (a, b) = (unit.x() as $wide, unit.y() as $wide);
                 assert!(a * a + b * b <= s * s);
                 assert!((a as f64 / s as f64 - x).abs() <= 1.0 / s as f64);
@@ -26,6 +27,10 @@ macro_rules! float_conversion {
                 let (sin, cos) = libm::sincos(angle);
                 let inward = 1.0 - 8.0 * f64::EPSILON;
                 let unit = UnitIntVector::<$int>::try_from_float(cos * inward, sin * inward).unwrap();
+                assert_eq!(
+                    unit,
+                    UnitIntVector::<$int>::from_float_unchecked(cos * inward, sin * inward)
+                );
                 let (a, b) = (unit.x() as $wide, unit.y() as $wide);
                 assert!(a * a + b * b <= s * s);
             }

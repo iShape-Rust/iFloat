@@ -109,13 +109,14 @@ impl<I: IntNumber> Rotation<I> {
     }
 
     /// Applies the matrix without CORDIC, square roots, or normalization.
-    /// Preserves the length-at-most-one invariant of `UnitIntVector`.
+    /// Does not increase the input length; an approximate float input may
+    /// remain slightly longer than one.
     #[inline]
     pub fn apply(self, vector: UnitIntVector<I>) -> UnitIntVector<I> {
         let (sin, cos) = (self.sin.to_wide(), self.cos.to_wide());
         let (x, y) = (vector.x().to_wide(), vector.y().to_wide());
         let scale = FixedScale::<I>::DENOMINATOR;
-        // Each product is at most scale^2; even their sum fits I::Wide.
+        // Products and sums fit I::Wide for approximately unit inputs.
         UnitIntVector::from_components(
             I::from_wide((cos * x - sin * y) / scale),
             I::from_wide((sin * x + cos * y) / scale),

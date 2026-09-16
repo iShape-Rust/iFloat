@@ -9,16 +9,17 @@ use core::ops::Mul;
 /// An approximate unit direction stored as fixed-scale integer components.
 ///
 /// Obtain one with [`IntVector::fast_normalize`] or [`Self::normalize_with_float`].
-/// The represented components are
-/// `x() / DENOMINATOR` and `y() / DENOMINATOR`, each in `[-1, 1]`. The length is
-/// approximately one and never exceeds it.
+/// The represented components are `x() / DENOMINATOR` and `y() / DENOMINATOR`.
+/// Floating-point construction is approximate: rounding may make the length
+/// slightly greater than one. Integer normalization via `fast_normalize` and
+/// checked conversion via [`Self::try_from_float`] keep the length at most one.
 ///
 /// Integer normalization via `fast_normalize` favors speed over precision:
 /// it keeps about 6, 14, or 30 bits
 /// of direction precision for `i16`, `i32`, or `i64`, respectively.
 /// The storage scale does not imply that all stored bits are accurate.
-/// [`Rotation::apply`](crate::int::angle::Rotation::apply) preserves the upper
-/// length bound, but repeated rotations accumulate contraction and angular
+/// [`Rotation::apply`](crate::int::angle::Rotation::apply) does not increase
+/// length, but repeated rotations accumulate contraction and angular
 /// error; the normalization precision above is not a bound on that accumulation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct UnitIntVector<T: IntNumber = i32> {
@@ -27,7 +28,7 @@ pub struct UnitIntVector<T: IntNumber = i32> {
 }
 
 impl<T: IntNumber> UnitIntVector<T> {
-    // Only for arithmetic that proves the resulting norm is at most one.
+    // The caller supplies an approximately unit or shorter nonzero vector.
     #[inline(always)]
     pub(crate) fn from_components(x: T, y: T) -> Self {
         Self { x, y }
@@ -47,23 +48,37 @@ impl<T: IntNumber> UnitIntVector<T> {
         if x.abs() > 1.0 || y.abs() > 1.0 {
             return None;
         }
-        let scale = Self::DENOMINATOR.to_f64();
-        let x = T::from_rounded_float(libm::trunc(x * scale));
-        let y = T::from_rounded_float(libm::trunc(y * scale));
-        let (wx, wy) = (x.to_wide(), y.to_wide());
+        let unit = Self::from_float_unchecked(x, y);
+        let (wx, wy) = (unit.x.to_wide(), unit.y.to_wide());
         let squared = wx * wx + wy * wy;
         if squared == T::Wide::ZERO || squared > Self::DENOMINATOR * Self::DENOMINATOR {
             return None;
         }
-        Some(Self { x, y })
+        Some(unit)
+    }
+
+    /// Converts already prepared floating-point components without validation
+    /// or normalization. Components are scaled and truncated toward zero.
+    ///
+    /// The caller supplies finite components of an approximately unit or shorter
+    /// vector that remains nonzero after quantization. Small floating-point
+    /// overshoots above unit length are accepted. Use [`Self::try_from_float`]
+    /// when the fixed-scale length must be checked against one.
+    #[inline]
+    pub fn from_float_unchecked<F: FloatNumber>(x: F, y: F) -> Self {
+        let scale = Self::DENOMINATOR.to_f64();
+        Self {
+            x: T::from_float(x.to_f64() * scale),
+            y: T::from_float(y.to_f64() * scale),
+        }
     }
 
     /// Normalizes an integer vector using f64 arithmetic, returning `None` only
     /// for the zero vector. Supports the full built-in wide component range,
     /// including i128::MIN; no integer products of the input are formed.
     ///
-    /// Axis directions are exact. Other directions are contracted slightly
-    /// before conversion so their fixed-scale length never exceeds one.
+    /// This is an approximate, unchecked normalization: rounding may make the
+    /// output length slightly greater than one, including for axis directions.
     /// Precision is limited by f64 arithmetic and the output component scale.
     /// When normalizing a point difference, subtract the integer points first
     /// to retain small differences between large coordinates.
@@ -74,16 +89,9 @@ impl<T: IntNumber> UnitIntVector<T> {
         }
         let x = vector.x.to_f64();
         let y = vector.y.to_f64();
-        if x == 0.0 {
-            return Self::try_from_float(0.0, y.signum());
-        }
-        if y == 0.0 {
-            return Self::try_from_float(x.signum(), 0.0);
-        }
         // Squaring and adding even two i128 components fits in f64.
-        let length = FloatNumber::sqrt(x * x + y * y);
-        let inward = 1.0 - 4.0 * f64::EPSILON;
-        Self::try_from_float(x / length * inward, y / length * inward)
+        let inv_length = 1.0 / FloatNumber::sqrt(x * x + y * y);
+        Some(Self::from_float_unchecked(x * inv_length, y * inv_length))
     }
 
     /// The stored integer value representing one: 2^14, 2^30, or 2^62.

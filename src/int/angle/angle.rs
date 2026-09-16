@@ -80,8 +80,9 @@ impl Angle {
     /// opposite rays return exactly `2^31`. A nonzero cross product is never
     /// rounded to an empty arc, even arbitrarily close to a full turn.
     /// Products fit in the associated wide type, including `i128` for `i64`:
-    /// each component is at most S = 2^(I::BITS-2), each product at most S²,
-    /// and sums/differences at most 2S². No products of cross/dot are formed.
+    /// components are approximately bounded by S = 2^(I::BITS-2), so products
+    /// and sums/differences fit with room for float rounding near unit length.
+    /// No products of cross/dot are formed.
     pub fn between<I: IntNumber>(from: UnitIntVector<I>, to: UnitIntVector<I>) -> Self {
         let (ax, ay) = (from.x().to_wide(), from.y().to_wide());
         let (bx, by) = (to.x().to_wide(), to.y().to_wide());
