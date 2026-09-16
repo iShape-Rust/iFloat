@@ -42,6 +42,8 @@ where
     fn sin_cos(self) -> (Self, Self);
     fn acos(self) -> Self;
     fn asin(self) -> Self;
+    /// Returns the signed angle in radians for the vector (x, self).
+    fn atan2(self, x: Self) -> Self;
     fn signum(self) -> Self;
     fn is_finite(self) -> bool;
     // Truncating casts.
@@ -146,6 +148,11 @@ impl FloatNumber for f32 {
     #[inline(always)]
     fn asin(self) -> Self {
         libm::asinf(self)
+    }
+
+    #[inline(always)]
+    fn atan2(self, x: Self) -> Self {
+        libm::atan2f(self, x)
     }
 
     #[inline(always)]
@@ -301,6 +308,11 @@ impl FloatNumber for f64 {
     #[inline(always)]
     fn asin(self) -> Self {
         libm::asin(self)
+    }
+
+    #[inline(always)]
+    fn atan2(self, x: Self) -> Self {
+        libm::atan2(self, x)
     }
 
     #[inline(always)]

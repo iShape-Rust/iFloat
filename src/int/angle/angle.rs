@@ -90,6 +90,20 @@ impl Angle {
         Self::atan2(cross, dot).unwrap_or(Self::from_bits(0))
     }
 
+    /// Floating-point alternative to [`Self::between`], using [`Self::atan2_with_float`].
+    /// Returns the counterclockwise sweep in `[0, one turn)`; swap the arguments
+    /// for the clockwise sweep. Equal rays return zero and opposite rays return
+    /// exactly half a turn. Cross/dot products are computed in wide integer
+    /// arithmetic before conversion, preserving the side of near-parallel turns.
+    #[inline]
+    pub fn between_with_float<I: IntNumber>(from: UnitIntVector<I>, to: UnitIntVector<I>) -> Self {
+        let (ax, ay) = (from.x().to_wide(), from.y().to_wide());
+        let (bx, by) = (to.x().to_wide(), to.y().to_wide());
+        let cross = ax * by - ay * bx;
+        let dot = ax * bx + ay * by;
+        Self::atan2_with_float(cross, dot).unwrap_or(Self::from_bits(0))
+    }
+
     /// Returns atan2(y, x) as a counterclockwise angle in [0, one turn).
     /// Every value of the built-in wide integer types is valid, including MIN.
     /// Returns None only for (0, 0); no normalization is required.
@@ -130,6 +144,31 @@ impl Angle {
         }))
     }
 
+    /// Floating-point alternative to [`Self::atan2`], with the same integer inputs
+    /// and binary-angle output. Uses f64 internally, including for i128 inputs.
+    /// Returns None only for (0, 0); axes are exact. For nonzero y, rounding
+    /// preserves the open upper/lower half-turn, including near zero and pi.
+    #[inline]
+    pub fn atan2_with_float<W: WideIntNumber>(y: W, x: W) -> Option<Self> {
+        if y == W::ZERO {
+            return if x == W::ZERO {
+                None
+            } else {
+                Some(Self(if x < W::ZERO { 1 << 31 } else { 0 }))
+            };
+        }
+        if x == W::ZERO {
+            return Some(Self(if y > W::ZERO { 1 << 30 } else { 3 << 30 }));
+        }
+        let radians = FloatNumber::atan2(y.to_f64().abs(), x.to_f64());
+        let magnitude = Self::from_radians(radians).bits().clamp(1, (1 << 31) - 1);
+        Some(Self(if y < W::ZERO {
+            magnitude.wrapping_neg()
+        } else {
+            magnitude
+        }))
+    }
+
     /// Integer value representing one in sin/cos results (Q30).
     pub const SIN_COS_SCALE: i32 = 1 << 30;
 
@@ -140,6 +179,38 @@ impl Angle {
     #[inline]
     pub fn sin_cos(self) -> (i32, i32) {
         cordic::sin_cos(self.0, cordic::ITERATIONS, cordic::COEFFICIENT_BITS)
+    }
+
+    /// Returns (sine, cosine) in Q30, using f64 trigonometry internally.
+    /// Like [`Self::sin_cos`], axes are exact and the coefficient pair has length
+    /// at most [`Self::SIN_COS_SCALE`]. Components are rounded to the nearest
+    /// integer, then contracted toward zero if needed to preserve that bound.
+    #[inline]
+    pub fn sin_cos_with_float(self) -> (i32, i32) {
+        let scale = Self::SIN_COS_SCALE;
+        match self.0 {
+            0 => return (0, scale),
+            0x4000_0000 => return (scale, 0),
+            0x8000_0000 => return (0, -scale),
+            0xc000_0000 => return (-scale, 0),
+            _ => {}
+        }
+        let radians = self.0 as f64 * (core::f64::consts::TAU / 4294967296.0);
+        let (sin, cos) = FloatNumber::sin_cos(radians);
+        let (mut sin, mut cos) = (
+            (sin * scale as f64).to_round_i32(),
+            (cos * scale as f64).to_round_i32(),
+        );
+        // Check the rounded norm exactly. Reducing the larger component removes
+        // the most excess squared length per integer unit of adjustment.
+        while sin as i64 * sin as i64 + cos as i64 * cos as i64 > scale as i64 * scale as i64 {
+            if sin.abs() >= cos.abs() {
+                sin -= sin.signum();
+            } else {
+                cos -= cos.signum();
+            }
+        }
+        (sin, cos)
     }
 
     /// Returns the Q30 sine. Use sin_cos when both components are needed.

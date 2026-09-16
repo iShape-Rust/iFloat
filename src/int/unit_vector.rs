@@ -1,3 +1,4 @@
+use crate::float::number::FloatNumber;
 use crate::int::number::fixed_scale::FixedScale;
 use crate::int::number::int::IntNumber;
 use crate::int::number::uint::UIntNumber;
@@ -7,11 +8,13 @@ use core::ops::Mul;
 
 /// An approximate unit direction stored as fixed-scale integer components.
 ///
-/// Obtain one with [`IntVector::fast_normalize`]. The represented components are
+/// Obtain one with [`IntVector::fast_normalize`] or [`Self::normalize_with_float`].
+/// The represented components are
 /// `x() / DENOMINATOR` and `y() / DENOMINATOR`, each in `[-1, 1]`. The length is
 /// approximately one and never exceeds it.
 ///
-/// Normalization favors speed over precision: it keeps about 6, 14, or 30 bits
+/// Integer normalization via `fast_normalize` favors speed over precision:
+/// it keeps about 6, 14, or 30 bits
 /// of direction precision for `i16`, `i32`, or `i64`, respectively.
 /// The storage scale does not imply that all stored bits are accurate.
 /// [`Rotation::apply`](crate::int::angle::Rotation::apply) preserves the upper
@@ -29,6 +32,60 @@ impl<T: IntNumber> UnitIntVector<T> {
     pub(crate) fn from_components(x: T, y: T) -> Self {
         Self { x, y }
     }
+    /// Converts floating-point components to the fixed-scale representation.
+    ///
+    /// Components are truncated toward zero. This does not normalize the input:
+    /// callers supplying a direction should normalize it first. Returns `None`
+    /// for non-finite components, components outside [-1, 1], a quantized zero
+    /// vector, or an integer representation whose squared length exceeds one.
+    /// Floating-point normalization/rotation may overshoot one slightly; callers
+    /// must account for that error before conversion. The final length check is
+    /// exact integer arithmetic, including for i64.
+    #[inline]
+    pub fn try_from_float<F: FloatNumber>(x: F, y: F) -> Option<Self> {
+        let (x, y) = (x.to_f64(), y.to_f64());
+        if x.abs() > 1.0 || y.abs() > 1.0 {
+            return None;
+        }
+        let scale = Self::DENOMINATOR.to_f64();
+        let x = T::from_rounded_float(libm::trunc(x * scale));
+        let y = T::from_rounded_float(libm::trunc(y * scale));
+        let (wx, wy) = (x.to_wide(), y.to_wide());
+        let squared = wx * wx + wy * wy;
+        if squared == T::Wide::ZERO || squared > Self::DENOMINATOR * Self::DENOMINATOR {
+            return None;
+        }
+        Some(Self { x, y })
+    }
+
+    /// Normalizes an integer vector using f64 arithmetic, returning `None` only
+    /// for the zero vector. Supports the full built-in wide component range,
+    /// including i128::MIN; no integer products of the input are formed.
+    ///
+    /// Axis directions are exact. Other directions are contracted slightly
+    /// before conversion so their fixed-scale length never exceeds one.
+    /// Precision is limited by f64 arithmetic and the output component scale.
+    /// When normalizing a point difference, subtract the integer points first
+    /// to retain small differences between large coordinates.
+    #[inline]
+    pub fn normalize_with_float(vector: IntVector<T>) -> Option<Self> {
+        if vector.x == T::Wide::ZERO && vector.y == T::Wide::ZERO {
+            return None;
+        }
+        let x = vector.x.to_f64();
+        let y = vector.y.to_f64();
+        if x == 0.0 {
+            return Self::try_from_float(0.0, y.signum());
+        }
+        if y == 0.0 {
+            return Self::try_from_float(x.signum(), 0.0);
+        }
+        // Squaring and adding even two i128 components fits in f64.
+        let length = FloatNumber::sqrt(x * x + y * y);
+        let inward = 1.0 - 4.0 * f64::EPSILON;
+        Self::try_from_float(x / length * inward, y / length * inward)
+    }
+
     /// The stored integer value representing one: 2^14, 2^30, or 2^62.
     pub const DENOMINATOR: T::Wide = FixedScale::<T>::DENOMINATOR;
 

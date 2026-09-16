@@ -504,3 +504,53 @@ fn achieved_angle_drives_approximate_arc_counts() {
         "approximate arcs using achieved angle: max {max_points} intermediate points; all points ordered, all gaps within maximum"
     );
 }
+
+#[test]
+fn float_between_preserves_exact_products_and_turn_side() {
+    fn check<I: IntNumber>() {
+        let axes = [
+            unit::<I>(1, 0),
+            unit::<I>(0, 1),
+            unit::<I>(-1, 0),
+            unit::<I>(0, -1),
+        ];
+        for i in 0..4 {
+            for j in 0..4 {
+                assert_eq!(
+                    Angle::between_with_float(axes[i], axes[j]).bits(),
+                    ((j as u32).wrapping_sub(i as u32)).wrapping_mul(1 << 30)
+                );
+            }
+        }
+        let n = UnitIntVector::<I>::DENOMINATOR >> 1;
+        let make = |x, y| UnitIntVector::<I>::from_components(I::from_wide(x), I::from_wide(y));
+        let a = make(n, n - I::Wide::ONE);
+        let b = make(n - I::Wide::ONE, n - I::Wide::TWO);
+        // The exact cross product is -1. Converting i64 components before
+        // multiplication would erase it and incorrectly produce an empty arc.
+        if I::BITS == 64 {
+            assert_eq!(
+                a.x().to_f64() * b.y().to_f64() - a.y().to_f64() * b.x().to_f64(),
+                0.0
+            );
+        }
+        assert!(Angle::between_with_float(a, b).bits() > 1 << 31);
+        assert!(Angle::between_with_float(b, a).bits() > 0);
+        assert!(Angle::between_with_float(b, a).bits() < 1 << 31);
+        assert_eq!(
+            Angle::between_with_float(a, b)
+                .bits()
+                .wrapping_add(Angle::between_with_float(b, a).bits()),
+            0
+        );
+        let opposite = make(-b.x().to_wide(), -b.y().to_wide());
+        assert!(Angle::between_with_float(a, opposite).bits() < 1 << 31);
+        assert!(Angle::between_with_float(opposite, a).bits() > 1 << 31);
+        let ray = make(n, n);
+        assert_eq!(Angle::between_with_float(ray, make(n >> 1, n >> 1)).bits(), 0);
+        assert_eq!(Angle::between_with_float(ray, make(-n, -n)).bits(), 1 << 31);
+    }
+    check::<i16>();
+    check::<i32>();
+    check::<i64>();
+}
