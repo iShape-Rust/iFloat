@@ -51,10 +51,15 @@ const ANGLE_SCALE: f64 = (1_u64 << 32) as f64;
 /// This example's error budget applies to fresh `i32`/`i64` normalized inputs,
 /// and at most 1030 steps. It does not apply to `i16` or already heavily
 /// contracted directions. Subdivision and its policy remain consumer code.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct Angle(u32);
 
 impl Angle {
+    pub const ZERO: Self = Self(0);
+    pub const QUARTER_TURN: Self = Self(1 << 30);
+    pub const HALF_TURN: Self = Self(1 << 31);
+    pub const THREE_QUARTER_TURN: Self = Self(3 << 30);
+
     /// Conservative absolute error of [`Self::between`], in binary angle units
     /// (about 4.7e-8 radians), relative to the *stored* input directions. Also applies to [`Self::atan2`].
     /// Input normalization error is additional. Exact axes have zero error.
@@ -92,6 +97,33 @@ impl Angle {
     #[inline]
     pub const fn bits(self) -> u32 {
         self.0
+    }
+
+    /// Returns the angle in radians in `[0, 2π)` before rounding to `T`.
+    /// For `f32`, values near the upper boundary may round to `2π`.
+    #[inline(always)]
+    pub fn to_radians<T: FloatNumber>(self) -> T {
+        T::from_float(self.0 as f64 * (TAU / ANGLE_SCALE))
+    }
+
+    /// Returns the equivalent angle in radians in `[-π, π)` before rounding to `T`.
+    /// For `f32`, values near the upper boundary may round to `π`.
+    #[inline(always)]
+    pub fn to_signed_radians<T: FloatNumber>(self) -> T {
+        T::from_float(self.0 as i32 as f64 * (TAU / ANGLE_SCALE))
+    }
+
+    /// Adds a signed angle delta. Overflow performs the required full-turn wrap.
+    #[inline(always)]
+    pub const fn wrapping_add(self, delta: AngleDelta) -> Self {
+        Self(self.0.wrapping_add(delta.0 as u32))
+    }
+
+    /// Returns the shortest signed delta from `self` to `target`.
+    /// Exactly opposite angles yield a negative half-turn.
+    #[inline(always)]
+    pub const fn delta_to(self, target: Self) -> AngleDelta {
+        AngleDelta(target.0.wrapping_sub(self.0) as i32)
     }
 
     /// Counterclockwise sweep from `from` to `to`, in `[0, one turn)`.
@@ -245,5 +277,43 @@ impl Angle {
     #[inline]
     pub fn cos(self) -> i32 {
         self.sin_cos().1
+    }
+}
+
+impl core::ops::Add for Angle {
+    type Output = Angle;
+
+    /// Adds angles modulo one full turn.
+    #[inline(always)]
+    fn add(self, rhs: Self) -> Self::Output {
+        Self::from_bits(self.bits().wrapping_add(rhs.bits()))
+    }
+}
+
+/// Signed binary angle difference in the range of one half-turn.
+///
+/// The raw range maps to `[-π, π)`, with the same approximately `1.46e-9 rad`
+/// resolution as [`Angle`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub struct AngleDelta(i32);
+
+impl AngleDelta {
+    pub const ZERO: Self = Self(0);
+
+    #[inline(always)]
+    pub const fn from_raw(raw: i32) -> Self {
+        Self(raw)
+    }
+
+    #[inline(always)]
+    pub const fn raw(self) -> i32 {
+        self.0
+    }
+
+    /// Returns the signed delta in radians in `[-π, π)` before rounding to `T`.
+    /// For `f32`, values near the upper boundary may round to `π`.
+    #[inline(always)]
+    pub fn to_radians<T: FloatNumber>(self) -> T {
+        T::from_float(self.0 as f64 * (TAU / ANGLE_SCALE))
     }
 }

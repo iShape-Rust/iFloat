@@ -1,7 +1,54 @@
 use i_float::float::number::FloatNumber;
-use i_float::int::angle::Angle;
+use i_float::int::angle::{Angle, AngleDelta};
 use i_float::int::number::wide_int::WideIntNumber;
 use std::f64::consts::TAU;
+
+#[test]
+fn angle_radians_support_both_float_types() {
+    for (angle, unsigned, signed) in [
+        (Angle::ZERO, 0.0, 0.0),
+        (Angle::QUARTER_TURN, TAU / 4.0, TAU / 4.0),
+        (Angle::HALF_TURN, TAU / 2.0, -TAU / 2.0),
+        (Angle::THREE_QUARTER_TURN, 3.0 * TAU / 4.0, -TAU / 4.0),
+    ] {
+        assert_eq!(angle.to_radians::<f64>(), unsigned);
+        assert_eq!(angle.to_signed_radians::<f64>(), signed);
+        assert_eq!(angle.to_radians::<f32>(), unsigned as f32);
+        assert_eq!(angle.to_signed_radians::<f32>(), signed as f32);
+        let delta = Angle::ZERO.delta_to(angle);
+        assert_eq!(delta.to_radians::<f64>(), signed);
+        assert_eq!(delta.to_radians::<f32>(), signed as f32);
+    }
+    let last = Angle::from_bits(u32::MAX);
+    assert!(last.to_radians::<f64>() < TAU);
+    assert!(last.to_signed_radians::<f64>() < 0.0);
+    assert_eq!(last.to_radians::<f32>(), TAU as f32);
+    let before_half = AngleDelta::from_raw(i32::MAX);
+    assert!(before_half.to_radians::<f64>() < TAU / 2.0);
+    assert_eq!(before_half.to_radians::<f32>(), (TAU / 2.0) as f32);
+}
+
+#[test]
+fn angle_arithmetic_wraps_and_chooses_shortest_delta() {
+    const BACKWARD: AngleDelta = Angle::ZERO.delta_to(Angle::THREE_QUARTER_TURN);
+    const WRAPPED: Angle = Angle::ZERO.wrapping_add(BACKWARD);
+    assert_eq!(BACKWARD.raw(), -(1 << 30));
+    assert_eq!(WRAPPED, Angle::THREE_QUARTER_TURN);
+    assert_eq!(Angle::default(), Angle::ZERO);
+    assert_eq!(AngleDelta::default(), AngleDelta::ZERO);
+    assert_eq!(Angle::HALF_TURN + Angle::HALF_TURN, Angle::ZERO);
+    assert_eq!(Angle::THREE_QUARTER_TURN + Angle::HALF_TURN, Angle::QUARTER_TURN);
+    assert_eq!(Angle::ZERO.delta_to(Angle::HALF_TURN).raw(), i32::MIN);
+    assert_eq!(Angle::HALF_TURN.delta_to(Angle::ZERO).raw(), i32::MIN);
+    assert_eq!(Angle::from_bits(u32::MAX).delta_to(Angle::ZERO).raw(), 1);
+    assert_eq!(Angle::ZERO.delta_to(Angle::from_bits(u32::MAX)).raw(), -1);
+    let boundaries = [0, 1, (1 << 31) - 1, 1 << 31, (1 << 31) + 1, u32::MAX];
+    for from in boundaries.map(Angle::from_bits) {
+        for target in boundaries.map(Angle::from_bits) {
+            assert_eq!(from.wrapping_add(from.delta_to(target)), target);
+        }
+    }
+}
 
 #[test]
 fn radians_reject_non_finite_inputs() {

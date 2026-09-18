@@ -9,7 +9,7 @@ mod angle;
 mod cordic;
 mod rotation;
 
-pub use angle::Angle;
+pub use angle::{Angle, AngleDelta};
 pub use rotation::Rotation;
 
 #[cfg(test)]
