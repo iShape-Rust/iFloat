@@ -2,6 +2,9 @@ use super::cordic;
 use crate::float::number::FloatNumber;
 use crate::int::number::{int::IntNumber, uint::UIntNumber, wide_int::WideIntNumber};
 use crate::int::unit_vector::UnitIntVector;
+use core::f64::consts::TAU;
+
+const ANGLE_SCALE: f64 = (1_u64 << 32) as f64;
 
 /// Counterclockwise binary angle: one turn is `2^32` units.
 ///
@@ -62,10 +65,28 @@ impl Angle {
         Self(bits)
     }
 
-    /// Converts radians to binary angle units, rounding to the nearest integer.
+    /// Converts radians modulo one turn to binary angle units.
+    /// Rounds to the nearest integer, with ties away from zero.
+    /// Returns `None` for NaN or infinity.
     #[inline]
-    pub fn from_radians<T: FloatNumber>(radians: T) -> Self {
-        Self::from_bits((radians.to_f64() / core::f64::consts::TAU * 4294967296.0).to_round_i64() as u32)
+    pub fn from_radians<T: FloatNumber>(radians: T) -> Option<Self> {
+        let radians = radians.to_f64();
+        if !radians.is_finite() {
+            return None;
+        }
+
+        let scaled = (radians % TAU) * (ANGLE_SCALE / TAU);
+        let truncated = scaled as i64;
+        let fraction = scaled - truncated as f64;
+        let rounded = if fraction >= 0.5 {
+            truncated + 1
+        } else if fraction <= -0.5 {
+            truncated - 1
+        } else {
+            truncated
+        };
+
+        Some(Self(rounded as u32))
     }
 
     #[inline]
@@ -162,7 +183,7 @@ impl Angle {
             return Some(Self(if y > W::ZERO { 1 << 30 } else { 3 << 30 }));
         }
         let radians = FloatNumber::atan2(y.to_f64().abs(), x.to_f64());
-        let magnitude = Self::from_radians(radians).bits().clamp(1, (1 << 31) - 1);
+        let magnitude = Self::from_radians(radians)?.bits().clamp(1, (1 << 31) - 1);
         Some(Self(if y < W::ZERO {
             magnitude.wrapping_neg()
         } else {

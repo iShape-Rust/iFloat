@@ -4,6 +4,54 @@ use i_float::int::number::wide_int::WideIntNumber;
 use std::f64::consts::TAU;
 
 #[test]
+fn radians_reject_non_finite_inputs() {
+    for radians in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+        assert_eq!(Angle::from_radians(radians), None);
+        assert_eq!(Angle::from_radians(radians as f32), None);
+    }
+    assert_eq!(Angle::from_radians(0.0f32).unwrap().bits(), 0);
+    assert_eq!(Angle::from_radians(1.0f32), Angle::from_radians(1.0f64));
+}
+
+#[test]
+fn radians_wrap_turns_and_preserve_axes() {
+    for (radians, bits) in [
+        (0.0, 0),
+        (-0.0, 0),
+        (TAU, 0),
+        (-TAU, 0),
+        (TAU / 4.0, 1 << 30),
+        (-TAU / 4.0, 3 << 30),
+        (TAU / 2.0, 1 << 31),
+        (-TAU / 2.0, 1 << 31),
+        (3.0 * TAU / 4.0, 3 << 30),
+        (5.0 * TAU / 4.0, 1 << 30),
+        (-5.0 * TAU / 4.0, 3 << 30),
+    ] {
+        assert_eq!(Angle::from_radians(radians).unwrap().bits(), bits);
+    }
+}
+
+#[test]
+fn radians_round_half_units_away_from_zero() {
+    let half_unit = TAU / (1_u64 << 33) as f64;
+    let below_half = f64::from_bits(half_unit.to_bits() - 1);
+    let above_half = f64::from_bits(half_unit.to_bits() + 1);
+    for (radians, bits) in [
+        (below_half, 0),
+        (-below_half, 0),
+        (half_unit, 1),
+        (-half_unit, u32::MAX),
+        (above_half, 1),
+        (-above_half, u32::MAX),
+        (TAU - half_unit / 2.0, 0),
+        (-TAU + half_unit / 2.0, 0),
+    ] {
+        assert_eq!(Angle::from_radians(radians).unwrap().bits(), bits);
+    }
+}
+
+#[test]
 fn float_coefficients_preserve_axes_norm_and_accuracy() {
     let scale = Angle::SIN_COS_SCALE;
     for (bits, expected) in [
