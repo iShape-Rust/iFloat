@@ -125,6 +125,13 @@ prove that every later arithmetic expression is safe. Use `try_with_scale` or
 `try_with_scale_and_coordinate_bits` when a caller supplies the scale and
 invalid or unsafe scales must be rejected.
 
+The adapter retains the original floating-point bounds for input validation.
+Integer-to-float conversion checks an internal `IntRect` enclosing those bounds
+on the selected grid (minimum rounded down, maximum rounded up). Snapping a valid
+input can therefore return a grid point just outside the original float bounds.
+`rect()` continues to return the original bounds; `try_snap_to_grid` rejects
+inputs outside them.
+
 ## Fixed-scale ratios
 
 `UnitRatio<I>` represents a value in the inclusive range `0..=1`. Its stored
