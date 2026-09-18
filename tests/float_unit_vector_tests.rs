@@ -46,6 +46,14 @@ macro_rules! float_conversion {
             ] {
                 assert!(UnitIntVector::<$int>::try_from_float(x, y).is_none());
             }
+            for non_finite in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+                for finite in [0.0, 0.5, -1.0] {
+                    for (x, y) in [(non_finite, finite), (finite, non_finite)] {
+                        assert!(UnitIntVector::<$int>::try_from_float(x, y).is_none());
+                        assert!(UnitIntVector::<$int>::try_from_float(x as f32, y as f32).is_none());
+                    }
+                }
+            }
         }
     };
 }

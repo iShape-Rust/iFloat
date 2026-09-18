@@ -45,7 +45,7 @@ impl<T: IntNumber> UnitIntVector<T> {
     #[inline]
     pub fn try_from_float<F: FloatNumber>(x: F, y: F) -> Option<Self> {
         let (x, y) = (x.to_f64(), y.to_f64());
-        if x.abs() > 1.0 || y.abs() > 1.0 {
+        if !x.is_finite() || !y.is_finite() || x.abs() > 1.0 || y.abs() > 1.0 {
             return None;
         }
         let unit = Self::from_float_unchecked(x, y);
