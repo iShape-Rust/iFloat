@@ -249,7 +249,7 @@ impl Angle {
             0xc000_0000 => return (-scale, 0),
             _ => {}
         }
-        let radians = self.0 as f64 * (core::f64::consts::TAU / 4294967296.0);
+        let radians = self.0 as f64 * (TAU / 4294967296.0);
         let (sin, cos) = FloatNumber::sin_cos(radians);
         let (mut sin, mut cos) = (
             (sin * scale as f64).to_round_i32(),

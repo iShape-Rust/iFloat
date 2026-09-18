@@ -199,27 +199,27 @@ impl FloatNumber for f32 {
     // Rounding casts.
     #[inline(always)]
     fn to_round_i16(self) -> i16 {
-        (self + Self::HALF.copysign(self)) as i16
+        libm::roundf(self) as i16
     }
 
     #[inline(always)]
     fn to_round_i32(self) -> i32 {
-        (self + Self::HALF.copysign(self)) as i32
+        libm::roundf(self) as i32
     }
 
     #[inline(always)]
     fn to_round_i64(self) -> i64 {
-        (self + Self::HALF.copysign(self)) as i64
+        libm::roundf(self) as i64
     }
 
     #[inline(always)]
     fn to_round_i128(self) -> i128 {
-        (self + Self::HALF.copysign(self)) as i128
+        libm::roundf(self) as i128
     }
 
     #[inline(always)]
     fn to_round_usize(self) -> usize {
-        (self + Self::HALF) as usize
+        libm::roundf(self) as usize
     }
 }
 
@@ -359,26 +359,26 @@ impl FloatNumber for f64 {
     // Rounding casts.
     #[inline(always)]
     fn to_round_i16(self) -> i16 {
-        (self + Self::HALF.copysign(self)) as i16
+        libm::round(self) as i16
     }
 
     #[inline(always)]
     fn to_round_i32(self) -> i32 {
-        (self + Self::HALF.copysign(self)) as i32
+        libm::round(self) as i32
     }
 
     #[inline(always)]
     fn to_round_i64(self) -> i64 {
-        (self + Self::HALF.copysign(self)) as i64
+        libm::round(self) as i64
     }
 
     #[inline(always)]
     fn to_round_i128(self) -> i128 {
-        (self + Self::HALF.copysign(self)) as i128
+        libm::round(self) as i128
     }
 
     #[inline(always)]
     fn to_round_usize(self) -> usize {
-        (self + Self::HALF) as usize
+        libm::round(self) as usize
     }
 }
