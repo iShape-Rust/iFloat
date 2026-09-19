@@ -15,7 +15,7 @@ pub trait FloatPointCompatible: Copy {
     /// limits. NaN and infinity are rejected.
     #[inline(always)]
     fn is_in_safe_range(&self) -> bool {
-        self.x().abs() <= Self::Scalar::MAX_COORDINATE && self.y().abs() <= Self::Scalar::MAX_COORDINATE
+        self.x().is_in_safe_range() && self.y().is_in_safe_range()
     }
 }
 

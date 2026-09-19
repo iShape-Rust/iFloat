@@ -28,21 +28,16 @@ impl<T: FloatNumber> FloatRect<T> {
     /// [`FloatNumber::MAX_COORDINATE`] limits on both axes.
     #[inline(always)]
     pub fn is_in_safe_range(&self) -> bool {
-        -T::MAX_COORDINATE <= self.min_x
-            && self.min_x <= self.max_x
-            && self.max_x <= T::MAX_COORDINATE
-            && -T::MAX_COORDINATE <= self.min_y
-            && self.min_y <= self.max_y
-            && self.max_y <= T::MAX_COORDINATE
+        self.validate().is_ok()
     }
 
     /// Validates public bounds, including rectangles assembled through fields.
     #[inline]
     pub fn validate(&self) -> Result<(), FloatRectError> {
-        if !(self.min_x.abs() <= T::MAX_COORDINATE
-            && self.max_x.abs() <= T::MAX_COORDINATE
-            && self.min_y.abs() <= T::MAX_COORDINATE
-            && self.max_y.abs() <= T::MAX_COORDINATE)
+        if !(self.min_x.is_in_safe_range()
+            && self.max_x.is_in_safe_range()
+            && self.min_y.is_in_safe_range()
+            && self.max_y.is_in_safe_range())
         {
             return Err(FloatRectError::CoordinatesOutOfRange);
         }

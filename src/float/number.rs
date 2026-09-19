@@ -58,6 +58,15 @@ where
     fn atan2(self, x: Self) -> Self;
     fn signum(self) -> Self;
     fn is_finite(self) -> bool;
+
+    /// Whether this value is within the inclusive geometry input coordinate
+    /// limits defined by [`Self::MAX_COORDINATE`]. NaN and infinity are rejected.
+    /// This check does not apply to adapter scales or intermediate results.
+    #[inline(always)]
+    fn is_in_safe_range(self) -> bool {
+        self.abs() <= Self::MAX_COORDINATE
+    }
+
     // Truncating casts.
     fn to_i16(self) -> i16;
     fn to_i32(self) -> i32;

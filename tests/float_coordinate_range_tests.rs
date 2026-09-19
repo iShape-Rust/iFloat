@@ -9,7 +9,11 @@ use i_float::float::vector::FloatPointMath;
 
 fn check_coordinate_limits<F: FloatNumber>(limit: F, outside: F, nan: F, infinity: F) {
     assert!(F::MAX_COORDINATE == limit);
+    for value in [-F::MIN_POSITIVE, -F::ZERO, F::MIN_POSITIVE] {
+        assert!(value.is_in_safe_range());
+    }
     for x in [-limit, F::ZERO, limit] {
+        assert!(x.is_in_safe_range());
         for y in [-limit, F::ZERO, limit] {
             assert!([x, y].is_in_safe_range());
             assert!(FloatPoint::new(x, y).is_in_safe_range());
@@ -22,6 +26,7 @@ fn check_coordinate_limits<F: FloatNumber>(limit: F, outside: F, nan: F, infinit
             .is_in_safe_range()
     );
     for invalid in [outside, -outside, nan, infinity, -infinity] {
+        assert!(!invalid.is_in_safe_range());
         assert!(![invalid, F::ZERO].is_in_safe_range());
         assert!(![F::ZERO, invalid].is_in_safe_range());
         for bounds in [
@@ -126,6 +131,7 @@ fn rectangle_builders_and_mutators_preserve_valid_bounds() {
             min_y: F::ZERO,
             max_y: F::ONE,
         };
+        assert!(!invalid.is_in_safe_range());
         assert!(
             std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                 FloatPointAdapter::<[F; 2], i32>::new(invalid)
