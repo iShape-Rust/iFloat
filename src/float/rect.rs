@@ -10,6 +10,19 @@ pub enum FloatRectError {
     InvalidBounds,
 }
 
+impl fmt::Display for FloatRectError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::CoordinatesOutOfRange => {
+                f.write_str("A coordinate is non-finite or exceeds the supported absolute limit")
+            }
+            Self::InvalidBounds => f.write_str("A minimum bound is greater than its maximum"),
+        }
+    }
+}
+
+impl core::error::Error for FloatRectError {}
+
 /// Floating-point bounds under the [`crate::float`] coordinate-range contract.
 /// Bounds must be finite, ordered (`min <= max`), and have absolute values at
 /// most `2^60` for `f32` or `2^500` for `f64`. Constructors and checked mutators
