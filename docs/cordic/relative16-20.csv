@@ -1,0 +1,3 @@
+mode,iterations,q,step_deg,radius,setup_median_ns,arc_median_ns,arc_min_ns,arc_max_ns,amortized_ns_point,points_arc,atan_max_error_bits,arc_max_error_units,drift_1024_max_error_units,radial_1024_max_loss_units,max_step_excess_deg,nonmonotone_gaps,relative_divisor,rotation_iterations_min,rotation_iterations_max,rotation_iterations_mean,rotation_max_relative_error,rotation_median_ns
+library_fixed,29,30,20.00000000,65536,65.786,58.649,57.423,61.481,14.910,3.934,3.364758,0.003103,0.307934,0.125796,0.000000000,0,0,29,29,29.000,0.000000315,21.685
+relative,29,30,20.00000000,65536,50.576,44.475,38.270,51.442,11.307,3.934,3.364758,9175.182281,131071.109761,0.105923,6.990962194,0,16,7,14,7.235,0.058800323,6.373

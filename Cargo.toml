@@ -1,6 +1,6 @@
 [package]
 name = "i_float"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Nail Sharipov <nailxsharipov@gmail.com>"]
 edition = "2024"
 rust-version = "1.85"
@@ -20,3 +20,11 @@ serde = ["dep:serde", "core"]
 serde = { version = "^1.0", default-features = false, features = ["derive"], optional = true }
 glam = { optional = true, version = ">=0.27" }
 libm = "^0.2"
+
+[[example]]
+name = "cordic_arc_bench"
+required-features = ["core"]
+
+[[example]]
+name = "cordic_precision"
+required-features = ["core"]

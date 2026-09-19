@@ -28,6 +28,8 @@ pub trait UIntNumber:
     const LAST_BIT_INDEX: u32;
     const ZERO: Self;
     const ONE: Self;
+    const TWO: Self;
+    const FOUR: Self;
     const MAX: Self;
     const LAST_BIT: Self;
 
@@ -49,6 +51,8 @@ impl UIntNumber for u32 {
     const LAST_BIT_INDEX: u32 = 31;
     const ZERO: Self = 0;
     const ONE: Self = 1;
+    const TWO: Self = 2;
+    const FOUR: Self = 4;
     const MAX: Self = Self::MAX;
     const LAST_BIT: Self = Self::ONE << Self::LAST_BIT_INDEX;
 
@@ -99,6 +103,8 @@ impl UIntNumber for u64 {
     const LAST_BIT_INDEX: u32 = 63;
     const ZERO: Self = 0;
     const ONE: Self = 1;
+    const TWO: Self = 2;
+    const FOUR: Self = 4;
     const MAX: Self = Self::MAX;
     const LAST_BIT: Self = Self::ONE << Self::LAST_BIT_INDEX;
 
@@ -150,6 +156,8 @@ impl UIntNumber for u128 {
     const LAST_BIT_INDEX: u32 = 127;
     const ZERO: Self = 0;
     const ONE: Self = 1;
+    const TWO: Self = 2;
+    const FOUR: Self = 4;
     const MAX: Self = Self::MAX;
     const LAST_BIT: Self = Self::ONE << Self::LAST_BIT_INDEX;
     #[inline(always)]

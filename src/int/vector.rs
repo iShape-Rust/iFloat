@@ -1,4 +1,6 @@
 use crate::int::number::int::IntNumber;
+use crate::int::number::wide_int::WideIntNumber;
+use crate::int::unit_vector::UnitIntVector;
 use core::fmt;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -23,6 +25,21 @@ impl<T: IntNumber> IntVector<T> {
         Self { x, y }
     }
 
+    /// Returns an approximate unit direction, or `None` for the zero vector.
+    ///
+    /// Uses integer arithmetic with about 6, 14, or 30 bits of direction precision
+    /// for `i16`, `i32`, or `i64`, respectively. The squared length is shifted
+    /// to retain fractional precision in the reciprocal; the original vector
+    /// components are preserved. The resulting direction has length at most one.
+    ///
+    /// Requires the arithmetic range of [`Self::sqr_length`], as guaranteed for
+    /// point differences by the coordinate range documented on
+    /// [`IntPoint`](crate::int::point::IntPoint).
+    #[inline(always)]
+    pub fn fast_normalize(self) -> Option<UnitIntVector<T>> {
+        UnitIntVector::with_vector(self)
+    }
+
     #[inline(always)]
     pub fn cross_product(self, v: Self) -> T::Wide {
         let a = self.x * v.y;
@@ -39,10 +56,12 @@ impl<T: IntNumber> IntVector<T> {
     }
 
     #[inline(always)]
-    pub fn sqr_length(self) -> T::Wide {
+    pub fn sqr_length(self) -> T::WideUInt {
         let x = self.x;
         let y = self.y;
-        x * x + y * y
+        let xx = x * x;
+        let yy = y * y;
+        xx.to_uint() + yy.to_uint()
     }
 }
 impl<T: IntNumber> fmt::Display for IntVector<T> {

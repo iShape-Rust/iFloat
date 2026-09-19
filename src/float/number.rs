@@ -3,6 +3,10 @@ use crate::int::number::wide_int::WideIntNumber;
 use core::fmt::Display;
 use core::ops::{Add, Div, Mul, Neg, Sub};
 
+/// Scalar operations used by floating-point geometry.
+///
+/// The [`crate::float`] coordinate limits apply to geometry inputs, not to this
+/// trait's full scalar range or to adapter scales.
 pub trait FloatNumber
 where
     Self: Copy
@@ -16,7 +20,15 @@ where
 {
     const MAX: Self;
     const MIN: Self;
+    /// Inclusive maximum absolute input coordinate for floating-point geometry.
+    /// This does not limit adapter scales or the scalar's representable range.
+    const MAX_COORDINATE: Self;
+    /// Smallest positive normal scalar, used as the minimum squared length
+    /// supported by floating-point normalization.
+    const MIN_POSITIVE: Self;
     const BITS: u32;
+    /// One greater than the largest exponent of a finite power of two.
+    const MAX_EXP: i32;
     const ZERO: Self;
     const ONE: Self;
     const TWO: Self;
@@ -42,8 +54,19 @@ where
     fn sin_cos(self) -> (Self, Self);
     fn acos(self) -> Self;
     fn asin(self) -> Self;
+    /// Returns the signed angle in radians for the vector (x, self).
+    fn atan2(self, x: Self) -> Self;
     fn signum(self) -> Self;
     fn is_finite(self) -> bool;
+
+    /// Whether this value is within the inclusive geometry input coordinate
+    /// limits defined by [`Self::MAX_COORDINATE`]. NaN and infinity are rejected.
+    /// This check does not apply to adapter scales or intermediate results.
+    #[inline(always)]
+    fn is_in_safe_range(self) -> bool {
+        self.abs() <= Self::MAX_COORDINATE
+    }
+
     // Truncating casts.
     fn to_i16(self) -> i16;
     fn to_i32(self) -> i32;
@@ -63,7 +86,10 @@ where
 impl FloatNumber for f32 {
     const MAX: Self = f32::MAX;
     const MIN: Self = f32::MIN;
+    const MAX_COORDINATE: Self = f32::from_bits((127 + 60) << 23);
+    const MIN_POSITIVE: Self = f32::MIN_POSITIVE;
     const BITS: u32 = 32;
+    const MAX_EXP: i32 = f32::MAX_EXP;
     const ZERO: Self = 0.0;
     const ONE: Self = 1.0;
     const TWO: Self = 2.0;
@@ -149,6 +175,11 @@ impl FloatNumber for f32 {
     }
 
     #[inline(always)]
+    fn atan2(self, x: Self) -> Self {
+        libm::atan2f(self, x)
+    }
+
+    #[inline(always)]
     fn signum(self) -> Self {
         self.signum()
     }
@@ -192,34 +223,37 @@ impl FloatNumber for f32 {
     // Rounding casts.
     #[inline(always)]
     fn to_round_i16(self) -> i16 {
-        (self + Self::HALF.copysign(self)) as i16
+        libm::roundf(self) as i16
     }
 
     #[inline(always)]
     fn to_round_i32(self) -> i32 {
-        (self + Self::HALF.copysign(self)) as i32
+        libm::roundf(self) as i32
     }
 
     #[inline(always)]
     fn to_round_i64(self) -> i64 {
-        (self + Self::HALF.copysign(self)) as i64
+        libm::roundf(self) as i64
     }
 
     #[inline(always)]
     fn to_round_i128(self) -> i128 {
-        (self + Self::HALF.copysign(self)) as i128
+        libm::roundf(self) as i128
     }
 
     #[inline(always)]
     fn to_round_usize(self) -> usize {
-        (self + Self::HALF) as usize
+        libm::roundf(self) as usize
     }
 }
 
 impl FloatNumber for f64 {
     const MAX: Self = f64::MAX;
     const MIN: Self = f64::MIN;
+    const MAX_COORDINATE: Self = f64::from_bits((1023 + 500) << 52);
+    const MIN_POSITIVE: Self = f64::MIN_POSITIVE;
     const BITS: u32 = 64;
+    const MAX_EXP: i32 = f64::MAX_EXP;
     const ZERO: Self = 0.0;
     const ONE: Self = 1.0;
     const TWO: Self = 2.0;
@@ -304,6 +338,11 @@ impl FloatNumber for f64 {
     }
 
     #[inline(always)]
+    fn atan2(self, x: Self) -> Self {
+        libm::atan2(self, x)
+    }
+
+    #[inline(always)]
     fn signum(self) -> Self {
         self.signum()
     }
@@ -347,26 +386,26 @@ impl FloatNumber for f64 {
     // Rounding casts.
     #[inline(always)]
     fn to_round_i16(self) -> i16 {
-        (self + Self::HALF.copysign(self)) as i16
+        libm::round(self) as i16
     }
 
     #[inline(always)]
     fn to_round_i32(self) -> i32 {
-        (self + Self::HALF.copysign(self)) as i32
+        libm::round(self) as i32
     }
 
     #[inline(always)]
     fn to_round_i64(self) -> i64 {
-        (self + Self::HALF.copysign(self)) as i64
+        libm::round(self) as i64
     }
 
     #[inline(always)]
     fn to_round_i128(self) -> i128 {
-        (self + Self::HALF.copysign(self)) as i128
+        libm::round(self) as i128
     }
 
     #[inline(always)]
     fn to_round_usize(self) -> usize {
-        (self + Self::HALF) as usize
+        libm::round(self) as usize
     }
 }

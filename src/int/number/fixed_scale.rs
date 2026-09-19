@@ -20,6 +20,14 @@ impl<I: IntNumber> FixedScale<I> {
         I::from_wide(Self::div_round(scaled, Self::DENOMINATOR))
     }
 
+    /// Returns `numerator * DENOMINATOR / denominator`, rounded to the nearest
+    /// integer with midpoint values away from zero.
+    ///
+    /// # Preconditions
+    /// The caller must ensure that `denominator` is neither zero nor
+    /// `I::Wide::MIN`, and that the rounded scaled result fits in `I::Wide`.
+    /// The intermediate product uses extended-width arithmetic.
+    /// Inputs outside this contract may panic or produce an incorrect result.
     #[inline(always)]
     pub fn div_to_scaled_round(numerator: I::Wide, denominator: I::Wide) -> I::Wide {
         debug_assert!(denominator != I::Wide::ZERO);
@@ -34,6 +42,13 @@ impl<I: IntNumber> FixedScale<I> {
         Self::from_unsigned_abs(quotient, negative)
     }
 
+    /// Returns `numerator / denominator`, rounded to the nearest integer with
+    /// midpoint values away from zero.
+    ///
+    /// # Preconditions
+    /// The caller must ensure that `denominator` is neither zero nor
+    /// `I::Wide::MIN`, and that the rounded result fits in `I::Wide`.
+    /// Inputs outside this contract may panic or produce an incorrect result.
     #[inline(always)]
     pub fn div_round(numerator: I::Wide, denominator: I::Wide) -> I::Wide {
         debug_assert!(denominator != I::Wide::ZERO);

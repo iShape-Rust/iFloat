@@ -65,8 +65,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check feature configuration
-        run: cargo check ${{ matrix.args }}
+      - name: Test feature configuration
+        run: cargo test ${{ matrix.args }}
 
   msrv:
     name: MSRV / Rust 1.85
