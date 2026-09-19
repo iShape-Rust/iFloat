@@ -3,6 +3,10 @@ use crate::int::number::wide_int::WideIntNumber;
 use core::fmt::Display;
 use core::ops::{Add, Div, Mul, Neg, Sub};
 
+/// Scalar operations used by floating-point geometry.
+///
+/// The [`crate::float`] coordinate limits apply to geometry inputs, not to this
+/// trait's full scalar range or to adapter scales.
 pub trait FloatNumber
 where
     Self: Copy
@@ -16,7 +20,15 @@ where
 {
     const MAX: Self;
     const MIN: Self;
+    /// Inclusive maximum absolute input coordinate for floating-point geometry.
+    /// This does not limit adapter scales or the scalar's representable range.
+    const MAX_COORDINATE: Self;
+    /// Smallest positive normal scalar, used as the minimum squared length
+    /// supported by floating-point normalization.
+    const MIN_POSITIVE: Self;
     const BITS: u32;
+    /// One greater than the largest exponent of a finite power of two.
+    const MAX_EXP: i32;
     const ZERO: Self;
     const ONE: Self;
     const TWO: Self;
@@ -65,7 +77,10 @@ where
 impl FloatNumber for f32 {
     const MAX: Self = f32::MAX;
     const MIN: Self = f32::MIN;
+    const MAX_COORDINATE: Self = f32::from_bits((127 + 60) << 23);
+    const MIN_POSITIVE: Self = f32::MIN_POSITIVE;
     const BITS: u32 = 32;
+    const MAX_EXP: i32 = f32::MAX_EXP;
     const ZERO: Self = 0.0;
     const ONE: Self = 1.0;
     const TWO: Self = 2.0;
@@ -226,7 +241,10 @@ impl FloatNumber for f32 {
 impl FloatNumber for f64 {
     const MAX: Self = f64::MAX;
     const MIN: Self = f64::MIN;
+    const MAX_COORDINATE: Self = f64::from_bits((1023 + 500) << 52);
+    const MIN_POSITIVE: Self = f64::MIN_POSITIVE;
     const BITS: u32 = 64;
+    const MAX_EXP: i32 = f64::MAX_EXP;
     const ZERO: Self = 0.0;
     const ONE: Self = 1.0;
     const TWO: Self = 2.0;

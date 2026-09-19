@@ -15,7 +15,7 @@ The crate is `no_std` and supports `i16`, `i32`, and `i64` coordinate types.
 
 ```toml
 [dependencies]
-i_float = "4.0"
+i_float = "5.0"
 ```
 
 The default `core` feature exposes the complete numeric and geometry API.
@@ -68,8 +68,9 @@ fit. Conversely, an `IntVector` constructed directly from arbitrary wide values
 is not covered by the point-coordinate bound.
 
 Floating-point input should normally be mapped with `FloatPointAdapter`. For an
-explicit general-purpose safety margin, use `with_coordinate_bits` with at most
-`I::BITS - 3`; algorithms with stronger range analysis may select a larger bit
+explicit general-purpose safety margin, use the conservative constructors. Their
+`CONSERVATIVE_COORDINATE_BITS = I::BITS - 3` budget reserves an extra bit for
+rounding within the arithmetic range; algorithms with stronger range analysis may select a larger bit
 budget.
 
 ### Fast normalization
@@ -97,17 +98,43 @@ of type `T` (or `.scale(scalar)`) returns an `IntVector<T>`, rounding to the
 nearest integer with midpoint values away from zero. Approximation error in
 the direction grows with the magnitude of the scalar.
 
+## Floating-point coordinate range
+
+Floating-point geometry supports finite input coordinates and rectangle bounds
+within these inclusive limits:
+
+| Scalar | Maximum absolute coordinate |
+| --- | --- |
+| `f32` | `2^60` (approximately `1.15e18`) |
+| `f64` | `2^500` (approximately `3.27e150`) |
+
+These limits leave headroom for point differences, their dot and cross products,
+squared lengths, and midpoints without overflow. They do not guarantee exact
+arithmetic: ordinary floating-point rounding, cancellation, and underflow still
+apply. Arbitrary scaling and repeated operations require their own range analysis.
+
+`FloatPoint::normalize` and `FloatPointMath::normalize` additionally require a
+positive, finite, normal squared length: at least `f32::MIN_POSITIVE` or
+`f64::MIN_POSITIVE`. A nonzero vector alone is insufficient because squaring tiny
+components can underflow. Rescale such vectors before normalizing them.
+
 ## Floating-point adapter
 
 `FloatPointAdapter` maps a bounded floating-point coordinate space onto an
 integer grid. The same adapter converts results back into the original space.
+Its input bounds must satisfy the floating-point coordinate range above and
+have `min <= max` on each axis. All adapter constructors validate bounds,
+including rectangles assembled through public fields. Fallible constructors
+return `FloatPointAdapterScaleError::InvalidRect`; infallible constructors panic.
+Checked point conversions validate membership in the original rectangle or
+the enclosing integer grid.
 
 ```rust
 use i_float::adapter::FloatPointAdapter;
 use i_float::float::rect::FloatRect;
 use i_float::int::point::IntPoint;
 
-let bounds = FloatRect::new(-10.0_f64, 10.0, -5.0, 5.0);
+let bounds = FloatRect::new(-10.0_f64, 10.0, -5.0, 5.0).unwrap();
 let adapter = FloatPointAdapter::<[f64; 2], i32>::new(bounds);
 
 let source = [2.5, -1.25];
@@ -119,11 +146,50 @@ assert!((restored[0] - source[0]).abs() <= tolerance);
 assert!((restored[1] - source[1]).abs() <= tolerance);
 ```
 
+Use `new_conservative(rect)` or `with_iter_conservative(iter)` for automatic
+scaling with the conservative coordinate range. Use
+`try_with_scale_conservative(rect, scale)` or
+`try_with_iter_and_scale_conservative(iter, scale)` to validate an explicit scale
+against the same budget. The associated `CONSERVATIVE_COORDINATE_BITS` constant
+is `I::BITS - 3`: converted coordinates stay within the inclusive range
+`[-2^(I::BITS - 3), 2^(I::BITS - 3)]`, leaving an extra bit for rounding inside
+the strict point arithmetic range.
+
 Use `with_coordinate_bits` when an algorithm has an explicit coordinate-bit
 budget. The value controls only the converted coordinate magnitude; it does not
 prove that every later arithmetic expression is safe. Use `try_with_scale` or
 `try_with_scale_and_coordinate_bits` when a caller supplies the scale and
 invalid or unsafe scales must be rejected.
+
+For input iterators, use `with_iter_and_coordinate_bits` or
+`try_with_iter_and_scale_and_coordinate_bits`. Both accept any `IntNumber`
+implementation, so downstream algorithms can share these constructors while
+choosing their own bit budget:
+
+```rust
+use i_float::adapter::FloatPointAdapter;
+
+let points = [[-3.0_f64, -1.0], [3.0, 1.0]];
+let adapter = FloatPointAdapter::<[f64; 2], i32>::with_iter_and_coordinate_bits(
+    points.iter(), i32::BITS - 3,
+);
+let fixed = FloatPointAdapter::<[f64; 2], i32>::try_with_iter_and_scale_and_coordinate_bits(
+    points.iter(), 100.0, i32::BITS - 3,
+)?;
+assert_eq!(fixed.dir_scale(), 100.0);
+# Ok::<(), i_float::adapter::FloatPointAdapterScaleError>(())
+```
+
+`new` and `with_iter` return the adapter directly and panic for invalid bounds
+or input points. An empty iterator uses zero bounds and scale one.
+
+Automatic scales are capped at the largest finite power of two of the scalar
+type (`2^127` for `f32`, `2^1023` for `f64`), trading precision for finite scales
+on very small bounds. Within the supported coordinate range, automatic scales
+have finite reciprocals. Checked constructors preserve explicit scales and return
+`ScaleTooSmall` if the reciprocal is non-finite. `with_scale` panics for invalid
+scales. `with_coordinate_bits` panics for invalid bounds or a bit budget greater
+than `I::BITS - 2`.
 
 The adapter retains the original floating-point bounds for input validation.
 Integer-to-float conversion checks an internal `IntRect` enclosing those bounds

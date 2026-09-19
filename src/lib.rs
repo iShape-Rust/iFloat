@@ -1,5 +1,9 @@
 #![no_std]
-#![doc = include_str!("../README.md")]
+#![cfg_attr(feature = "core", doc = include_str!("../README.md"))]
+#![cfg_attr(
+    not(feature = "core"),
+    doc = "Enable the `core` feature (enabled by default) to use the numeric and geometry API."
+)]
 extern crate alloc;
 
 #[cfg(feature = "core")]

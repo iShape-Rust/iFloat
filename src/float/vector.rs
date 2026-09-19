@@ -1,6 +1,9 @@
 use crate::float::compatible::FloatPointCompatible;
 use crate::float::number::FloatNumber;
 
+/// Arithmetic for compatible points under the [`crate::float`]
+/// coordinate-range contract. Normalization checks its squared length in debug
+/// builds; other arithmetic does not perform range checks.
 pub struct FloatPointMath<P> {
     _phantom: core::marker::PhantomData<P>,
 }
@@ -31,9 +34,21 @@ impl<P: FloatPointCompatible> FloatPointMath<P> {
         Self::sqr_length(p).sqrt()
     }
 
+    /// Returns an approximately unit-length vector.
+    ///
+    /// Requires a positive, finite, normal [`Self::sqr_length`]: at least
+    /// `f32::MIN_POSITIVE` or `f64::MIN_POSITIVE`. Rescale vectors with smaller
+    /// squared lengths before normalizing. Zero vectors and vectors outside
+    /// this contract are unsupported and may produce zero, infinity, or NaN.
+    /// Debug builds assert these preconditions.
     #[inline(always)]
     pub fn normalize(p: &P) -> P {
-        let inv_len = P::Scalar::ONE / Self::length(p);
+        let sqr_length = Self::sqr_length(p);
+        debug_assert!(
+            sqr_length.is_finite() && sqr_length >= P::Scalar::MIN_POSITIVE,
+            "Normalization requires a positive finite normal squared length"
+        );
+        let inv_len = P::Scalar::ONE / sqr_length.sqrt();
         P::from_xy(p.x() * inv_len, p.y() * inv_len)
     }
 

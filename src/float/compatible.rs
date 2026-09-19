@@ -10,6 +10,13 @@ pub trait FloatPointCompatible: Copy {
     fn is_finite(&self) -> bool {
         self.x().is_finite() && self.y().is_finite()
     }
+
+    /// Whether both coordinates satisfy the inclusive [`crate::float`] input
+    /// limits. NaN and infinity are rejected.
+    #[inline(always)]
+    fn is_in_safe_range(&self) -> bool {
+        self.x().abs() <= Self::Scalar::MAX_COORDINATE && self.y().abs() <= Self::Scalar::MAX_COORDINATE
+    }
 }
 
 impl<T: FloatNumber> FloatPointCompatible for [T; 2] {

@@ -1,3 +1,5 @@
+#![cfg(feature = "core")]
+
 use i_float::float::number::FloatNumber;
 use i_float::int::angle::{Angle, AngleDelta};
 use i_float::int::number::wide_int::WideIntNumber;

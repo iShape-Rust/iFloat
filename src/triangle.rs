@@ -42,6 +42,12 @@ impl Triangle {
         Self::area_two(p0, p2, p1).signum()
     }
 
+    /// Tests whether the point is inside the triangle, including its border.
+    ///
+    /// # Preconditions
+    /// The triangle must be non-degenerate: `area_two(p0, p1, p2) != 0`.
+    /// Collinear or coincident vertices are unsupported and may produce
+    /// incorrect containment results. Use [`Self::is_not_line`] to check first.
     #[inline]
     pub fn is_contain<T: IntNumber>(
         p: IntPoint<T>,
@@ -59,6 +65,12 @@ impl Triangle {
         !(has_neg && has_pos)
     }
 
+    /// Tests whether the point is outside the triangle's strict interior,
+    /// including points on its border.
+    ///
+    /// # Preconditions
+    /// The triangle must be non-degenerate. Collinear or coincident vertices
+    /// are unsupported; see [`Self::is_contain`] for the containment contract.
     #[inline]
     pub fn is_not_contain<T: IntNumber>(
         p: IntPoint<T>,
@@ -75,6 +87,11 @@ impl Triangle {
 
         has_neg && has_pos
     }
+    /// Tests whether the point is strictly inside the triangle, excluding its border.
+    ///
+    /// # Preconditions
+    /// The triangle must be non-degenerate. Collinear or coincident vertices
+    /// are unsupported; see [`Self::is_contain`] for the containment contract.
     #[inline]
     pub fn is_contain_exclude_borders<T: IntNumber>(
         p: IntPoint<T>,
